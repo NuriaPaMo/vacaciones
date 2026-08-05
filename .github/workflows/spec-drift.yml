@@ -1,0 +1,258 @@
+name: Spec Drift Detection
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Every Monday at 08:00 UTC
+  workflow_dispatch:
+    inputs:
+      specs_path:
+        description: 'Path to specs (default: specs/)'
+        required: false
+        default: 'specs/'
+      src_path:
+        description: 'Path to source code (default: src/)'
+        required: false
+        default: 'src/'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  detect-drift:
+    name: 🔍 Detect Spec Drift
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # ─────────────────────────────────────────────────────────────────────
+      # Collect specs
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Collect spec files
+        id: specs
+        run: |
+          SPECS_PATH="${{ github.event.inputs.specs_path || 'specs/' }}"
+
+          if [ ! -d "$SPECS_PATH" ]; then
+            echo "⏭️ No specs directory found at $SPECS_PATH — skipping drift analysis."
+            echo "count=0" >> $GITHUB_OUTPUT
+            echo "content=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Gather all markdown specs (feature.md, requirements.md, contracts)
+          SPEC_CONTENT=""
+          while IFS= read -r file; do
+            SPEC_CONTENT+="
+          ### $file
+          $(cat "$file")
+          ---"
+          done < <(find "$SPECS_PATH" -name "*.md" | sort)
+
+          # Limit size to avoid token overflow (~30k chars)
+          SPEC_TRIMMED=$(echo "$SPEC_CONTENT" | head -c 30000)
+
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "content<<$EOF" >> $GITHUB_OUTPUT
+          echo "$SPEC_TRIMMED" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+          echo "count=$(find "$SPECS_PATH" -name "*.md" | wc -l)" >> $GITHUB_OUTPUT
+
+      # ─────────────────────────────────────────────────────────────────────
+      # Collect source code summary
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Collect source code structure
+        id: source
+        run: |
+          SRC_PATH="${{ github.event.inputs.src_path || 'src/' }}"
+
+          if [ ! -d "$SRC_PATH" ]; then
+            echo "⏭️ No source directory found at $SRC_PATH — skipping drift analysis."
+            echo "content=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # File tree (structure)
+          TREE=$(find "$SRC_PATH" -type f \( -name "*.cs" -o -name "*.ts" -o -name "*.tsx" \) \
+            | sort | sed "s|$SRC_PATH||" | head -200)
+
+          # Sample public API surface: interfaces, controllers, commands, queries
+          API_SURFACE=$(grep -r \
+            --include="*.cs" --include="*.ts" \
+            -E "(interface |class |Controller|Command|Query|Handler|public )" \
+            "$SRC_PATH" 2>/dev/null \
+            | grep -v "//\|test\|spec\|\.spec\." \
+            | head -c 15000)
+
+          COMBINED="## File Structure
+          $TREE
+
+          ## Public API Surface (interfaces, controllers, commands)
+          $API_SURFACE"
+
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "content<<$EOF" >> $GITHUB_OUTPUT
+          echo "$COMBINED" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      # ─────────────────────────────────────────────────────────────────────
+      # Extract bolt-analyze agent system prompt
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Extract Bolt Analyze agent prompt
+        id: agent
+        run: |
+          AGENT_SYSTEM=$(awk '/^---$/{count++; if(count==2){found=1; next}} found{print}' \
+            .github/agents/bolt-analyze.agent.md)
+
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "system<<$EOF" >> $GITHUB_OUTPUT
+          echo "$AGENT_SYSTEM" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      # ─────────────────────────────────────────────────────────────────────
+      # Analyse drift via AI (OpenAI-compatible chat/completions format)
+      #
+      # Repository variables (optional — defaults to GitHub Models):
+      #   vars.AI_ENDPOINT  Full chat-completions URL
+      #                     Default: https://models.inference.ai.azure.com/chat/completions
+      #   vars.AI_MODEL     Model identifier
+      #                     Default: gpt-4o
+      #
+      # Repository secret (optional):
+      #   secrets.AI_API_KEY  API key / token for the chosen provider.
+      #                       Required for non-GitHub-Models endpoints (see security note below).
+      #
+      # Provider quick-reference (must expose OpenAI-compatible /chat/completions API):
+      #   GitHub Models  → no vars needed, works out of the box
+      #   OpenAI         → endpoint: https://api.openai.com/v1/chat/completions
+      #                    model: gpt-4o  |  AI_API_KEY: sk-...
+      #   Azure OpenAI   → endpoint: https://<resource>.openai.azure.com/openai/deployments/<dep>/chat/completions?api-version=2024-02-01
+      #                    model: gpt-4o  |  AI_API_KEY: <azure-key>
+      #   GitHub Copilot → endpoint: https://api.githubcopilot.com/chat/completions
+      #                    model: gpt-4o  |  AI_API_KEY: <copilot-token>
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Analyse spec drift with AI
+        id: analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AI_ENDPOINT: ${{ vars.AI_ENDPOINT }} # Optional override for AI endpoint (sample: https://api.openai.com/v1/chat/completions)
+          AI_MODEL: ${{ vars.AI_MODEL }} # Optional override for AI model (sample: gpt-4o, claude-opus-4-5)
+          AI_API_KEY: ${{ secrets.AI_API_KEY }} # Required for non-GitHub-Models endpoints; falls back to GITHUB_TOKEN only for models.inference.ai.azure.com
+          SPECS: ${{ steps.specs.outputs.content }}
+          SOURCE: ${{ steps.source.outputs.content }}
+          AGENT_SYSTEM: ${{ steps.agent.outputs.system }}
+        run: |
+          # Resolve provider config — fall back to GitHub Models defaults
+          ENDPOINT="${AI_ENDPOINT:-https://models.inference.ai.azure.com/chat/completions}"
+          MODEL="${AI_MODEL:-gpt-4o}"
+
+          # Only use GITHUB_TOKEN as fallback for GitHub-hosted endpoints.
+          # For third-party providers, AI_API_KEY is required to avoid leaking the repo token.
+          GITHUB_MODELS_HOST="models.inference.ai.azure.com"
+          if [ -n "$AI_API_KEY" ]; then
+            AUTH_TOKEN="$AI_API_KEY"
+          elif [[ "$ENDPOINT" == *"$GITHUB_MODELS_HOST"* ]]; then
+            AUTH_TOKEN="$GITHUB_TOKEN"
+          else
+            echo "❌ AI_API_KEY is required when using a non-GitHub Models endpoint." >&2
+            exit 1
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg system "$AGENT_SYSTEM" \
+            --arg specs  "$SPECS" \
+            --arg source "$SOURCE" \
+            --arg model  "$MODEL" \
+            '{
+              model: $model,
+              messages: [
+                { role: "system", content: $system },
+                { role: "user", content: ("You are performing a weekly SPEC DRIFT analysis for a Bolt Framework project.\n\nCompare the SPECIFICATIONS below against the SOURCE CODE STRUCTURE and identify:\n\n1. **Implemented correctly** — specs that have clear matching implementation\n2. **Partially implemented** — specs with gaps or incomplete coverage\n3. **Not implemented** — specs with no evidence of implementation\n4. **Orphan code** — code patterns that do not map back to any spec\n5. **Drift risk score** — overall 0-10 (0=perfect alignment, 10=severe drift)\n\nBe concise. Focus on actionable findings. Group by feature/bounded context.\n\n--- SPECIFICATIONS ---\n" + $specs + "\n\n--- SOURCE CODE ---\n" + $source) }
+              ],
+              max_tokens: 2000,
+              temperature: 0.2
+            }')
+
+          RESPONSE=$(curl -s \
+            -X POST \
+            -H "Authorization: Bearer $AUTH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "$ENDPOINT")
+
+          REPORT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "⚠️ Could not generate analysis."')
+
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "report<<$EOF" >> $GITHUB_OUTPUT
+          echo "$REPORT" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      # ─────────────────────────────────────────────────────────────────────
+      # Post results: close previous drift issue (if any) and open a new one
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Close previous drift issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find open issues with the drift label and close them
+          PREVIOUS=$(gh issue list \
+            --label "spec-drift" \
+            --state open \
+            --json number \
+            --jq '.[].number')
+
+          for NUM in $PREVIOUS; do
+            gh issue close "$NUM" --comment "Superseded by new weekly drift report."
+          done
+
+      - name: Create drift report issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPORT: ${{ steps.analysis.outputs.report }}
+        run: |
+          WEEK=$(date +"%Y-W%V")
+          SPEC_COUNT="${{ steps.specs.outputs.count }}"
+
+          BODY="## 🔍 Spec Drift Report — $WEEK
+
+          > **Automated weekly analysis** comparing \`specs/\` against \`src/\` using Bolt Analyze agent.
+          > Specs analysed: **$SPEC_COUNT files**
+          > Run: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ---
+
+          $REPORT
+
+          ---
+          *Generated by [spec-drift workflow](.github/workflows/spec-drift.yml) · $(date -u '+%Y-%m-%d %H:%M UTC')*"
+
+          # Only assign to a real user — skip on scheduled runs where actor is github-actions[bot]
+          ACTOR="${{ github.actor }}"
+          ASSIGNEE_FLAG=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [[ "$ACTOR" != *"[bot]"* ]]; then
+            ASSIGNEE_FLAG="--assignee $ACTOR"
+          fi
+
+          gh issue create \
+            --title "🔍 Spec Drift Report — $WEEK" \
+            --body "$BODY" \
+            --label "spec-drift,technical-debt" \
+            $ASSIGNEE_FLAG
+
+      # ─────────────────────────────────────────────────────────────────────
+      # Also write a workflow summary for quick viewing in Actions tab
+      # ─────────────────────────────────────────────────────────────────────
+      - name: Write workflow summary
+        env:
+          REPORT: ${{ steps.analysis.outputs.report }}
+        run: |
+          echo "## 🔍 Spec Drift Report — $(date +"%Y-W%V")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Specs analysed:** ${{ steps.specs.outputs.count }} files" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "$REPORT" >> $GITHUB_STEP_SUMMARY

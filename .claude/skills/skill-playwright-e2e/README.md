@@ -1,0 +1,226 @@
+# Playwright E2E Testing Skill
+
+Este skill proporciona guías completas y mejores prácticas para testing end-to-end usando Playwright en aplicaciones web modernas.
+
+## ¿Por qué este skill?
+
+- **Cross-browser**: Tests en Chromium, Firefox, WebKit automáticamente
+- **Auto-waiting**: Esperas inteligentes built-in, sin sleeps arbitrarios
+- **Screenshots & Videos**: Captura automática para debugging
+- **TypeScript/C#**: Soporte para ambos ecosistemas
+- **CI/CD Ready**: Ejecución paralela y reporting integrado
+
+## Ejemplos de Uso
+
+### Ejemplo 1: Generar Test E2E para User Journey
+
+**Input al Copilot:**
+
+```text
+Genera un test E2E para el flujo de login y crear time entry
+```
+
+**Copilot cargará este skill y generará:**
+
+```typescript
+test('should login and create time entry', async ({ page }) => {
+  // Login
+  await page.goto('/login');
+  await page.locator('input[name="email"]').fill('user@example.com');
+  await page.locator('input[type="password"]').fill('password');
+  await page.locator('button[type="submit"]').click();
+  
+  await expect(page).toHaveURL('/dashboard');
+  
+  // Create entry
+  await page.locator('button:has-text("New Entry")').click();
+  await page.locator('input[name="hours"]').fill('2');
+  await page.locator('select[name="account"]').selectOption('Development');
+  await page.locator('button:has-text("Save")').click();
+  
+  // Verify
+  await expect(page.locator('.success-message')).toContainText('Entry created');
+});
+```
+
+### Ejemplo 2: Crear Page Object Model
+
+**Input al Copilot:**
+
+```text
+Crea un Page Object para la página de time entries
+```
+
+**Copilot generará:**
+
+```typescript
+export class TimeEntriesPage {
+  readonly page: Page;
+  readonly newEntryButton: Locator;
+  readonly hoursInput: Locator;
+  readonly accountSelect: Locator;
+  readonly saveButton: Locator;
+  readonly entriesList: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.newEntryButton = page.locator('button:has-text("New Entry")');
+    this.hoursInput = page.locator('input[name="hours"]');
+    this.accountSelect = page.locator('select[name="account"]');
+    this.saveButton = page.locator('button[type="submit"]');
+    this.entriesList = page.locator('[data-testid="entries-list"]');
+  }
+
+  async createEntry(hours: number, account: string) {
+    await this.newEntryButton.click();
+    await this.hoursInput.fill(hours.toString());
+    await this.accountSelect.selectOption(account);
+    await this.saveButton.click();
+  }
+
+  async getEntriesCount(): Promise<number> {
+    return await this.entriesList.locator('tr').count();
+  }
+}
+```
+
+### Ejemplo 3: Generar Test con API Mocking
+
+**Input al Copilot:**
+
+```text
+Genera test E2E que mockea la API de accounts para simular error 500
+```
+
+**Copilot generará:**
+
+```typescript
+test('should handle API errors gracefully', async ({ page }) => {
+  // Mock API error
+  await page.route('**/api/accounts', route => {
+    route.fulfill({
+      status: 500,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 'Internal Server Error' })
+    });
+  });
+
+  await page.goto('/accounts');
+  
+  // Verify error handling
+  await expect(page.locator('[role="alert"]')).toContainText('Failed to load accounts');
+  await expect(page.locator('.retry-button')).toBeVisible();
+});
+```
+
+### Ejemplo 4: Visual Regression Testing
+
+**Input al Copilot:**
+
+```text
+Genera test de visual regression para el dashboard
+```
+
+**Copilot generará:**
+
+```typescript
+test('dashboard layout should match snapshot', async ({ page }) => {
+  await page.goto('/dashboard');
+  await page.waitForLoadState('networkidle');
+  
+  await expect(page).toHaveScreenshot('dashboard.png', {
+    fullPage: true,
+    maxDiffPixels: 100,
+  });
+});
+```
+
+### Ejemplo 5: Accessibility Testing
+
+**Input al Copilot:**
+
+```text
+Genera test de accesibilidad WCAG para formulario de login
+```
+
+**Copilot generará:**
+
+```typescript
+import AxeBuilder from '@axe-core/playwright';
+
+test('login form should have no accessibility violations', async ({ page }) => {
+  await page.goto('/login');
+
+  const accessibilityScanResults = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa'])
+    .analyze();
+
+  expect(accessibilityScanResults.violations).toEqual([]);
+});
+```
+
+## Best Practices Enforced
+
+### Locators
+
+- ✅ Role-based: `page.getByRole('button', { name: 'Submit' })`
+- ✅ Label-based: `page.getByLabel('Email')`
+- ✅ Test IDs: `page.getByTestId('user-menu')`
+- ❌ CSS selectors frágiles
+
+### Assertions
+
+- ✅ Auto-waiting: `expect(locator).toBeVisible()`
+- ✅ Multiple checks: soft assertions
+- ❌ Fixed waits: `page.waitForTimeout()`
+
+### Test Organization
+
+- ✅ Page Object Model para reusabilidad
+- ✅ Fixtures para autenticación
+- ✅ Tests independientes
+- ❌ Compartir estado entre tests
+
+## Configuración de Browsers
+
+```typescript
+// playwright.config.ts - Generated by skill
+projects: [
+  { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+  { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  { name: 'mobile', use: { ...devices['Pixel 5'] } },
+]
+```
+
+## Integración con Bolt Framework
+
+Este skill se integra con:
+
+- **@Bolt Framework Testing**: Agente para generar tests E2E
+- **Constitution**: Lee configuración de browsers y targets
+- **CI/CD**: Genera configuración para GitHub Actions
+- **Reporting**: Integración con HTML reporter y screenshots
+
+## Test Coverage
+
+Enfocado en el **10% superior** de la pirámide de testing:
+
+- User journeys críticos
+- Flujos de negocio end-to-end
+- Validación cross-browser
+- Regresión visual
+
+## Archivos Relacionados
+
+- [SKILL.md](./SKILL.md) - Instrucciones principales
+- [../skill-backend-testing-dotnet](../skill-backend-testing-dotnet/) - Integration tests relacionados
+- [../skill-gherkin-reqnroll](../skill-gherkin-reqnroll/) - BDD specs que pueden automatizarse
+- [../../agents/bolt-testing.agent.md](../../agents/bolt-testing.agent.md) - Agente Testing
+
+## Referencias
+
+- [Playwright Documentation](https://playwright.dev/)
+- [Playwright for .NET](https://playwright.dev/dotnet/)
+- [Best Practices](https://playwright.dev/docs/best-practices)
+- [Accessibility Testing](https://playwright.dev/docs/accessibility-testing)

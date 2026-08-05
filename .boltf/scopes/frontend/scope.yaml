@@ -1,0 +1,327 @@
+version: 1
+scope: frontend
+description: Artefactos frontend reutilizables para el proyecto destino.
+items:
+  # ============================================
+  # FRONTEND UI/UX SKILLS
+  # ============================================
+
+  - id: frontend-design-skill
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['design', 'ui', 'tailwind']
+    source:
+      type: local_folder
+      path: available-skills/ui-common/frontend-design
+    destination:
+      folder: .claude/skills
+      name: frontend-design
+    description: >
+      Distinctive frontend design for Angular/React/Vue with Tailwind CSS.
+      Bold aesthetics and modern design patterns.
+
+  - id: frontend-tailwind-design-system
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['tailwind', 'design-system', 'css']
+    source:
+      type: local_folder
+      path: available-skills/ui-common/tailwind-design-system
+    destination:
+      folder: .claude/skills
+      name: tailwind-design-system
+    description: >
+      Tailwind v4 design systems with CSS-first config, design tokens, and OKLCH colors.
+      Modern approach to scalable design systems.
+
+  - id: frontend-web-design-reviewer
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['design', 'review', 'validation']
+    source:
+      type: local_folder
+      path: available-skills/ui-common/web-design-reviewer
+    destination:
+      folder: .claude/skills
+      name: web-design-reviewer
+    description: >
+      Visual inspection and design validation with browser automation.
+      Fix design issues at source level.
+
+  - id: frontend-senior-frontend
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['react', 'typescript', 'architecture']
+    source:
+      type: local_folder
+      path: available-skills/frontend/senior-frontend
+    destination:
+      folder: .claude/skills
+      name: senior-frontend
+    description: >
+      Complete frontend toolkit (React/Next/TypeScript) with component generator and bundle analyzer.
+      Framework-agnostic architecture patterns.
+
+  # ============================================
+  # OBSERVABILITY & TELEMETRY
+  # ============================================
+
+  - id: frontend-aspire-opentelemetry
+    kind: skills
+    enabled: false
+    auto_provision: false
+    tags: ['aspire', 'opentelemetry', 'csharp']
+    source:
+      type: local_folder
+      path: available-skills/aspire/skill-aspire-opentelemetry-frontend
+    destination:
+      folder: .claude/skills
+      name: aspire-opentelemetry-frontend
+    description: >
+      OpenTelemetry instrumentation for frontend apps (Angular/React) with .NET Aspire dashboard integration.
+      Distributed tracing from browser to backend with W3C Trace Context propagation.
+      CRITICAL: Use when project has Aspire backend and needs E2E observability.
+
+  # ============================================
+  # MCP & EXTERNAL RESOURCES
+  # ============================================
+
+  - id: frontend-mcp-settings-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'settings']
+    source:
+      type: local_file
+      path: scopes/frontend/mcp-tools/default.mcp.settings.json
+    destination:
+      folder: .vscode
+      name: settings.json
+
+  - id: frontend-mcp-servers-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'servers']
+    source:
+      type: local_file
+      path: scopes/frontend/mcp-tools/default.mcp.servers.json
+    destination:
+      folder: .vscode
+      name: mcp.json
+
+  # Penpot design-token export config.
+  # GATING (manual — there is no conditional engine in scope.yaml): the bolt-constitution
+  # agent / bolt-penpot setup provisions this item ONLY when
+  # decisions.frontend.design-tool != none. `enabled: false` keeps it inert by default.
+  # Pairs with the bolt-penpot agent (core, always copied) and the Penpot MCP server above.
+  - id: frontend-penpot-export-config
+    kind: templates
+    enabled: false
+    auto_provision: false
+    tags: ['penpot', 'design-tokens', 'tailwind']
+    source:
+      type: local_file
+      path: scopes/frontend/templates/.penpot-export.config.js
+    destination:
+      folder: .
+      name: .penpot-export.config.js
+    description: >
+      Penpot → Tailwind v4 design-token export config (@penpot-export/cli).
+      Provisioned when the project integrates Penpot (penpot-local | penpot-remote).
+      See docs/integrations/penpot-integration-plan.md.
+
+  - id: frontend-react-awesome
+    kind: instructions
+    enabled: false
+    tags: ['frontend', 'react']
+    source:
+      type: awesome_copilot
+      collection: frontend-web-dev
+      item_path: instructions/reactjs.instructions.md
+      resolved_url: https://github.com/github/awesome-copilot/tree/main/collections/frontend-web-dev/instructions/reactjs.instructions.md
+      resolved_ref: main
+      resolved_doc_id: frontend-web-dev/instructions/reactjs.instructions.md
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .github/instructions
+      name: reactjs.instructions.md
+
+  - id: frontend-angular-awesome
+    kind: instructions
+    enabled: false
+    tags: ['frontend', 'angular']
+    source:
+      type: awesome_copilot
+      collection: frontend-web-dev
+      item_path: instructions/angular.instructions.md
+      resolved_url: https://github.com/github/awesome-copilot/tree/main/collections/frontend-web-dev/instructions/angular.instructions.md
+      resolved_ref: main
+      resolved_doc_id: frontend-web-dev/instructions/angular.instructions.md
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .github/instructions
+      name: angular.instructions.md
+
+  - id: frontend-vue-awesome
+    kind: instructions
+    enabled: false
+    tags: ['frontend', 'vue']
+    source:
+      type: awesome_copilot
+      collection: frontend-web-dev
+      item_path: instructions/vuejs3.instructions.md
+      resolved_url: https://github.com/github/awesome-copilot/tree/main/collections/frontend-web-dev/instructions/vuejs3.instructions.md
+      resolved_ref: main
+      resolved_doc_id: frontend-web-dev/instructions/vuejs3.instructions.md
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .github/instructions
+      name: vuejs3.instructions.md
+
+  - id: frontend-playwright-generator-awesome
+    kind: prompts
+    enabled: false
+    tags: ['playwright', 'testing']
+    source:
+      type: awesome_copilot
+      collection: frontend-web-dev
+      item_path: prompts/playwright-generate-test.prompt.md
+      resolved_url: https://github.com/github/awesome-copilot/tree/main/collections/frontend-web-dev/prompts/playwright-generate-test.prompt.md
+      resolved_ref: main
+      resolved_doc_id: frontend-web-dev/prompts/playwright-generate-test.prompt.md
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .github/prompts
+      name: playwright-generate-test.prompt.md
+
+  - id: frontend-anthropic-frontend-design-awesome-skills
+    kind: skills
+    enabled: false
+    tags: ['frontend', 'design']
+    source:
+      type: awesome_skills
+      catalog_url: https://awesome-skills.com/
+      repository: https://github.com/anthropics/skills
+      skill_path: skills/frontend-design
+      listing_url: https://github.com/anthropics/skills/tree/main/skills/frontend-design
+      resolved_url: https://github.com/anthropics/skills/tree/main/skills/frontend-design
+      resolved_ref: main
+      resolved_doc_id: anthropics/skills/frontend-design
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .claude/skills
+      name: frontend-design
+
+  # Vue.js Skills (organizados por tecnología)
+  - id: frontend-vue-best-practices-skill
+    kind: skills
+    enabled: false
+    tags: ['frontend', 'vue', 'composition-api']
+    source:
+      type: local_folder
+      path: available-skills/vue/vue-best-practices
+    destination:
+      folder: .claude/skills
+      name: vue-best-practices
+
+  - id: frontend-vue-debug-guides-skill
+    kind: skills
+    enabled: false
+    tags: ['frontend', 'vue', 'debugging']
+    source:
+      type: local_folder
+      path: available-skills/vue/vue-debug-guides
+    destination:
+      folder: .claude/skills
+      name: vue-debug-guides
+
+  - id: frontend-vue-pinia-skill
+    kind: skills
+    enabled: false
+    tags: ['frontend', 'vue', 'state-management']
+    source:
+      type: local_folder
+      path: available-skills/vue/vue-pinia-best-practices
+    destination:
+      folder: .claude/skills
+      name: vue-pinia-best-practices
+
+  - id: frontend-vue-router-skill
+    kind: skills
+    enabled: false
+    tags: ['frontend', 'vue', 'routing']
+    source:
+      type: local_folder
+      path: available-skills/vue/vue-router-best-practices
+    destination:
+      folder: .claude/skills
+      name: vue-router-best-practices
+
+  - id: frontend-vue-testing-skill
+    kind: skills
+    enabled: false
+    tags: ['frontend', 'vue', 'testing']
+    source:
+      type: local_folder
+      path: available-skills/vue/vue-testing-best-practices
+    destination:
+      folder: .claude/skills
+      name: vue-testing-best-practices
+
+  - id: frontend-vue-composable-skill
+    kind: skills
+    enabled: false
+    tags: ['frontend', 'vue', 'composables']
+    source:
+      type: local_folder
+      path: available-skills/vue/create-adaptable-composable
+    destination:
+      folder: .claude/skills
+      name: create-adaptable-composable
+
+  - id: frontend-vue-jsx-skill
+    kind: skills
+    enabled: false
+    tags: ['frontend', 'vue', 'jsx']
+    source:
+      type: local_folder
+      path: available-skills/vue/vue-jsx-best-practices
+    destination:
+      folder: .claude/skills
+      name: vue-jsx-best-practices
+
+  - id: frontend-vue-options-api-skill
+    kind: skills
+    enabled: false
+    tags: ['frontend', 'vue', 'options-api']
+    source:
+      type: local_folder
+      path: available-skills/vue/vue-options-api-best-practices
+    destination:
+      folder: .claude/skills
+      name: vue-options-api-best-practices
+
+  - id: frontend-constitution
+    kind: templates
+    enabled: true
+    auto_provision: true # Automatically copy when scope is active
+    tags: ['constitution', 'memory']
+    source:
+      type: local_file
+      path: scopes/frontend/memory/constitution.md
+    destination:
+      folder: memory
+      name: constitution.md

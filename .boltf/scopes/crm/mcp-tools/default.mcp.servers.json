@@ -1,0 +1,57 @@
+{
+    "servers": {
+        "github": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@github/github-mcp-server@latest"
+            ]
+        },
+        "azureDevOps": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@azure-devops/mcp@latest"
+            ]
+        },
+        "azure": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@azure/mcp@latest",
+                "server",
+                "start"
+            ]
+        },
+        "atlassian": {
+            "type": "http",
+            "url": "https://mcp.atlassian.com/v1/mcp"
+        },
+        "monday": {
+            "type": "http",
+            "url": "https://mcp.monday.com/mcp"
+        },
+        "notion": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@notionhq/notion-mcp-server"
+            ],
+            "env": {
+                "NOTION_TOKEN": "${input:notion-token}"
+            }
+        }
+    },
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "notion-token",
+            "description": "Notion integration token",
+            "password": true
+        }
+    ]
+}

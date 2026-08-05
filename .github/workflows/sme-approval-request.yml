@@ -1,0 +1,127 @@
+name: "📨 SME Approval Request (Reusable)"
+
+# Reusable workflow — called by issue-access-triage.yml when an access-request
+# issue is opened and doesn't yet have the 'approved-by-smes' label.
+#
+# What it does:
+#   1. Checks if the issue already has 'approved-by-smes' (idempotency guard).
+#   2. Posts an approval-request comment tagging @boltf-smes with /approve instructions.
+#   3. Adds the 'pending-approval' label.
+#   4. Assigns the issue to all current members of the boltf-smes team.
+#
+# Required secrets (inherited from caller):
+#   ORG_TOKEN — PAT with read:org scope to list team members.
+
+on:
+  workflow_call:
+    inputs:
+      issue_number:
+        description: "The number of the issue requiring approval"
+        required: true
+        type: number
+
+jobs:
+  request-approval:
+    name: "Post approval request to boltf-smes"
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Verify ORG_TOKEN secret is configured
+        env:
+          ORG_TOKEN: ${{ secrets.ORG_TOKEN }}
+        run: |
+          if [ -z "$ORG_TOKEN" ]; then
+            echo "❌ ORG_TOKEN secret is not set."
+            echo "   Go to Settings → Secrets and variables → Actions"
+            echo "   and add a classic PAT with scopes: read:org, admin:org"
+            exit 1
+          fi
+          echo "✅ ORG_TOKEN is present"
+
+      - name: Check for existing approval label
+        id: check-label
+        run: |
+          LABELS=$(gh issue view "${{ inputs.issue_number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json labels -q '.labels[].name')
+          if echo "$LABELS" | grep -qx "approved-by-smes"; then
+            echo "already_approved=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_approved=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post approval request comment
+        if: steps.check-label.outputs.already_approved == 'false'
+        run: |
+          BODY="## 🔐 Access Request — SME Approval Required
+
+          This access request has been received and requires approval from the **@Avanade-Region-Spain/boltf-smes** team before any access is granted.
+
+          ---
+
+          **To approve** this request, a member of \`boltf-smes\` must comment:
+          \`\`\`
+          /approve
+          \`\`\`
+
+          **To reject** this request, a member of \`boltf-smes\` must comment:
+          \`\`\`
+          /reject <reason>
+          \`\`\`
+
+          > ⚠️ Only members of \`@Avanade-Region-Spain/boltf-smes\` can approve or reject access requests."
+
+          gh issue comment "${{ inputs.issue_number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --body "$BODY"
+
+      - name: Add pending-approval label
+        if: steps.check-label.outputs.already_approved == 'false'
+        run: |
+          gh issue edit "${{ inputs.issue_number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --add-label "pending-approval"
+
+      - name: Assign issue to boltf-smes team members
+        if: steps.check-label.outputs.already_approved == 'false'
+        env:
+          ORG_TOKEN: ${{ secrets.ORG_TOKEN }}
+        run: |
+          HTTP_STATUS=$(curl -s -o /tmp/members.json -w "%{http_code}" \
+            -H "Authorization: Bearer $ORG_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/orgs/Avanade-Region-Spain/teams/boltf-smes/members?per_page=100")
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "❌ Failed to fetch boltf-smes members — HTTP $HTTP_STATUS"
+            cat /tmp/members.json
+            exit 1
+          fi
+
+          MEMBERS_JSON=$(jq 'if type == "array" then [.[].login] else [] end' /tmp/members.json)
+
+          if [ "$MEMBERS_JSON" = "[]" ] || [ -z "$MEMBERS_JSON" ]; then
+            echo "⚠️ No members found in boltf-smes — skipping assignment."
+            exit 0
+          fi
+
+          echo "→ Assigning: $MEMBERS_JSON"
+
+          HTTP_STATUS=$(curl -s -o /tmp/assign_response.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
+            -d "{\"assignees\": $MEMBERS_JSON}" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/${{ inputs.issue_number }}/assignees")
+
+          if [ "$HTTP_STATUS" = "201" ]; then
+            echo "✅ All boltf-smes members assigned (HTTP $HTTP_STATUS)"
+          else
+            echo "❌ Assignment failed — HTTP $HTTP_STATUS"
+            cat /tmp/assign_response.json
+            exit 1
+          fi

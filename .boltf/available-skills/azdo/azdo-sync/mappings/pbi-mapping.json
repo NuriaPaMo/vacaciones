@@ -1,0 +1,143 @@
+{
+  "$schema": "./mapping-schema.json",
+  "workItemType": "Product Backlog Item",
+  "referenceName": "Microsoft.VSTS.WorkItemTypes.ProductBacklogItem",
+  "description": "Product Backlog Item - equivalent to User Story in BOLT",
+  "color": "009CCC",
+  "icon": "icon_book",
+  "boltArtifact": "specs/XXX-feature-name/requirements/requirements.md (User Story section)",
+  "mappings": {
+    "core": {
+      "System.Title": {
+        "boltSource": "requirements.md#user-story.title",
+        "description": "User story title in 'As a [role] I want [goal]' format",
+        "required": true,
+        "transformation": null,
+        "example": "As an employee I want to log daily hours so I can track my time"
+      },
+      "System.Description": {
+        "boltSource": "requirements.md#user-story.description",
+        "description": "Detailed user story description",
+        "required": false,
+        "transformation": "markdown-to-html"
+      },
+      "System.State": {
+        "boltSource": "computed:user-story-state",
+        "description": "State based on task completion",
+        "required": true,
+        "allowedValues": [
+          "New",
+          "Approved",
+          "Committed",
+          "Done",
+          "Removed"
+        ],
+        "mapping": {
+          "not-started": "New",
+          "planned": "Approved",
+          "in-progress": "Committed",
+          "completed": "Done"
+        },
+        "defaultValue": "New"
+      },
+      "System.AssignedTo": {
+        "boltSource": "requirements.md#user-story.assignedTo",
+        "description": "Developer assigned to user story",
+        "required": false
+      }
+    },
+    "planning": {
+      "Microsoft.VSTS.Scheduling.Effort": {
+        "boltSource": "requirements.md#user-story.effort",
+        "description": "Story points or effort estimate",
+        "required": false,
+        "type": "double",
+        "example": 8
+      },
+      "Microsoft.VSTS.Common.Priority": {
+        "boltSource": "requirements.md#user-story.priority",
+        "description": "User story priority",
+        "required": false,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "defaultValue": 2
+      }
+    },
+    "business": {
+      "Microsoft.VSTS.Common.BusinessValue": {
+        "boltSource": "requirements.md#user-story.businessValue",
+        "description": "Business value score",
+        "required": false,
+        "type": "integer"
+      },
+      "Microsoft.VSTS.Common.ValueArea": {
+        "boltSource": "requirements.md#user-story.valueArea",
+        "description": "Value area classification",
+        "required": false,
+        "allowedValues": [
+          "Business",
+          "Architectural"
+        ],
+        "defaultValue": "Business"
+      }
+    },
+    "criteria": {
+      "Microsoft.VSTS.Common.AcceptanceCriteria": {
+        "boltSource": "requirements.md#user-story.acceptance-criteria",
+        "description": "Acceptance criteria from user story",
+        "required": false,
+        "transformation": "markdown-to-html-list",
+        "extractPattern": "### Acceptance Criteria\\n([\\s\\S]*?)(?=###|##|$)"
+      }
+    },
+    "classification": {
+      "System.AreaPath": {
+        "boltSource": "inherited:parent-feature",
+        "description": "Area path inherited from parent Feature",
+        "required": true,
+        "transformation": "path"
+      },
+      "System.IterationPath": {
+        "boltSource": "planning/tasks.md#iteration",
+        "description": "Sprint assignment for this user story",
+        "required": false,
+        "transformation": "path"
+      },
+      "System.Tags": {
+        "boltSource": "computed:tags",
+        "description": "Tags including feature ID and story ID",
+        "required": false,
+        "transformation": "semicolon-separated",
+        "computation": "concat('Bolt Framework', featureId, storyId)",
+        "example": "Bolt Framework;001-time-tracking;US-001"
+      }
+    }
+  },
+  "relationships": {
+    "parent": {
+      "linkType": "System.LinkTypes.Hierarchy-Reverse",
+      "targetType": "Feature",
+      "boltSource": "computed:parent-feature",
+      "description": "Parent Feature work item",
+      "required": true
+    },
+    "children": {
+      "linkType": "System.LinkTypes.Hierarchy-Forward",
+      "targetType": "Task",
+      "boltSource": "planning/tasks.md#bolt-tasks-for-story",
+      "description": "Bolt tasks implementing this user story"
+    }
+  },
+  "notes": [
+    "Product Backlog Item is the Scrum equivalent of User Story",
+    "Each user story in requirements.md becomes one PBI work item",
+    "Title should follow user story format: 'As a [role] I want [goal] so that [benefit]'",
+    "State transitions automatically based on child Task completion",
+    "PBIs are always children of Feature work items",
+    "Acceptance criteria converted from markdown list to HTML for DevOps"
+  ]
+}

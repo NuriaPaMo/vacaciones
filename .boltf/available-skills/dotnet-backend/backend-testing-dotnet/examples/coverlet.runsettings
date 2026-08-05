@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Place at repo root and pass to dotnet test --settings coverlet.runsettings -->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura,json,lcov,opencover</Format>
+          <!-- Exclude test/migration code from coverage stats -->
+          <Exclude>[*.Tests]*,[*.UnitTests]*,[*.IntegrationTests]*,[*]*.Migrations.*</Exclude>
+          <!-- Replace with your root namespace -->
+          <Include>[Peritec.*]*</Include>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+          <SingleHit>false</SingleHit>
+          <UseSourceLink>true</UseSourceLink>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

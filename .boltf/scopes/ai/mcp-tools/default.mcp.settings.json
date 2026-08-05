@@ -1,0 +1,25 @@
+{
+    "chat.mcp.access": {
+        "allowedServers": [
+            "context7",
+            "azure",
+            "github"
+        ],
+        "blockedServers": [
+            "desktopCommander",
+            "firecrawl"
+        ]
+    },
+    "chat.mcp.tools": {
+        "enabled": [
+            "docsSearch",
+            "docsFetch",
+            "codeSampleSearch",
+            "repoRead"
+        ],
+        "disabled": [
+            "repoAdminWrite",
+            "databaseWrite"
+        ]
+    }
+}

@@ -1,0 +1,104 @@
+name: "👥 Add User to Learning Group (Reusable)"
+
+# Reusable workflow — called by issue-access-triage.yml once the
+# 'approved-by-smes' label has been added to an access-request issue.
+#
+# What it does:
+#   1. Fetches the full issue body via the GitHub API.
+#   2. Parses the 'GitHub Username' field rendered by the issue form.
+#   3. Calls the GitHub API (Octokit) to add the user to the 'boltf-learning' team.
+#   4. Adds the 'access-granted' label and closes the issue.
+#
+# Required secrets:
+#   ORG_TOKEN — Personal Access Token (classic) with scope: admin:org
+#               This scope is mandatory to add members to a GitHub organisation team.
+#               Create at: https://github.com/settings/tokens
+#               Add to repo secrets at: Settings → Secrets and variables → Actions
+
+on:
+    workflow_call:
+        inputs:
+            issue_number:
+                description: "The number of the approved access-request issue"
+                required: true
+                type: number
+
+jobs:
+    add-to-group:
+        name: "Add GitHub user to boltf-learning team"
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+        env:
+            GH_TOKEN: ${{ github.token }}
+            ORG_TOKEN: ${{ secrets.ORG_TOKEN }}
+        steps:
+            - name: Fetch issue body and parse GitHub username
+              id: parse-user
+              run: |
+                  BODY=$(gh issue view "${{ inputs.issue_number }}" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json body -q '.body')
+
+                  # GitHub issue forms render fields as:  ### <Label>\n\n<value>
+                  USERNAME=$(echo "$BODY" | grep -A2 "### GitHub Username" | tail -n1 | sed 's/^@//' | tr -d '[:space:]')
+
+                  if [ -z "$USERNAME" ] || [ "$USERNAME" = "_No response_" ]; then
+                    echo "❌ Could not extract GitHub username from issue body." >&2
+                    exit 1
+                  fi
+
+                  echo "username=$USERNAME" >> "$GITHUB_OUTPUT"
+                  echo "✅ Parsed username: $USERNAME"
+
+            - name: Add user to boltf-learning team
+              run: |
+                  USERNAME="${{ steps.parse-user.outputs.username }}"
+                  HTTP_STATUS=$(curl -s -o /tmp/team_response.json -w "%{http_code}" \
+                    -X PUT \
+                    -H "Authorization: Bearer $ORG_TOKEN" \
+                    -H "Accept: application/vnd.github+json" \
+                    -H "Content-Type: application/json" \
+                    -d '{"role":"member"}' \
+                    "https://api.github.com/orgs/Avanade-Region-Spain/teams/boltf-learning/memberships/$USERNAME")
+
+                  if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "201" ]; then
+                    echo "✅ @$USERNAME added to boltf-learning (HTTP $HTTP_STATUS)"
+                  else
+                    echo "❌ Failed to add @$USERNAME — HTTP $HTTP_STATUS"
+                    cat /tmp/team_response.json
+                    exit 1
+                  fi
+
+            - name: Comment on issue and close it
+              run: |
+                  USERNAME="${{ steps.parse-user.outputs.username }}"
+
+                  BODY="🎉 **Access granted!** @$USERNAME has been successfully added to the **boltf-learning** team.
+
+                  Welcome to the team! You should receive a GitHub notification with your invitation.
+
+                  _This issue has been automatically closed._"
+
+                  gh issue comment "${{ inputs.issue_number }}" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --body "$BODY"
+
+                  gh issue edit "${{ inputs.issue_number }}" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --add-label "access-granted"
+
+                  gh issue close "${{ inputs.issue_number }}" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --reason "completed"
+
+            - name: Close issue with error if workflow failed
+              if: failure()
+              run: |
+                  gh issue comment "${{ inputs.issue_number }}" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --body "⚠️ **Access grant failed.** The workflow encountered an error while processing this request. Please check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details and re-open the issue or contact the \`boltf-smes\` team."
+
+                  gh issue close "${{ inputs.issue_number }}" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --reason "not planned"

@@ -1,0 +1,275 @@
+# Bolt Framework Technical Evolution Check
+# Weekly health check and evolution recommendations
+
+name: Evolution Health Check
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9:00 AM UTC
+  workflow_dispatch:
+    inputs:
+      full_report:
+        description: 'Generate full evolution report'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  # ============================================================================
+  # Dependency Health Check
+  # ============================================================================
+  dependency-health:
+    name: Dependency Health Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check outdated dependencies
+        id: outdated
+        run: |
+          npm outdated --json > outdated.json || true
+          OUTDATED_COUNT=$(cat outdated.json | jq 'length')
+          echo "outdated_count=$OUTDATED_COUNT" >> $GITHUB_OUTPUT
+          echo "Found $OUTDATED_COUNT outdated packages"
+
+      - name: Security audit
+        id: audit
+        run: |
+          npm audit --json > audit.json || true
+          CRITICAL=$(cat audit.json | jq '.metadata.vulnerabilities.critical // 0')
+          HIGH=$(cat audit.json | jq '.metadata.vulnerabilities.high // 0')
+          echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+          echo "high=$HIGH" >> $GITHUB_OUTPUT
+
+      - name: Generate dependency report
+        run: |
+          echo "## Dependency Health Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Outdated Packages" >> $GITHUB_STEP_SUMMARY
+          echo "- **Total outdated:** ${{ steps.outdated.outputs.outdated_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Security Vulnerabilities" >> $GITHUB_STEP_SUMMARY
+          echo "- **Critical:** ${{ steps.audit.outputs.critical }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **High:** ${{ steps.audit.outputs.high }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload dependency reports
+        uses: actions/upload-artifact@v5
+        with:
+          name: dependency-reports
+          path: |
+            outdated.json
+            audit.json
+
+  # ============================================================================
+  # Code Quality Metrics
+  # ============================================================================
+  code-quality:
+    name: Code Quality Metrics
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test:unit -- --coverage || true
+
+      - name: Calculate complexity metrics
+        run: |
+          npx plato -r -d reports/complexity src || echo "Plato not configured"
+
+      - name: Count code statistics
+        id: stats
+        run: |
+          echo "Counting code statistics..."
+          TOTAL_FILES=$(find src -name "*.ts" -o -name "*.js" | wc -l)
+          TOTAL_LINES=$(find src -name "*.ts" -o -name "*.js" -exec cat {} \; | wc -l)
+          TEST_FILES=$(find tests -name "*.test.*" -o -name "*.spec.*" 2>/dev/null | wc -l)
+          
+          echo "total_files=$TOTAL_FILES" >> $GITHUB_OUTPUT
+          echo "total_lines=$TOTAL_LINES" >> $GITHUB_OUTPUT
+          echo "test_files=$TEST_FILES" >> $GITHUB_OUTPUT
+
+      - name: Check code duplication
+        run: |
+          npx jscpd src --threshold 5 --reporters json --output reports/duplication || true
+
+      - name: Generate quality report
+        run: |
+          echo "## Code Quality Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Source Files | ${{ steps.stats.outputs.total_files }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lines of Code | ${{ steps.stats.outputs.total_lines }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Files | ${{ steps.stats.outputs.test_files }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # Technical Debt Assessment
+  # ============================================================================
+  tech-debt:
+    name: Technical Debt Assessment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Count TODOs and FIXMEs
+        id: todos
+        run: |
+          TODO_COUNT=$(grep -r "TODO" --include="*.ts" --include="*.js" src | wc -l)
+          FIXME_COUNT=$(grep -r "FIXME" --include="*.ts" --include="*.js" src | wc -l)
+          HACK_COUNT=$(grep -r "HACK" --include="*.ts" --include="*.js" src | wc -l)
+          
+          echo "todos=$TODO_COUNT" >> $GITHUB_OUTPUT
+          echo "fixmes=$FIXME_COUNT" >> $GITHUB_OUTPUT
+          echo "hacks=$HACK_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Check for deprecated usage
+        run: |
+          echo "Checking for deprecated API usage..."
+          grep -r "@deprecated" --include="*.ts" src || echo "No deprecated markers found"
+
+      - name: Analyze code age
+        run: |
+          echo "Analyzing file modification history..."
+          # Find files not modified in 6+ months
+          find src -type f -mtime +180 -name "*.ts" 2>/dev/null | head -20 || true
+
+      - name: Generate tech debt report
+        run: |
+          echo "## Technical Debt Assessment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Code Markers" >> $GITHUB_STEP_SUMMARY
+          echo "| Marker | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| TODO | ${{ steps.todos.outputs.todos }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| FIXME | ${{ steps.todos.outputs.fixmes }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| HACK | ${{ steps.todos.outputs.hacks }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # Architecture Compliance
+  # ============================================================================
+  architecture-check:
+    name: Architecture Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Check ADR status
+        run: |
+          if [ -d "adr" ] || [ -d "docs/adr" ]; then
+            ADR_COUNT=$(find . -path "*/adr/*.md" | wc -l)
+            SUPERSEDED=$(grep -l "Status: Superseded" adr/*.md 2>/dev/null | wc -l || echo 0)
+            echo "Found $ADR_COUNT ADRs ($SUPERSEDED superseded)"
+          else
+            echo "No ADR directory found"
+          fi
+
+      - name: Validate folder structure
+        run: |
+          echo "Validating project structure..."
+          EXPECTED_DIRS=("src" "tests" "docs")
+          for dir in "${EXPECTED_DIRS[@]}"; do
+            if [ -d "$dir" ]; then
+              echo "✅ $dir exists"
+            else
+              echo "⚠️ $dir missing"
+            fi
+          done
+
+      - name: Check circular dependencies
+        run: |
+          npx madge --circular src || true
+
+  # ============================================================================
+  # Evolution Recommendations
+  # ============================================================================
+  recommendations:
+    name: Generate Recommendations
+    runs-on: ubuntu-latest
+    needs: [dependency-health, code-quality, tech-debt, architecture-check]
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: dependency-reports
+          path: reports
+
+      - name: Generate evolution recommendations
+        run: |
+          echo "## Evolution Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check critical vulnerabilities
+          if [ -f "reports/audit.json" ]; then
+            CRITICAL=$(cat reports/audit.json | jq '.metadata.vulnerabilities.critical // 0')
+            if [ "$CRITICAL" -gt 0 ]; then
+              echo "### 🔴 Critical Actions" >> $GITHUB_STEP_SUMMARY
+              echo "- **$CRITICAL critical vulnerabilities** require immediate attention" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          # Check outdated dependencies
+          if [ -f "reports/outdated.json" ]; then
+            MAJOR_UPDATES=$(cat reports/outdated.json | jq '[.[] | select(.current != .wanted)] | length')
+            if [ "$MAJOR_UPDATES" -gt 5 ]; then
+              echo "### 🟠 High Priority" >> $GITHUB_STEP_SUMMARY
+              echo "- Consider scheduling a dependency update sprint ($MAJOR_UPDATES packages outdated)" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review security vulnerabilities in audit report" >> $GITHUB_STEP_SUMMARY
+          echo "2. Plan dependency updates for next sprint" >> $GITHUB_STEP_SUMMARY
+          echo "3. Address TODO/FIXME markers with oldest timestamps" >> $GITHUB_STEP_SUMMARY
+          echo "4. Review and update stale ADRs" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create issue for critical items
+        if: github.event.inputs.full_report == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `[Evolution] Weekly Health Check - ${new Date().toISOString().split('T')[0]}`;
+            const body = `## Weekly Evolution Health Check
+            
+            This issue was automatically created by the Evolution Health Check workflow.
+            
+            ### Action Items
+            - [ ] Review dependency vulnerabilities
+            - [ ] Check outdated packages
+            - [ ] Review technical debt markers
+            - [ ] Update ADRs if needed
+            
+            See workflow run for detailed reports.
+            `;
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['evolution', 'tech-debt', 'automated']
+            });

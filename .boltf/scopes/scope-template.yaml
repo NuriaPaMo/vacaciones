@@ -1,0 +1,109 @@
+version: 1
+scope: <scope-name>
+description: <short-description>
+mcp_tools:
+  - id: <scope-name>-mcp-settings
+    source_file: mcp-tools/default.mcp.settings.json
+    destination:
+      folder: .vscode
+      name: settings.json
+items:
+  - id: <scope-name>-mcp-settings-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'settings']
+    source:
+      type: local_file
+      path: scopes/<scope-name>/mcp-tools/default.mcp.settings.json
+    destination:
+      folder: .vscode
+      name: settings.json
+
+  - id: <scope-name>-mcp-servers-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'servers']
+    source:
+      type: local_file
+      path: scopes/<scope-name>/mcp-tools/default.mcp.servers.json
+    destination:
+      folder: .vscode
+      name: mcp.json
+
+  - id: <unique-id>
+    kind: instructions
+    enabled: false
+    tags: ['tag-1', 'tag-2']
+    source:
+      type: local_file
+      path: scopes/<scope-name>/instructions/<file>.instructions.md
+    destination:
+      folder: .github/instructions
+      name: <target-file>.instructions.md
+
+  - id: <context7-item-id>
+    kind: prompts
+    enabled: false
+    tags: ['csharp', 'api']
+    source:
+      type: context7
+      library: /dotnet/aspnetcore.docs
+      query: Configure Minimal API with OpenAPI and Swagger
+      resolved_url: <resolved-doc-url>
+      resolved_ref: <doc-version-or-snapshot>
+      resolved_doc_id: <stable-doc-id>
+      content_hash: sha256:<hex>
+      fetched_at: <YYYY-MM-DDTHH:MM:SSZ>
+      license: <license-or-terms>
+    destination:
+      folder: .github/prompts
+      name: <context7-derived>.prompt.md
+
+  - id: <awesome-item-id>
+    kind: instructions
+    enabled: false
+    tags: ['csharp', 'guidelines']
+    source:
+      type: awesome_copilot
+      collection: csharp-dotnet-development
+      item_path: instructions/csharp.instructions.md
+      resolved_url: <collection-item-url>
+      resolved_ref: <collection-version-or-commit>
+      resolved_doc_id: <collection/item-identifier>
+      content_hash: sha256:<hex>
+      fetched_at: <YYYY-MM-DDTHH:MM:SSZ>
+      license: <license-or-terms>
+    destination:
+      folder: .github/instructions
+      name: csharp.instructions.md
+
+  - id: <scope-name>-constitution
+    kind: templates
+    enabled: true
+    tags: ['constitution', 'memory']
+    source:
+      type: local_file
+      path: scopes/<scope-name>/memory/constitution.md
+    destination:
+      folder: memory
+      name: constitution.md
+
+  - id: <awesome-skills-item-id>
+    kind: skills
+    enabled: false
+    tags: ['frontend', 'ui']
+    source:
+      type: awesome_skills
+      catalog_url: https://awesome-skills.com/
+      repository: https://github.com/anthropics/skills
+      skill_path: skills/frontend-design
+      listing_url: https://github.com/anthropics/skills/tree/main/skills/frontend-design
+      resolved_url: <resolved-repository-or-skill-url>
+      resolved_ref: <branch-tag-or-commit>
+      resolved_doc_id: <owner/repo/skill-identifier>
+      content_hash: sha256:<hex>
+      fetched_at: <YYYY-MM-DDTHH:MM:SSZ>
+      license: <license-or-terms>
+    destination:
+      folder: .claude/skills
+      name: <target-skill-folder>

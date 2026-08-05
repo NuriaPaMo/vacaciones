@@ -1,0 +1,191 @@
+openapi: 3.0.1
+info:
+  title: "{{ NombreProyecto }} API"
+  version: "1.0.0"
+  description: "Documentación generada desde controllers ASP.NET Core"
+servers:
+  - url: "https://localhost:{{ puerto }}"
+    description: "Desarrollo local"
+
+paths:
+  /api/{{ recurso }}:
+    get:
+      summary: "Obtiene {{ recurso }} con paginación"
+      operationId: "get{{ NombreRecurso }}s"
+      tags: ["{{ NombreRecurso }}"]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: "Número de página"
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+          description: "Tamaño de página"
+      responses:
+        "200":
+          description: "Éxito"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResult{{ Dto }}"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    post:
+      summary: "Crea un nuevo {{ recurso }}"
+      operationId: "create{{ NombreRecurso }}"
+      tags: ["{{ NombreRecurso }}"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Create{{ Dto }}Request"
+      responses:
+        "201":
+          description: "Creado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/{{ Dto }}"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/{{ recurso }}/{id}:
+    get:
+      summary: "Obtiene un {{ recurso }} por ID"
+      operationId: "get{{ NombreRecurso }}ById"
+      tags: ["{{ NombreRecurso }}"]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: "Éxito"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/{{ Dto }}"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      summary: "Actualiza un {{ recurso }}"
+      operationId: "update{{ NombreRecurso }}"
+      tags: ["{{ NombreRecurso }}"]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Update{{ Dto }}Request"
+      responses:
+        "200":
+          description: "Actualizado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/{{ Dto }}"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      summary: "Elimina un {{ recurso }}"
+      operationId: "delete{{ NombreRecurso }}"
+      tags: ["{{ NombreRecurso }}"]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: "Eliminado"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+
+    PagedResult{{ Dto }}:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/{{ Dto }}"
+        totalCount:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+
+    {{ Dto }}:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        # Añadir propiedades específicas del DTO
+
+    Create{{ Dto }}Request:
+      type: object
+      required: []
+      properties:
+        # Añadir propiedades del request de creación
+
+    Update{{ Dto }}Request:
+      type: object
+      properties:
+        # Añadir propiedades del request de actualización
+
+  responses:
+    BadRequest:
+      description: "Petición inválida"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: "Recurso no encontrado"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: "No autorizado"

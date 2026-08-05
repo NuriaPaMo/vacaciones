@@ -1,0 +1,160 @@
+version: 1
+scope: work-management
+description: Sincronización de features, use cases, bolts, tareas y dependencias con sistemas de gestión (Azure DevOps, GitHub Projects, Jira).
+items:
+  - id: work-management-cicd-orchestrator-skill
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['cicd', 'orchestrator']
+    source:
+      type: local_folder
+      path: scopes/common/skills/skill-cicd-pipeline-azure
+    destination:
+      folder: .claude/skills
+      name: skill-cicd-pipeline-azure
+
+  - id: work-management-github-actions-templates-skill
+    kind: skills
+    enabled: true
+    auto_provision: true
+    condition: "cicd_platform == 'github-actions'"
+    tags: ['cicd', 'github-actions']
+    source:
+      type: local_folder
+      path: available-skills/github/github-actions-templates
+    destination:
+      folder: .claude/skills
+      name: github-actions-templates
+
+  - id: work-management-azdo-pipeline-templates-skill
+    kind: skills
+    enabled: true
+    auto_provision: true
+    condition: "cicd_platform == 'azure-devops'"
+    tags: ['cicd', 'azure-devops', 'pipelines']
+    source:
+      type: local_folder
+      path: available-skills/azdo/skill-azdo-pipeline-templates
+    destination:
+      folder: .claude/skills
+      name: skill-azdo-pipeline-templates
+
+  - id: work-management-mcp-settings-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'settings']
+    source:
+      type: local_file
+      path: scopes/work-management/mcp-tools/default.mcp.settings.json
+    destination:
+      folder: .vscode
+      name: settings.json
+
+  - id: work-management-mcp-servers-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'servers']
+    source:
+      type: local_file
+      path: scopes/work-management/mcp-tools/default.mcp.servers.json
+    destination:
+      folder: .vscode
+      name: mcp.json
+
+  - id: work-management-azure-devops-sync-skill
+    kind: skills
+    enabled: false
+    tags: ['azure-devops', 'sync']
+    source:
+      type: local_folder
+      path: available-skills/azdo/azdo-sync
+    destination:
+      folder: .claude/skills
+      name: azdo-sync
+
+  - id: work-management-azure-boards-context7
+    kind: prompts
+    enabled: false
+    tags: ['azure-devops', 'boards']
+    source:
+      type: context7
+      library: /microsoftdocs/azure-docs
+      query: Azure Boards work items queries iterations sprints backlog management
+      resolved_url: https://learn.microsoft.com/azure/devops/boards/work-items/about-work-items
+      resolved_ref: latest
+      resolved_doc_id: azure-devops-boards-work-items
+      content_hash: ''
+      fetched_at: ''
+      license: Microsoft Learn terms
+    destination:
+      folder: .github/prompts
+      name: azure-boards-work-items.prompt.md
+
+  - id: work-management-github-projects-context7
+    kind: prompts
+    enabled: false
+    tags: ['github', 'projects']
+    source:
+      type: context7
+      library: /github/docs
+      query: GitHub Projects v2 workflows automation custom fields views
+      resolved_url: https://docs.github.com/issues/planning-and-tracking-with-projects
+      resolved_ref: latest
+      resolved_doc_id: github-projects-v2-planning
+      content_hash: ''
+      fetched_at: ''
+      license: GitHub terms
+    destination:
+      folder: .github/prompts
+      name: github-projects-v2.prompt.md
+
+  - id: work-management-spec-driven-workflow-awesome
+    kind: instructions
+    enabled: false
+    tags: ['planning', 'workflow']
+    source:
+      type: awesome_copilot
+      collection: project-planning
+      item_path: instructions/spec-driven-workflow-v1.instructions.md
+      resolved_url: https://github.com/github/awesome-copilot/tree/main/collections/project-planning/instructions/spec-driven-workflow-v1.instructions.md
+      resolved_ref: main
+      resolved_doc_id: project-planning/instructions/spec-driven-workflow-v1.instructions.md
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .github/instructions
+      name: spec-driven-workflow-v1.instructions.md
+
+  - id: work-management-planning-with-files-awesome-skills
+    kind: skills
+    enabled: false
+    tags: ['planning', 'workflow']
+    source:
+      type: awesome_skills
+      catalog_url: https://awesome-skills.com/
+      repository: https://github.com/OthmanAdi/planning-with-files
+      skill_path: skills/planning-with-files
+      listing_url: https://github.com/OthmanAdi/planning-with-files
+      resolved_url: https://github.com/OthmanAdi/planning-with-files
+      resolved_ref: master
+      resolved_doc_id: OthmanAdi/planning-with-files/planning-with-files
+      content_hash: ''
+      fetched_at: ''
+      license: MIT
+    destination:
+      folder: .claude/skills
+      name: planning-with-files
+
+  - id: work-management-constitution
+    kind: templates
+    enabled: true
+    auto_provision: true # Automatically copy when scope is active
+    tags: ['constitution', 'memory']
+    source:
+      type: local_file
+      path: scopes/work-management/memory/constitution.md
+    destination:
+      folder: memory
+      name: constitution.md

@@ -1,0 +1,5 @@
+# Bolt Framework - skill-bolt-setup-constitution dependencies
+# Python 3.9+
+
+# Core dependencies
+pyyaml>=6.0              # YAML parsing and manipulation

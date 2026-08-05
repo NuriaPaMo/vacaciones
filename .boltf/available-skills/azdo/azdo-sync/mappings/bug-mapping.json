@@ -1,0 +1,181 @@
+{
+  "$schema": "./mapping-schema.json",
+  "workItemType": "Bug",
+  "referenceName": "Microsoft.VSTS.WorkItemTypes.Bug",
+  "description": "Tracks a defect or issue in the code",
+  "color": "CC293D",
+  "icon": "icon_insect",
+  "boltArtifact": "Optional - bugs can be tracked but are not primary BOLT artifacts",
+  "mappings": {
+    "core": {
+      "System.Title": {
+        "boltSource": null,
+        "description": "Bug title - concise summary of the issue",
+        "required": true,
+        "transformation": null,
+        "example": "TimeEntry validation fails for weekend dates"
+      },
+      "System.Description": {
+        "boltSource": null,
+        "description": "Detailed bug description with repro steps",
+        "required": false,
+        "transformation": "markdown-to-html"
+      },
+      "System.State": {
+        "boltSource": null,
+        "description": "Bug lifecycle state",
+        "required": true,
+        "allowedValues": [
+          "New",
+          "Approved",
+          "Committed",
+          "Done",
+          "Removed"
+        ],
+        "defaultValue": "New"
+      },
+      "System.AssignedTo": {
+        "boltSource": null,
+        "description": "Developer assigned to fix the bug",
+        "required": false
+      }
+    },
+    "repro": {
+      "Microsoft.VSTS.TCM.ReproSteps": {
+        "boltSource": null,
+        "description": "Steps to reproduce the bug",
+        "required": false,
+        "transformation": "html"
+      },
+      "Microsoft.VSTS.TCM.SystemInfo": {
+        "boltSource": null,
+        "description": "System information where bug was found",
+        "required": false
+      }
+    },
+    "planning": {
+      "Microsoft.VSTS.Scheduling.OriginalEstimate": {
+        "boltSource": null,
+        "description": "Estimated effort to fix (hours)",
+        "required": false,
+        "type": "double"
+      },
+      "Microsoft.VSTS.Scheduling.RemainingWork": {
+        "boltSource": null,
+        "description": "Remaining work to fix bug",
+        "required": false,
+        "type": "double"
+      },
+      "Microsoft.VSTS.Scheduling.CompletedWork": {
+        "boltSource": null,
+        "description": "Work completed on bug fix",
+        "required": false,
+        "type": "double"
+      },
+      "Microsoft.VSTS.Common.Priority": {
+        "boltSource": null,
+        "description": "Bug priority",
+        "required": false,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "defaultValue": 2,
+        "mapping": {
+          "Critical": 1,
+          "High": 2,
+          "Medium": 3,
+          "Low": 4
+        }
+      },
+      "Microsoft.VSTS.Common.Severity": {
+        "boltSource": null,
+        "description": "Bug severity",
+        "required": false,
+        "allowedValues": [
+          "1 - Critical",
+          "2 - High",
+          "3 - Medium",
+          "4 - Low"
+        ],
+        "defaultValue": "3 - Medium"
+      }
+    },
+    "activity": {
+      "Microsoft.VSTS.Common.Activity": {
+        "boltSource": null,
+        "description": "Activity type",
+        "required": false,
+        "allowedValues": [
+          "Deployment",
+          "Design",
+          "Development",
+          "Documentation",
+          "Requirements",
+          "Testing"
+        ],
+        "defaultValue": "Development"
+      }
+    },
+    "business": {
+      "Microsoft.VSTS.Common.ValueArea": {
+        "boltSource": null,
+        "description": "Value area classification",
+        "required": false,
+        "allowedValues": [
+          "Business",
+          "Architectural"
+        ],
+        "defaultValue": "Business"
+      }
+    },
+    "classification": {
+      "System.AreaPath": {
+        "boltSource": null,
+        "description": "Area path - module/component where bug exists",
+        "required": true,
+        "transformation": "path"
+      },
+      "System.IterationPath": {
+        "boltSource": null,
+        "description": "Sprint where bug will be fixed",
+        "required": false,
+        "transformation": "path"
+      },
+      "System.Tags": {
+        "boltSource": null,
+        "description": "Tags for categorization",
+        "required": false,
+        "transformation": "semicolon-separated",
+        "example": "Bolt Framework;bug;validation;backend"
+      }
+    }
+  },
+  "relationships": {
+    "parent": {
+      "linkType": "System.LinkTypes.Hierarchy-Reverse",
+      "targetType": [
+        "Feature",
+        "Product Backlog Item"
+      ],
+      "boltSource": null,
+      "description": "Optional parent Feature or PBI"
+    },
+    "related": {
+      "linkType": "System.LinkTypes.Related",
+      "targetType": "Any",
+      "boltSource": null,
+      "description": "Related work items"
+    }
+  },
+  "notes": [
+    "Bugs are not primary BOLT artifacts but can be tracked in Azure DevOps",
+    "Bugs can be created manually in DevOps or from testing",
+    "Bugs can be linked to Features or User Stories (PBIs) as needed",
+    "Priority and Severity help triage and schedule bug fixes",
+    "Repro steps are critical for efficient bug resolution",
+    "Bugs found during BOLT validation phase should block release"
+  ]
+}

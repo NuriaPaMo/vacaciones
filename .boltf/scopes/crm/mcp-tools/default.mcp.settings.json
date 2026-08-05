@@ -1,0 +1,27 @@
+{
+    "chat.mcp.access": {
+        "allowedServers": [
+            "github",
+            "azureDevOps",
+            "azure",
+            "atlassian",
+            "monday",
+            "notion"
+        ],
+        "blockedServers": [
+            "desktopCommander"
+        ]
+    },
+    "chat.mcp.tools": {
+        "enabled": [
+            "workItemRead",
+            "wikiRead",
+            "projectRead",
+            "docsSearch"
+        ],
+        "disabled": [
+            "projectDelete",
+            "adminWrite"
+        ]
+    }
+}

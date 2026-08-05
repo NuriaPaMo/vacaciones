@@ -1,0 +1,10 @@
+# Penpot local self-hosted data — never commit runtime state or downloaded artifacts.
+# The compose file is fetched on demand by Install-Penpot.ps1 / install-penpot.sh.
+docker-compose.yaml
+*.env
+.env
+assets/
+postgres/
+redis/
+data/
+volumes/

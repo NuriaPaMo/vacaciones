@@ -1,0 +1,286 @@
+# Bolt Task List
+
+> **BOLT Framework Stage:** EXECUTE - Micro-Iteration Tasks
+
+**Feature:** {FEATURE_ID} - {FEATURE_NAME}
+**Bolt:** {BOLT_NUMBER} - {BOLT_NAME}
+**Sprint:** {SPRINT}
+**Duration:** {START_DATE} - {END_DATE}
+**Status:** [Not Started | In Progress | Completed | Blocked]
+
+---
+
+## Bolt Overview
+
+### Goal
+
+{Single sentence describing what this Bolt achieves}
+
+### Success Criteria
+
+- [ ] {criterion 1}
+- [ ] {criterion 2}
+- [ ] {criterion 3}
+
+### Prerequisites
+
+- [x] {prerequisite 1 - completed}
+- [x] {prerequisite 2 - completed}
+
+---
+
+## Tasks
+
+### 🔴 High Priority (Must Complete)
+
+#### TASK-001: {Task Title}
+
+| Attribute    | Value                                     |
+| ------------ | ----------------------------------------- |
+| **Assignee** | {name}                                    |
+| **Estimate** | {hours}h                                  |
+| **Status**   | 🔴 Not Started / 🟡 In Progress / 🟢 Done |
+| **Type**     | Feature / Bug / Refactor / Test / Docs    |
+
+**Description:**
+{What needs to be done}
+
+**Acceptance Criteria:**
+
+- [ ] {AC 1}
+- [ ] {AC 2}
+
+**Files to Create/Modify:**
+
+- `src/domain/{file}.ts` - Create
+- `src/application/{file}.ts` - Modify
+- `tests/unit/{file}.test.ts` - Create
+
+**Implementation Notes:**
+
+```text
+{Technical notes, pseudo-code, or approach}
+```
+
+**Dependencies:**
+
+- None / TASK-{xxx}
+
+---
+
+#### TASK-002: {Task Title}
+
+| Attribute    | Value          |
+| ------------ | -------------- |
+| **Assignee** | {name}         |
+| **Estimate** | {hours}h       |
+| **Status**   | 🔴 Not Started |
+| **Type**     | {type}         |
+
+**Description:**
+{What needs to be done}
+
+**Acceptance Criteria:**
+
+- [ ] {AC 1}
+- [ ] {AC 2}
+
+**Files to Create/Modify:**
+
+- `{path}` - {action}
+
+---
+
+### 🟡 Medium Priority (Should Complete)
+
+#### TASK-003: {Task Title}
+
+| Attribute    | Value          |
+| ------------ | -------------- |
+| **Assignee** | {name}         |
+| **Estimate** | {hours}h       |
+| **Status**   | 🔴 Not Started |
+| **Type**     | {type}         |
+
+**Description:**
+{What needs to be done}
+
+**Acceptance Criteria:**
+
+- [ ] {AC 1}
+
+---
+
+### 🟢 Low Priority (Could Complete)
+
+#### TASK-004: {Task Title}
+
+| Attribute    | Value          |
+| ------------ | -------------- |
+| **Assignee** | {name}         |
+| **Estimate** | {hours}h       |
+| **Status**   | 🔴 Not Started |
+| **Type**     | {type}         |
+
+**Description:**
+{What needs to be done}
+
+---
+
+## Task Checklist Summary
+
+### Day 1
+
+- [ ] TASK-001: {title}
+- [ ] TASK-002: {title}
+
+### Day 2
+
+- [ ] TASK-003: {title}
+- [ ] TASK-004: {title}
+
+### Day 3
+
+- [ ] Quality gate verification
+- [ ] Code review
+- [ ] Documentation update
+
+---
+
+## Quality Gate
+
+### Before Completing Bolt
+
+#### Code Quality
+
+- [ ] All linting rules pass
+- [ ] No TypeScript/compiler errors
+- [ ] Code follows Constitution standards
+- [ ] No hardcoded values (use config)
+- [ ] Error handling implemented
+
+#### Testing
+
+- [ ] Unit tests written for new code
+- [ ] Unit test coverage ≥ {80}%
+- [ ] Mutation score ≥ {60}%
+- [ ] Integration tests passing
+- [ ] No regression in existing tests
+
+#### Architecture Quality (🏗️ Gate 8)
+
+- [ ] Dependency rules enforced (domain→no infra)
+- [ ] No circular dependencies detected
+- [ ] Contract validation passing (OpenAPI/AsyncAPI)
+- [ ] Complexity within thresholds (CC ≤10, Cognitive ≤15)
+- [ ] Fitness functions green (build time, bundle size)
+
+**Commands:**
+
+```bash
+# Run architecture gates
+./scripts/bash/architecture-gates.sh --check
+
+# Or full quality gates with architecture
+./scripts/bash/quality-gates.sh --full
+```
+
+#### Documentation
+
+- [ ] Code comments for complex logic
+- [ ] JSDoc/docstrings for public APIs
+- [ ] README updated if needed
+- [ ] API documentation updated
+
+#### Review
+
+- [ ] Self-review completed
+- [ ] Peer review requested
+- [ ] Review feedback addressed
+
+---
+
+## Progress Tracking
+
+### Daily Standup Log
+
+#### {DATE} - Day 1
+
+**Completed:**
+
+- {task completed}
+
+**In Progress:**
+
+- {task in progress}
+
+**Blockers:**
+
+- {blocker if any}
+
+---
+
+#### {DATE} - Day 2
+
+**Completed:**
+
+- {task completed}
+
+**In Progress:**
+
+- {task in progress}
+
+**Blockers:**
+
+- None
+
+---
+
+#### {DATE} - Day 3
+
+**Completed:**
+
+- {task completed}
+
+**Bolt Status:** ✅ Completed / ❌ Incomplete
+
+---
+
+## Blockers and Issues
+
+| ID    | Description | Owner   | Status        | Resolution   |
+| ----- | ----------- | ------- | ------------- | ------------ |
+| B-001 | {blocker}   | {owner} | Open/Resolved | {resolution} |
+
+---
+
+## Notes
+
+### Technical Decisions Made
+
+- {decision 1}
+- {decision 2}
+
+### Lessons Learned
+
+- {lesson 1}
+- {lesson 2}
+
+### Carry Over to Next Bolt
+
+- {item not completed}
+
+---
+
+## Metrics
+
+| Metric          | Target | Actual |
+| --------------- | ------ | ------ |
+| Tasks Completed | {n}    | {n}    |
+| Story Points    | {n}    | {n}    |
+| Test Coverage   | {%}    | {%}    |
+| Bugs Found      | 0      | {n}    |
+
+---
+
+*Generated by Bolt Tasks Agent*

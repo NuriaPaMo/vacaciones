@@ -1,0 +1,429 @@
+# Bolt Framework Security Scanning Pipeline
+# Comprehensive security analysis aligned with Policy Guardian Agent
+
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 3 * * *'  # Daily at 3:00 AM UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  ENABLE_CODE_SCANNING: ${{ vars.ENABLE_CODE_SCANNING || 'false' }}
+
+jobs:
+  # ============================================================================
+  # SAST - Static Application Security Testing
+  # ============================================================================
+  sast:
+    name: Static Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Detect application source code
+        id: detect-src
+        run: |
+          # Only flag JS/TS source that lives outside framework/config directories
+          if find . \
+               -not -path '*/node_modules/*' \
+               -not -path '*/.boltf/*' \
+               -not -path '*/.claude/*' \
+               -not -path '*/.github/*' \
+               -not -path '*/docs/*' \
+               -not -path '*/demo/*' \
+               -not -path '*/examples/*' \
+               \( -name '*.js' -o -name '*.ts' -o -name '*.jsx' -o -name '*.tsx' \) \
+             | grep -q .; then
+            echo "has-source=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-source=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No application JS/TS source found — CodeQL analysis skipped."
+          fi
+
+      - name: Initialize CodeQL
+        if: steps.detect-src.outputs.has-source == 'true' && env.ENABLE_CODE_SCANNING == 'true'
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript, typescript
+          queries: security-extended
+
+      - name: Autobuild
+        if: steps.detect-src.outputs.has-source == 'true' && env.ENABLE_CODE_SCANNING == 'true'
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Perform CodeQL Analysis
+        if: steps.detect-src.outputs.has-source == 'true' && env.ENABLE_CODE_SCANNING == 'true'
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript"
+
+      - name: Run Semgrep SAST
+        run: |
+          python3 -m pip install semgrep
+          semgrep scan \
+            --config p/default \
+            --config p/typescript \
+            --config p/nodejs \
+            --config p/owasp-top-ten \
+            --config p/security-audit \
+            --sarif \
+            --output semgrep.sarif \
+            --no-error || true
+
+      - name: Upload Semgrep results
+        if: env.ENABLE_CODE_SCANNING == 'true'
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: semgrep.sarif
+
+  # ============================================================================
+  # Dependency Vulnerability Scanning
+  # ============================================================================
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: |
+          npm audit --json > npm-audit.json || true
+          echo "## NPM Audit Results" >> $GITHUB_STEP_SUMMARY
+          cat npm-audit.json | jq -r '.metadata | "Vulnerabilities: \(.vulnerabilities.total) (Critical: \(.vulnerabilities.critical), High: \(.vulnerabilities.high))"' >> $GITHUB_STEP_SUMMARY
+
+      - name: Run Snyk vulnerability scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      - name: OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'Bolt Framework-dlc'
+          path: '.'
+          format: 'SARIF'
+          out: 'reports'
+
+      - name: Normalize Dependency Check SARIF URIs
+        run: |
+          SARIF_FILE="reports/dependency-check-report.sarif"
+          if [[ -f "$SARIF_FILE" ]]; then
+            sudo chmod -R a+rw reports/
+            # Dependency-Check may emit package-lock artifact URIs with query-like suffixes
+            # (e.g. file:///.../package-lock.json?pkg/version), which Code Scanning warns about.
+            jq '
+              (.runs[]?.artifacts[]?.location.uri |= sub("\\?.*$"; ""))
+              | (.runs[]?.results[]?.locations[]?.physicalLocation.artifactLocation.uri |= sub("\\?.*$"; ""))
+            ' "$SARIF_FILE" > "$SARIF_FILE.tmp"
+            mv "$SARIF_FILE.tmp" "$SARIF_FILE"
+          fi
+
+      - name: Upload Dependency Check results
+        if: env.ENABLE_CODE_SCANNING == 'true'
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: reports/dependency-check-report.sarif
+
+  # ============================================================================
+  # Secret Detection
+  # ============================================================================
+  secret-scan:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    env:
+      GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Detect secrets with Gitleaks
+        if: env.GITLEAKS_LICENSE != ''
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+      - name: Compute TruffleHog scan range
+        id: trufflehog-range
+        run: |
+          EVENT="${{ github.event_name }}"
+          if [[ "$EVENT" == "pull_request" ]]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+          elif [[ "$EVENT" == "push" && "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+            echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            # schedule / workflow_dispatch / initial push: scan full history
+            OLDEST=$(git rev-list --max-parents=0 HEAD)
+            echo "base=$OLDEST" >> "$GITHUB_OUTPUT"
+            echo "head=HEAD" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Detect secrets with TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ steps.trufflehog-range.outputs.base }}
+          head: ${{ steps.trufflehog-range.outputs.head }}
+          extra_args: --only-verified
+
+  # ============================================================================
+  # File Detection (needed because hashFiles() is not available in job-level if:)
+  # ============================================================================
+  detect-files:
+    name: Detect File Types
+    runs-on: ubuntu-latest
+    outputs:
+      has-dockerfile: ${{ steps.detect.outputs.has-dockerfile }}
+      has-iac: ${{ steps.detect.outputs.has-iac }}
+      has-openapi: ${{ steps.detect.outputs.has-openapi }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Detect files
+        id: detect
+        run: |
+          [[ -f "Dockerfile" ]] \
+            && echo "has-dockerfile=true" >> "$GITHUB_OUTPUT" \
+            || echo "has-dockerfile=false" >> "$GITHUB_OUTPUT"
+          find . \( -name '*.tf' -o \( -path '*/cloudformation/*' -name '*.yml' \) \) \
+            -not -path '*/node_modules/*' | grep -q . \
+            && echo "has-iac=true" >> "$GITHUB_OUTPUT" \
+            || echo "has-iac=false" >> "$GITHUB_OUTPUT"
+          find . \( -name 'openapi*.yml' -o -name 'openapi*.yaml' \) \
+            | grep -q . \
+            && echo "has-openapi=true" >> "$GITHUB_OUTPUT" \
+            || echo "has-openapi=false" >> "$GITHUB_OUTPUT"
+
+  # ============================================================================
+  # Container Security
+  # ============================================================================
+  container-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    needs: detect-files
+    if: needs.detect-files.outputs.has-dockerfile == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Build Docker image
+        run: docker build -t app:scan .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'app:scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Hadolint for Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: warning
+
+  # ============================================================================
+  # Infrastructure as Code Security
+  # ============================================================================
+  iac-security:
+    name: IaC Security Scan
+    runs-on: ubuntu-latest
+    needs: detect-files
+    if: needs.detect-files.outputs.has-iac == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Run Checkov IaC scanner
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform,cloudformation,kubernetes
+          output_format: sarif
+          output_file_path: results.sarif
+
+      - name: Upload Checkov results
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results.sarif
+
+      - name: Run tfsec for Terraform
+        uses: aquasecurity/tfsec-action@v1.0.0
+        if: hashFiles('**/terraform/**/*.tf') != ''
+        with:
+          soft_fail: true
+          sarif_file: tfsec.sarif
+
+      - name: Upload tfsec results
+        if: hashFiles('**/terraform/**/*.tf') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: tfsec.sarif
+
+  # ============================================================================
+  # API Security Testing
+  # ============================================================================
+  api-security:
+    name: API Security Scan
+    runs-on: ubuntu-latest
+    needs: detect-files
+    if: needs.detect-files.outputs.has-openapi == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Find OpenAPI specs
+        id: find-specs
+        env:
+          _API_TOKEN: ${{ secrets.API_SECURITY_TOKEN }}
+        run: |
+          SPECS=$(find . -name "openapi*.yml" -o -name "openapi*.yaml" | head -1)
+          echo "spec_file=$SPECS" >> $GITHUB_OUTPUT
+          echo "has_token=${{ secrets.API_SECURITY_TOKEN != '' }}" >> $GITHUB_OUTPUT
+
+      - name: Run API security audit
+        uses: 42crunch/api-security-audit-action@v3
+        # Requires a valid 42Crunch platform account and API_SECURITY_TOKEN secret.
+        # Skip silently when the secret is absent rather than failing with a 404.
+        if: steps.find-specs.outputs.spec_file != '' && steps.find-specs.outputs.has_token == 'true'
+        continue-on-error: true
+        with:
+          api-token: ${{ secrets.API_SECURITY_TOKEN }}
+          min-score: 70
+
+      - name: Validate OpenAPI spec security
+        if: steps.find-specs.outputs.spec_file != ''
+        env:
+          SPEC_FILE: ${{ steps.find-specs.outputs.spec_file }}
+        run: |
+          npm install -g @stoplight/spectral-cli @stoplight/spectral-rulesets
+          # Write a JS config that imports the OAS ruleset from the installed package
+          cat > /tmp/spectral.js << 'EOF'
+          const { oas } = require('@stoplight/spectral-rulesets');
+          module.exports = { extends: [oas] };
+          EOF
+          spectral lint "$SPEC_FILE" --ruleset /tmp/spectral.js || true
+
+  # ============================================================================
+  # License Compliance
+  # ============================================================================
+  license-check:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check licenses
+        run: |
+          npx license-checker --summary --production > license-summary.txt
+
+          # Check for problematic licenses
+          PROBLEMATIC=$(npx license-checker --production --onlyAllow "MIT;Apache-2.0;ISC;BSD-2-Clause;BSD-3-Clause;0BSD;CC0-1.0;Unlicense" 2>&1 || true)
+
+          if echo "$PROBLEMATIC" | grep -q "FAIL"; then
+            echo "⚠️ Some dependencies have non-approved licenses"
+            echo "## License Issues Found" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "$PROBLEMATIC" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## License Check Passed" >> $GITHUB_STEP_SUMMARY
+            echo "All dependencies use approved licenses" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v5
+        with:
+          name: license-report
+          path: license-summary.txt
+
+  # ============================================================================
+  # Security Report Summary
+  # ============================================================================
+  security-report:
+    name: Security Report Summary
+    runs-on: ubuntu-latest
+    needs: [sast, dependency-scan, secret-scan]
+    if: always()
+    steps:
+      - name: Generate security summary
+        run: |
+          echo "## Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST | ${{ needs.sast.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secret Detection | ${{ needs.secret-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.sast.result }}" == "failure" ]] || \
+             [[ "${{ needs.dependency-scan.result }}" == "failure" ]] || \
+             [[ "${{ needs.secret-scan.result }}" == "failure" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Action Required**: One or more security checks failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Notify on critical findings
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[Security] Critical findings in security scan - ${new Date().toISOString().split('T')[0]}`,
+              body: `## Security Alert
+
+              The security scan workflow has detected issues that require attention.
+
+              **Workflow Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+
+              Please review the security findings and address critical vulnerabilities.`,
+              labels: ['security', 'critical', 'automated']
+            });

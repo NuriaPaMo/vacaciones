@@ -1,0 +1,31 @@
+# Repository label definitions
+# Sync with: .github/workflows/bootstrap-labels.yml (workflow_dispatch)
+
+labels:
+  - name: access-request
+    color: "c5def5"
+    description: "Request for repository or team access"
+
+  - name: approved-by-smes
+    color: "0e8a16"
+    description: "Reviewed and approved by the boltf-smes team"
+
+  - name: pending-approval
+    color: "e4e669"
+    description: "Waiting for boltf-smes team approval"
+
+  - name: access-granted
+    color: "0075ca"
+    description: "Access has been successfully granted"
+
+  - name: bug
+    color: "d73a4a"
+    description: "Something isn't working"
+
+  - name: enhancement
+    color: "a2eeef"
+    description: "New feature or request"
+
+  - name: needs-triage
+    color: "e11d48"
+    description: "Needs triage by project maintainers"

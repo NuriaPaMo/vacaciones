@@ -1,0 +1,385 @@
+# =============================================================================
+# BOLT FRAMEWORK Security Configuration Template
+# =============================================================================
+# This template provides comprehensive security configuration options
+# to be integrated into .boltf/memory/constitution.md
+#
+# Usage: Copy relevant sections to your constitution.md and customize
+# according to your project's security requirements
+# =============================================================================
+
+# Add this section to your .boltf/memory/constitution.md file
+security:
+  # =============================================================================
+  # Security Policy Configuration
+  # =============================================================================
+  policy:
+    enabled: true
+    enforcement_level: 'strict' # strict|moderate|advisory
+    compliance_frameworks:
+      - 'owasp-top-10'
+      - 'cwe-top-25'
+      # - "pci-dss"      # Uncomment if handling payment data
+      # - "gdpr"         # Uncomment if handling EU personal data
+      # - "hipaa"        # Uncomment if handling health data
+      # - "sox"          # Uncomment if public company
+
+    # Security gates that must pass for deployment
+    required_gates:
+      - 'sast_analysis'
+      - 'dependency_scan'
+      - 'secrets_scan'
+      - 'infrastructure_scan'
+      - 'constitution_compliance'
+
+    # Failure thresholds
+    thresholds:
+      critical_vulnerabilities: 0 # Block deployment if any critical vulns
+      high_vulnerabilities: 2 # Block if more than 2 high severity
+      medium_vulnerabilities: 10 # Block if more than 10 medium severity
+      secrets_detected: 0 # Block if any secrets found
+
+  # =============================================================================
+  # Static Analysis (SAST) Configuration
+  # =============================================================================
+  static_analysis:
+    enabled: true
+    auto_fix: true # Attempt automatic fixes when possible
+
+    # Technology-specific SAST tools
+    tools:
+      nodejs:
+        - 'eslint-security'
+        - 'semgrep'
+        - 'audit'
+      dotnet:
+        - 'microsoft-code-analysis'
+        - 'sonaranalyzer'
+        - 'semgrep'
+      java:
+        - 'spotbugs'
+        - 'pmd'
+        - 'semgrep'
+      python:
+        - 'bandit'
+        - 'semgrep'
+        - 'pysa'
+      golang:
+        - 'gosec'
+        - 'staticcheck'
+        - 'semgrep'
+
+    # Rules configuration
+    rules:
+      custom_rules_path: '.security/sast-rules/'
+      exclude_patterns:
+        - 'test/**'
+        - '**/*.test.*'
+        - '**/*.spec.*'
+        - 'docs/**'
+      severity_mapping:
+        error: 'high'
+        warning: 'medium'
+        info: 'low'
+
+    # CI/CD Integration
+    ci_integration:
+      fail_on_high: true
+      fail_on_critical: true
+      generate_sarif: true
+      upload_to_security_tab: true
+
+  # =============================================================================
+  # Software Composition Analysis (SCA) Configuration
+  # =============================================================================
+  dependency_scanning:
+    enabled: true
+    auto_update: 'security-only' # security-only|all|manual
+
+    # Update frequency
+    schedule:
+      security_updates: 'daily'
+      regular_updates: 'weekly'
+      major_updates: 'monthly'
+
+    # Dependency policies
+    policies:
+      allow_prerelease: false
+      max_age_days: 730 # Flag dependencies older than 2 years
+      license_allowlist:
+        - 'MIT'
+        - 'Apache-2.0'
+        - 'BSD-3-Clause'
+        - 'ISC'
+      license_blocklist:
+        - 'GPL-3.0'
+        - 'AGPL-3.0'
+        - 'CC-BY-SA-4.0'
+
+    # Technology-specific SCA tools
+    tools:
+      nodejs: ['npm-audit', 'yarn-audit', 'snyk']
+      dotnet: ['dotnet-vulnerable', 'nuget-audit']
+      java: ['owasp-dependency-check', 'snyk']
+      python: ['safety', 'pip-audit', 'snyk']
+      golang: ['govulncheck', 'nancy']
+
+    # Exclusions (with justification required)
+    exclusions:
+      # Example:
+      # - package: "lodash"
+      #   versions: ["<4.17.21"]
+      #   reason: "Dev dependency only, not in production bundle"
+      #   expires: "2024-12-31"
+
+  # =============================================================================
+  # Secrets Management Configuration
+  # =============================================================================
+  secrets_management:
+    enabled: true
+
+    # Detection configuration
+    detection:
+      pre_commit_hooks: true
+      ci_scanning: true
+      real_time_monitoring: true
+
+    # Secrets storage policy
+    storage:
+      vault_provider: 'azure-keyvault' # azure-keyvault|hashicorp-vault|aws-secrets
+      local_secrets_prohibited: true
+      environment_variables_allowed: ['DEV', 'TEST'] # Envs where env vars OK
+
+    # Rotation policy
+    rotation:
+      api_keys: '90d'
+      database_passwords: '60d'
+      certificates: '365d'
+      service_principals: '180d'
+
+    # Detection patterns (additional to defaults)
+    custom_patterns:
+      - name: 'Custom API Key'
+        pattern: 'CUSTOM_API_[A-Z0-9]{32}'
+        confidence: 'high'
+      # Add your custom patterns here
+
+  # =============================================================================
+  # Infrastructure Security Configuration
+  # =============================================================================
+  infrastructure:
+    enabled: true
+
+    # Container security
+    container_security:
+      base_image_policy: 'distroless-preferred' # distroless-preferred|alpine-allowed|debian-allowed
+      scan_images: true
+      block_high_cve: true
+      require_non_root: true
+      readonly_filesystem: true
+      security_context_required: true
+
+    # Kubernetes security (if applicable)
+    kubernetes_security:
+      pod_security_standards: 'restricted' # restricted|baseline|privileged
+      network_policies_required: true
+      rbac_least_privilege: true
+      admission_controllers:
+        - 'PodSecurityPolicy'
+        - 'SecurityContextDeny'
+        - 'AlwaysPullImages'
+
+    # Cloud security policies
+    cloud_security:
+      # Azure-specific (adjust for other clouds)
+      azure:
+        defender_enabled: true
+        private_endpoints_preferred: true
+        managed_identity_required: true
+        key_vault_integration: true
+        network_security_groups_required: true
+
+    # Infrastructure as Code security
+    iac_security:
+      terraform:
+        state_encryption: true
+        remote_state_required: true
+        plan_approval_required: true
+      bicep:
+        parameter_files_encrypted: true
+        secure_parameters_only: true
+
+  # =============================================================================
+  # Authentication & Authorization Configuration
+  # =============================================================================
+  authentication:
+    # Identity provider configuration
+    provider: 'azure-ad' # azure-ad|auth0|okta|custom
+
+    # Authentication requirements
+    requirements:
+      multi_factor: 'required' # required|optional|disabled
+      session_timeout: '8h'
+      password_policy:
+        min_length: 12
+        complexity: 'high'
+        rotation_days: 90
+        history_count: 24
+
+    # Authorization model
+    authorization:
+      model: 'rbac' # rbac|abac|acl
+      default_access: 'deny' # deny|allow
+      admin_approval_required: true
+
+  # =============================================================================
+  # Data Protection Configuration
+  # =============================================================================
+  data_protection:
+    # Data classification
+    classification:
+      enabled: true
+      levels: ['public', 'internal', 'confidential', 'restricted']
+      default_level: 'internal'
+
+    # Encryption requirements
+    encryption:
+      at_rest: 'required' # required|recommended|optional
+      in_transit: 'required'
+      algorithm: 'AES-256'
+      key_rotation: 'annual'
+
+    # Data retention
+    retention:
+      logs: '90d'
+      audit_trails: '7y'
+      user_data: 'as_per_policy'
+      backups: '30d'
+
+    # Privacy compliance
+    privacy:
+      gdpr_compliance: true # Set to true if handling EU data
+      data_minimization: true
+      consent_management: true
+      right_to_be_forgotten: true
+
+  # =============================================================================
+  # Incident Response Configuration
+  # =============================================================================
+  incident_response:
+    # Response team configuration
+    team:
+      primary_contact: 'security@company.com'
+      escalation_path: ['team-lead', 'ciso', 'cto']
+      on_call_rotation: true
+
+    # Notification thresholds
+    notifications:
+      critical_immediate: true
+      high_within_1h: true
+      medium_within_4h: true
+
+    # Response procedures
+    procedures:
+      isolation_capability: true
+      forensic_logging: true
+      backup_restoration: true
+      communication_plan: true
+
+  # =============================================================================
+  # Monitoring & Logging Configuration
+  # =============================================================================
+  monitoring:
+    # Security monitoring
+    security_monitoring:
+      siem_integration: true
+      threat_detection: true
+      anomaly_detection: true
+      behavioral_analytics: true
+
+    # Audit logging
+    audit_logging:
+      enabled: true
+      centralized: true
+      immutable: true
+      retention: '7y'
+
+    # Events to log
+    log_events:
+      - 'authentication_attempts'
+      - 'authorization_failures'
+      - 'data_access'
+      - 'configuration_changes'
+      - 'privilege_escalation'
+      - 'security_violations'
+
+  # =============================================================================
+  # Security Training & Awareness
+  # =============================================================================
+  training:
+    # Developer security training
+    developer_training:
+      secure_coding: 'required'
+      frequency: 'annual'
+      topics:
+        - 'owasp-top-10'
+        - 'secure-design-patterns'
+        - 'threat-modeling'
+        - 'secure-code-review'
+
+    # Security awareness
+    awareness_program:
+      phishing_simulation: 'monthly'
+      security_bulletins: 'weekly'
+      incident_lessons_learned: true
+
+  # =============================================================================
+  # Third-Party & Vendor Security
+  # =============================================================================
+  third_party:
+    # Vendor assessment
+    vendor_assessment:
+      security_questionnaire: 'required'
+      penetration_test_reports: 'required'
+      compliance_certificates: 'required'
+
+    # API security
+    api_security:
+      authentication_required: true
+      rate_limiting: true
+      input_validation: true
+      output_encoding: true
+
+  # =============================================================================
+  # Security Testing Configuration
+  # =============================================================================
+  security_testing:
+    # Test types
+    test_types:
+      unit_tests: true
+      integration_tests: true
+      penetration_testing: 'quarterly'
+      vulnerability_assessments: 'monthly'
+
+    # Automated testing
+    automation:
+      security_regression_tests: true
+      chaos_engineering: true
+      red_team_exercises: 'annual'
+
+# =============================================================================
+# Integration Instructions
+# =============================================================================
+#
+# To integrate this security configuration into your BOLT FRAMEWORK project:
+#
+# 1. Copy the relevant sections above to your .boltf/memory/constitution.md file
+# 2. Customize the values according to your project requirements
+# 3. Update your CI/CD pipeline to reference these configurations
+# 4. Run the BOLT Security Agent to validate compliance:
+#    @Bolt Security --validate-constitution
+#
+# 5. The security analysis scripts will automatically read these settings
+#    and enforce them during automated security scanning
+#
+# =============================================================================

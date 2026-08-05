@@ -1,0 +1,74 @@
+# Bolt Framework — Code Owners
+# Cada PR requiere aprobación del owner correspondiente.
+# Documentación: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Las rutas están ancladas a la raíz del repositorio canónico y prefijadas con
+# `.boltf/`, que es el payload del framework distribuido por subtree.
+
+# === Default (catch-all) ===
+*                                          @ava-group-iberiademos/boltf-smes
+
+# === Ficheros raíz ===
+/CLAUDE.md                                 @ava-group-iberiademos/boltf-smes
+/GOVERNANCE.md                             @ava-group-iberiademos/boltf-smes
+/README.md                                 @ava-group-iberiademos/boltf-smes
+/REQUEST-ACCESS.md                         @ava-group-iberiademos/boltf-smes
+/Invoke-PythonScript.ps1                   @ava-group-iberiademos/boltf-smes
+/package.json                              @ava-group-iberiademos/boltf-smes
+
+# === Framework Core ===
+/.boltf/scripts/                           @ava-group-iberiademos/boltf-smes
+/.boltf/bolt-manifest.yaml                 @ava-group-iberiademos/boltf-smes
+/.boltf/CHANGELOG.md                       @ava-group-iberiademos/boltf-smes
+/.boltf/CONTRIBUTING.md                    @ava-group-iberiademos/boltf-smes
+/.github/CODEOWNERS                        @ava-group-iberiademos/boltf-smes
+/.boltf/scopes/                            @ava-group-iberiademos/boltf-smes
+
+# === Claude ===
+/.claude/                                  @ava-group-iberiademos/boltf-smes
+
+# === GitHub ===
+/.github/agents/                           @ava-group-iberiademos/boltf-smes
+/.github/prompts/                          @ava-group-iberiademos/boltf-smes
+/.github/instructions/                     @ava-group-iberiademos/boltf-smes
+/.github/workflows/                        @ava-group-iberiademos/boltf-smes
+/.github/copilot-instructions.md           @ava-group-iberiademos/boltf-smes
+/.github/skills-lock.json                  @ava-group-iberiademos/boltf-smes
+
+# === Scopes ===
+/.boltf/scopes/backend/                    @ava-group-iberiademos/boltf-smes
+/.boltf/scopes/frontend/                   @ava-group-iberiademos/boltf-smes
+/.boltf/scopes/cloud-platform/             @ava-group-iberiademos/boltf-smes
+/.boltf/scopes/common/                     @ava-group-iberiademos/boltf-smes
+/.boltf/scopes/ai/                         @ava-group-iberiademos/boltf-smes
+/.boltf/scopes/integration/                @ava-group-iberiademos/boltf-smes
+/.boltf/scopes/data/                       @ava-group-iberiademos/boltf-smes
+/.boltf/scopes/work-management/            @ava-group-iberiademos/boltf-smes
+/.boltf/scopes/crm/                        @ava-group-iberiademos/boltf-smes
+
+# === Available Skills por categoría ===
+/.boltf/available-skills/bolt-framework/   @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/dotnet-backend/   @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/angular/          @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/vue/              @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/frontend/         @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/ui-common/        @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/azure/            @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/cloud-platform/   @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/aspire/           @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/github/           @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/azdo/             @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/browser-testing/  @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/functional-tests/ @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/tdd/              @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/document/         @ava-group-iberiademos/boltf-smes
+/.boltf/available-skills/contributed/      @ava-group-iberiademos/boltf-smes
+
+# === Documentación ===
+/.boltf/docs/                              @ava-group-iberiademos/boltf-smes
+/.boltf/memory/                            @ava-group-iberiademos/boltf-smes
+/.boltf/analysis/                          @ava-group-iberiademos/boltf-smes
+
+# === Init ===
+/Init.ps1                                  @ava-group-iberiademos/boltf-smes
+/init.sh                                   @ava-group-iberiademos/boltf-smes

@@ -1,0 +1,210 @@
+version: 1
+scope: common
+description: Skills y recursos universales que aplican a TODOS los proyectos Bolt Framework, independientemente del Practice seleccionado
+items:
+  # ============================================
+  # SKILLS UNIVERSALES
+  # ============================================
+
+  - id: common-markdown-formatting
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['documentation', 'markdown', 'formatting']
+    source:
+      type: local_folder
+      path: available-skills/document/markdown-formatting
+    destination:
+      folder: .claude/skills
+      name: markdown-formatting
+    description: >
+      CommonMark formatting rules and BOLT Framework conventions for .md files.
+      Universally useful for any project with documentation.
+
+  - id: common-tdd-comprehensive
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['testing', 'tdd', 'quality']
+    source:
+      type: local_folder
+      path: available-skills/tdd/tdd-comprehensive
+    destination:
+      folder: .claude/skills
+      name: tdd-comprehensive
+    description: >
+      Test-Driven Development methodology with Red-Green-Refactor cycle.
+      Applicable to any programming language and development workflow.
+
+  - id: common-gherkin-reqnroll
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['bdd', 'gherkin', 'csharp']
+    source:
+      type: local_folder
+      path: available-skills/functional-tests/gherkin-reqnroll
+    destination:
+      folder: .claude/skills
+      name: gherkin-reqnroll
+    description: >
+      BDD with Gherkin syntax and Reqnroll for .NET acceptance testing.
+      Useful for projects requiring stakeholder-validated specifications.
+      Note: Reqnroll is .NET-specific, but Gherkin patterns are universal.
+
+  # ============================================
+  # GIT & COLLABORATION SKILLS
+  # ============================================
+
+  - id: common-git-branch-manager
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['git', 'branching', 'workflow']
+    source:
+      type: local_folder
+      path: available-skills/github/git-branch-manager
+    destination:
+      folder: .claude/skills
+      name: git-branch-manager
+    description: >
+      Git branch/commit/PR management with BOLT Framework compliance and naming conventions.
+      Universal for any project using Git version control.
+
+  - id: common-issue-formatter
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['github', 'issues', 'documentation']
+    source:
+      type: local_folder
+      path: available-skills/github/issue-formatter
+    destination:
+      folder: .claude/skills
+      name: issue-formatter
+    description: >
+      Convert logs/notes/screenshots to GitHub-flavored markdown issues.
+      Useful for any project tracking work in GitHub Issues.
+
+  # ============================================
+  # DOCUMENTATION & DIAGRAMMING SKILLS
+  # ============================================
+
+  - id: common-mermaid-creator
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['documentation', 'diagrams', 'mermaid']
+    source:
+      type: local_folder
+      path: available-skills/document/mermaid-creator
+    destination:
+      folder: .claude/skills
+      name: mermaid-creator
+    description: >
+      Create comprehensive Mermaid diagrams (C4, flowcharts, sequence, ER, Gantt, etc.).
+      Universal for documenting architecture and workflows visually.
+
+  - id: common-planning-with-files
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['planning', 'workflow', 'documentation']
+    source:
+      type: local_folder
+      path: available-skills/document/planning-with-files
+    destination:
+      folder: .claude/skills
+      name: planning-with-files
+    description: >
+      Manus-style workflow with task_plan.md, notes.md, and deliverable.md patterns.
+      Universal planning approach for structured development work.
+
+  - id: common-api-contracts-doc
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['documentation', 'api', 'openapi']
+    source:
+      type: local_folder
+      path: available-skills/document/api-contracts-doc
+    destination:
+      folder: .claude/skills
+      name: api-contracts-doc
+    description: >
+      Documents REST API contracts from source code: extracts endpoints, schemas and examples.
+      Universal for any project exposing APIs; produces docs/api/ Markdown and OpenAPI 3.0 YAML.
+
+  - id: common-architect-diagramer
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['documentation', 'architecture', 'diagrams']
+    source:
+      type: local_folder
+      path: available-skills/document/architect-diagramer
+    destination:
+      folder: .claude/skills
+      name: architect-diagramer
+    description: >
+      Create architecture, application, flow and any other diagrams for documentation markdowns.
+      Universal for any project requiring visual architecture or system documentation.
+
+  - id: common-user-journey-doc
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['documentation', 'ux', 'user-journey']
+    source:
+      type: local_folder
+      path: available-skills/document/user-journey-doc
+    destination:
+      folder: .claude/skills
+      name: user-journey-doc
+    description: >
+      Documents user journeys and personas with structured narrative and Mermaid journey diagrams.
+      Universal for any project that needs to document how users interact with the system.
+
+  # ============================================
+  # FUNCTIONAL TESTING SKILLS
+  # ============================================
+
+  - id: common-integration-e2e-testing
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['testing', 'integration', 'e2e', 'testcontainers']
+    source:
+      type: local_folder
+      path: available-skills/functional-tests/integration-e2e-testing
+    destination:
+      folder: .claude/skills
+      name: integration-e2e-testing
+    description: >
+      Comprehensive integration and E2E testing with Playwright, Aspire, Testcontainers and Respawn.
+      Critical rule: NEVER use SQLite for integration tests. ALWAYS reset database at START of test.
+
+  - id: common-playwright-e2e
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['testing', 'e2e', 'playwright', 'browser']
+    source:
+      type: local_folder
+      path: available-skills/functional-tests/playwright-e2e
+    destination:
+      folder: .claude/skills
+      name: playwright-e2e
+    description: >
+      Playwright E2E testing: Page Object Model, locators, assertions, visual regression,
+      accessibility and CI setup. Universal for any project requiring browser-based E2E tests.
+
+  # ============================================
+  # NOTES
+  # ============================================
+  # This scope is ALWAYS active and provisions automatically during setup.
+  # Skills in this scope should be:
+  # - Technology-agnostic (or widely applicable)
+  # - Methodology-focused (not implementation-specific)
+  # - Universally useful regardless of project type
+  # - Maintained with high quality standards

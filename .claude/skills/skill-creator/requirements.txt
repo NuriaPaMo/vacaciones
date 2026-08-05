@@ -1,0 +1,9 @@
+# Bolt Framework - skill-creator dependencies
+# Python 3.9+
+
+# Core dependencies
+anthropic>=0.39.0         # Claude API SDK for skill optimization
+pyyaml>=6.0              # YAML frontmatter parsing
+
+# Optional (for advanced features)
+# If you only need basic validation/packaging, anthropic is not required

@@ -1,0 +1,172 @@
+version: 1
+scope: backend
+description: Artefactos backend reutilizables para el proyecto destino.
+items:
+  # ============================================
+  # BACKEND TESTING SKILLS
+  # ============================================
+
+  - id: backend-integration-e2e-testing
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['testing', 'integration', 'csharp']
+    source:
+      type: local_folder
+      path: available-skills/functional-tests/integration-e2e-testing
+    destination:
+      folder: .claude/skills
+      name: integration-e2e-testing
+    description: >
+      .NET integration testing with Testcontainers and Respawn for SQL Server.
+      CRITICAL: NO SQLite for integration tests - use real database.
+
+  # ============================================
+  # OBSERVABILITY & TELEMETRY
+  # ============================================
+
+  - id: backend-aspire-opentelemetry-frontend
+    kind: skills
+    enabled: false
+    auto_provision: false
+    tags: ['aspire', 'opentelemetry', 'csharp']
+    source:
+      type: local_folder
+      path: available-skills/aspire/skill-aspire-opentelemetry-frontend
+    destination:
+      folder: .claude/skills
+      name: aspire-opentelemetry-frontend
+    description: >
+      OpenTelemetry instrumentation for frontend apps with Aspire dashboard.
+      Enable this when AppHost includes JavaScript/npm frontend apps needing observability.
+      Provides Angular and React implementation patterns.
+
+  # ============================================
+  # MCP & EXTERNAL RESOURCES
+  # ============================================
+
+  - id: backend-mcp-settings-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'settings']
+    source:
+      type: local_file
+      path: scopes/backend/mcp-tools/default.mcp.settings.json
+    destination:
+      folder: .vscode
+      name: settings.json
+
+  - id: backend-mcp-servers-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'servers']
+    source:
+      type: local_file
+      path: scopes/backend/mcp-tools/default.mcp.servers.json
+    destination:
+      folder: .vscode
+      name: mcp.json
+
+  - id: backend-minimal-api-openapi-context7
+    kind: prompts
+    enabled: false
+    tags: ['csharp', 'openapi']
+    source:
+      type: context7
+      library: /dotnet/aspnetcore.docs
+      query: Configure Minimal API with OpenAPI and Swagger
+      resolved_url: https://learn.microsoft.com/aspnet/core/fundamentals/openapi/overview
+      resolved_ref: latest
+      resolved_doc_id: aspnetcore-openapi-overview
+      content_hash: ''
+      fetched_at: ''
+      license: Microsoft Learn terms
+    destination:
+      folder: .github/prompts
+      name: backend-minimal-api-openapi.prompt.md
+
+  - id: backend-integration-testing-context7
+    kind: prompts
+    enabled: false
+    tags: ['csharp', 'testing']
+    source:
+      type: context7
+      library: /dotnet/aspnetcore.docs
+      query: Minimal API returning TypedResults with unit test
+      resolved_url: https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis/responses
+      resolved_ref: latest
+      resolved_doc_id: aspnetcore-minimal-apis-responses
+      content_hash: ''
+      fetched_at: ''
+      license: Microsoft Learn terms
+    destination:
+      folder: .github/prompts
+      name: backend-integration-testing.prompt.md
+
+  - id: backend-dotnet-architecture-awesome
+    kind: instructions
+    enabled: false
+    tags: ['csharp', 'architecture']
+    source:
+      type: awesome_copilot
+      collection: csharp-dotnet-development
+      item_path: instructions/dotnet-architecture-good-practices.instructions.md
+      resolved_url: https://github.com/github/awesome-copilot/tree/main/collections/csharp-dotnet-development/instructions/dotnet-architecture-good-practices.instructions.md
+      resolved_ref: main
+      resolved_doc_id: csharp-dotnet-development/instructions/dotnet-architecture-good-practices.instructions.md
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .github/instructions
+      name: dotnet-architecture-good-practices.instructions.md
+
+  - id: backend-csharp-guidelines-awesome
+    kind: instructions
+    enabled: false
+    tags: ['csharp', 'guidelines']
+    source:
+      type: awesome_copilot
+      collection: csharp-dotnet-development
+      item_path: instructions/csharp.instructions.md
+      resolved_url: https://github.com/github/awesome-copilot/tree/main/collections/csharp-dotnet-development/instructions/csharp.instructions.md
+      resolved_ref: main
+      resolved_doc_id: csharp-dotnet-development/instructions/csharp.instructions.md
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .github/instructions
+      name: csharp.instructions.md
+
+  - id: backend-trailofbits-static-analysis-awesome-skills
+    kind: skills
+    enabled: false
+    tags: ['security', 'analysis']
+    source:
+      type: awesome_skills
+      catalog_url: https://awesome-skills.com/
+      repository: https://github.com/trailofbits/skills
+      plugin: static-analysis
+      listing_url: https://github.com/trailofbits/skills
+      resolved_url: https://github.com/trailofbits/skills
+      resolved_ref: main
+      resolved_doc_id: trailofbits/skills/static-analysis
+      content_hash: ''
+      fetched_at: ''
+      license: CC-BY-SA-4.0
+    destination:
+      folder: .claude/skills
+      name: trailofbits-static-analysis
+
+  - id: backend-constitution
+    kind: templates
+    enabled: true
+    auto_provision: true # Automatically copy when scope is active
+    tags: ['constitution', 'memory']
+    source:
+      type: local_file
+      path: scopes/backend/memory/constitution.md
+    destination:
+      folder: memory
+      name: constitution.md

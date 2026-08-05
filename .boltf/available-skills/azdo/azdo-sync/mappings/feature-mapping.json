@@ -1,0 +1,186 @@
+{
+  "$schema": "./mapping-schema.json",
+  "workItemType": "Feature",
+  "referenceName": "Microsoft.VSTS.WorkItemTypes.Feature",
+  "description": "Tracks a feature that will be released with the product",
+  "color": "773B93",
+  "icon": "icon_trophy",
+  "boltArtifact": "specs/XXX-feature-name/feature.md",
+  "mappings": {
+    "core": {
+      "System.Title": {
+        "boltSource": "feature.md#title",
+        "description": "Feature title from BOLT feature.md front matter",
+        "required": true,
+        "transformation": null,
+        "example": "Time Tracking System"
+      },
+      "System.Description": {
+        "boltSource": "feature.md#description",
+        "description": "Feature description from BOLT feature.md",
+        "required": false,
+        "transformation": "markdown-to-html",
+        "example": "System for employees to log, review, and submit timesheets"
+      },
+      "System.State": {
+        "boltSource": "computed:bolt-phase",
+        "description": "State mapped from BOLT lifecycle phase",
+        "required": true,
+        "allowedValues": [
+          "New",
+          "Active",
+          "Resolved",
+          "Closed"
+        ],
+        "mapping": {
+          "DISCOVERY": "New",
+          "PLANNING": "Active",
+          "CONSTRUCTION": "Active",
+          "TRANSITION": "Resolved",
+          "PRODUCTION": "Closed"
+        },
+        "defaultValue": "New"
+      },
+      "System.AssignedTo": {
+        "boltSource": "feature.md#assignedTo",
+        "description": "Team member assigned to feature",
+        "required": false
+      }
+    },
+    "planning": {
+      "Microsoft.VSTS.Scheduling.StartDate": {
+        "boltSource": "planning/plan.md#startDate",
+        "description": "Planned start date",
+        "required": false,
+        "type": "datetime"
+      },
+      "Microsoft.VSTS.Scheduling.TargetDate": {
+        "boltSource": "planning/plan.md#targetDate",
+        "description": "Target completion date",
+        "required": false,
+        "type": "datetime"
+      },
+      "Microsoft.VSTS.Common.Priority": {
+        "boltSource": "feature.md#priority",
+        "description": "Feature priority",
+        "required": false,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "defaultValue": 2,
+        "mapping": {
+          "Critical": 1,
+          "High": 2,
+          "Medium": 3,
+          "Low": 4
+        }
+      },
+      "Microsoft.VSTS.Scheduling.Effort": {
+        "boltSource": "computed:sum-user-story-effort",
+        "description": "Total effort from all user stories",
+        "required": false,
+        "type": "double",
+        "computation": "sum(userStories.effort)"
+      }
+    },
+    "business": {
+      "Microsoft.VSTS.Common.BusinessValue": {
+        "boltSource": "feature.md#businessValue",
+        "description": "Business value score",
+        "required": false,
+        "type": "integer"
+      },
+      "Microsoft.VSTS.Common.TimeCriticality": {
+        "boltSource": "feature.md#timeCriticality",
+        "description": "Time criticality score",
+        "required": false,
+        "type": "double"
+      },
+      "Microsoft.VSTS.Common.ValueArea": {
+        "boltSource": "feature.md#valueArea",
+        "description": "Value area classification",
+        "required": false,
+        "allowedValues": [
+          "Business",
+          "Architectural"
+        ],
+        "defaultValue": "Business"
+      }
+    },
+    "criteria": {
+      "Microsoft.VSTS.Common.AcceptanceCriteria": {
+        "boltSource": "feature.md#acceptance-criteria",
+        "description": "Acceptance criteria from feature specification",
+        "required": false,
+        "transformation": "markdown-to-html",
+        "extractPattern": "## Acceptance Criteria\\n([\\s\\S]*?)(?=##|$)"
+      }
+    },
+    "classification": {
+      "System.AreaPath": {
+        "boltSource": "computed:area-path",
+        "description": "Area path from constitution structure",
+        "required": true,
+        "transformation": "path",
+        "computation": "memory/constitution.md#article-xv-project-structure",
+        "example": "Registro Horario\\Backend\\TimeTracking"
+      },
+      "System.IterationPath": {
+        "boltSource": "planning/plan.md#iteration",
+        "description": "Sprint/iteration assignment",
+        "required": false,
+        "transformation": "path",
+        "example": "Registro Horario\\Sprint 1"
+      },
+      "System.Tags": {
+        "boltSource": "computed:tags",
+        "description": "Tags for tracking and filtering",
+        "required": false,
+        "transformation": "semicolon-separated",
+        "computation": "concat('Bolt Framework', featureId, phase)",
+        "example": "Bolt Framework;001-time-tracking;CONSTRUCTION"
+      }
+    },
+    "security": {
+      "Custom.ADPT20DataClassification": {
+        "boltSource": "feature.md#security.dataClassification",
+        "description": "Data classification level",
+        "required": false
+      },
+      "Custom.ADPT20PersonalData": {
+        "boltSource": "feature.md#security.personalData",
+        "description": "Contains personal data flag",
+        "required": false
+      },
+      "Custom.ADPT20ThreatModeling": {
+        "boltSource": "feature.md#security.threatModeling",
+        "description": "Threat modeling status",
+        "required": false
+      }
+    }
+  },
+  "relationships": {
+    "parent": {
+      "linkType": "System.LinkTypes.Hierarchy-Reverse",
+      "targetType": "Epic",
+      "boltSource": null,
+      "description": "Optional parent Epic"
+    },
+    "children": {
+      "linkType": "System.LinkTypes.Hierarchy-Forward",
+      "targetType": "Product Backlog Item",
+      "boltSource": "requirements/requirements.md#user-stories",
+      "description": "User stories under this feature"
+    }
+  },
+  "notes": [
+    "Feature is the primary BOLT artifact that maps to Azure DevOps",
+    "Each BOLT feature spec (specs/XXX-feature-name/) creates one Feature work item",
+    "User stories in requirements.md become child Product Backlog Items",
+    "State transitions follow BOLT lifecycle phases automatically",
+    "Tags always include 'Bolt Framework' and feature ID for traceability"
+  ]
+}

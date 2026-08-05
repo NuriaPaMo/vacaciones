@@ -1,0 +1,60 @@
+{
+    "servers": {
+        "azure": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@azure/mcp@latest",
+                "server",
+                "start",
+                "--mode",
+                "namespace",
+                "--namespace",
+                "foundry",
+                "--namespace",
+                "group",
+                "--namespace",
+                "subscription",
+                "--namespace",
+                "policy",
+                "--namespace",
+                "role",
+                "--namespace",
+                "quota",
+                "--namespace",
+                "resourcehealth",
+                "--namespace",
+                "monitor",
+                "--namespace",
+                "deploy",
+                "--namespace",
+                "bicepschema"
+            ]
+        },
+        "azureDevOps": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@azure-devops/mcp@latest"
+            ]
+        },
+        "terraform": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@hashicorp/terraform-mcp-server@latest"
+            ]
+        },
+        "github": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@github/github-mcp-server@latest"
+            ]
+        }
+    }
+}

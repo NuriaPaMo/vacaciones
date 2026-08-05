@@ -1,0 +1,125 @@
+name: "✅ SME Approve Access Request"
+
+# Listens for /approve (or /reject) slash commands posted as issue comments.
+#
+# Flow:
+#   1. Fires when a comment is created on an issue that has both
+#      'access-request' and 'pending-approval' labels.
+#   2. Verifies the commenter is an active member of the 'boltf-smes' team.
+#      → If NOT a member: replies with an informational message and stops.
+#   3. On /approve: removes 'pending-approval', adds 'approved-by-smes'.
+#      The label addition re-triggers issue-access-triage.yml which will
+#      call add-to-learning-group.yml to complete the access grant.
+#   4. On /reject <reason>: removes 'pending-approval', adds a rejection
+#      comment, and closes the issue.
+#
+# Required secrets:
+#   ORG_TOKEN — Personal Access Token (classic) with scopes: repo, read:org
+#               - read:org: list boltf-smes team members to verify the commenter.
+#               - repo: add/remove labels on issues; also needed so the label event
+#                 fires downstream workflows (GITHUB_TOKEN label writes are suppressed
+#                 by GitHub to prevent workflow loops).
+#               Note: uses GET /teams/{slug}/members (list) rather than
+#               GET /teams/{slug}/memberships/{user} to avoid scope edge-cases.
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  process-slash-command:
+    name: "Process /approve or /reject command"
+    # Only act on issues (not PR review comments) that are pending access approval.
+    if: |
+      contains(github.event.issue.labels.*.name, 'access-request') &&
+      contains(github.event.issue.labels.*.name, 'pending-approval') &&
+      (startsWith(github.event.comment.body, '/approve') || startsWith(github.event.comment.body, '/reject'))
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ORG_TOKEN: ${{ secrets.ORG_TOKEN }}
+    steps:
+      - name: Verify commenter is a member of boltf-smes
+        id: verify-membership
+        run: |
+          # List all team members and check if the commenter is among them.
+          # This uses the same /members endpoint that already works for assignment,
+          # avoiding the /memberships/{user} endpoint which requires stricter scopes.
+          MEMBERS=$(curl -s \
+            -H "Authorization: Bearer $ORG_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/orgs/Avanade-Region-Spain/teams/boltf-smes/members?per_page=100" \
+            | jq -r '.[].login')
+
+          if echo "$MEMBERS" | grep -qx "${{ github.event.comment.user.login }}"; then
+            echo "is_member=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_member=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Reject if commenter is not a team member
+        if: steps.verify-membership.outputs.is_member != 'true'
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --body "⛔ @${{ github.event.comment.user.login }} — Only members of \`@Avanade-Region-Spain/boltf-smes\` can approve or reject access requests."
+
+      # ── /approve path ────────────────────────────────────────────────────────
+      - name: Approve — add approved-by-smes label
+        if: |
+          steps.verify-membership.outputs.is_member == 'true' &&
+          startsWith(github.event.comment.body, '/approve')
+        # IMPORTANT: use ORG_TOKEN (PAT) here, NOT the default GITHUB_TOKEN.
+        # GitHub suppresses 'issues.labeled' events raised by GITHUB_TOKEN to
+        # prevent workflow loops, so add-to-learning-group.yml would never be
+        # triggered if we used the default token.
+        env:
+          GH_TOKEN: ${{ secrets.ORG_TOKEN }}
+        run: |
+          gh issue edit "${{ github.event.issue.number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --remove-label "pending-approval" || true
+
+          gh issue edit "${{ github.event.issue.number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --add-label "approved-by-smes"
+
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --body "✅ Access request **approved** by @${{ github.event.comment.user.login }}. Processing membership assignment — please wait a moment..."
+
+      # ── /reject path ─────────────────────────────────────────────────────────
+      - name: Reject — close issue with reason
+        if: |
+          steps.verify-membership.outputs.is_member == 'true' &&
+          startsWith(github.event.comment.body, '/reject')
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          REASON=$(echo "$COMMENT_BODY" | sed 's|^/reject[[:space:]]*||I')
+
+          gh issue edit "${{ github.event.issue.number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --remove-label "pending-approval" || true
+
+          if [ -n "$REASON" ]; then
+            BODY="❌ Access request **rejected** by @${{ github.event.comment.user.login }}.
+
+          **Reason:** $REASON
+
+          This issue has been closed. If you believe this is a mistake, please contact the \`boltf-smes\` team."
+          else
+            BODY="❌ Access request **rejected** by @${{ github.event.comment.user.login }}.
+
+          This issue has been closed. If you believe this is a mistake, please contact the \`boltf-smes\` team."
+          fi
+
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --body "$BODY"
+
+          gh issue close "${{ github.event.issue.number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --reason "not planned"

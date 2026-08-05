@@ -1,0 +1,84 @@
+﻿# =============================================================================
+# Bolt Framework — Active Scopes Configuration
+# Generated: 2026-08-05 13:15:47
+# =============================================================================
+# This file declares which scopes are active and records all wizard decisions.
+# Each scope injects its own constitution sections from
+#   .boltf/scopes/<scope>/memory/constitution.md
+# The work-management scope is always active (transversal).
+# =============================================================================
+
+project:
+  practice: Apps & Infra      # Practice selection (Phase 3)
+  type: full-stack       # derived from scopes
+  migration-type: green   # green | brown
+  work-management-tool: azure-boards    # Work item tracking integration (Step 1.5)
+
+  # Development Environment (Step 1.6)
+  local-orchestration: none     # docker-compose | kubernetes | podman | aspire | none
+  frontend-framework: vue       # react | angular | vue | none
+  cloud-dev-environment: none  # codespaces | devcontainers | both | none
+  container-runtime: none         # docker | podman | none
+
+active-scopes:
+  - backend
+  - frontend
+  - cloud-platform
+
+# Transversal (always active, not selectable)
+transversal-scopes:
+  - work-management
+
+# ─── Wizard Decisions ───────────────────────────────────────────────────────
+# These capture every choice made during initialization so downstream agents
+# can read them without re-parsing the constitution markdown.
+
+decisions:
+  # Article X — Environments & Configuration
+  environments:
+    enabled: [dev, prod]
+    auto-deploy:
+      dev: true
+      prod: true
+  config-management: config-files
+  secrets-dev: env-files
+  feature-flags: none
+
+  # Article XI — CI/CD Pipeline
+  cicd:
+    platform: azure-devops
+    iac-tool: terraform
+    deploy-strategy: rolling
+    branch-strategy: gitflow
+    pipeline-stages:
+      application: [build, lint-format, unit-tests, security-scan]
+      infrastructure: [iac-lint, iac-validation, security-scan]
+      deployment: [deploy-dev, deploy-prod]
+    thresholds:
+      unit-test-coverage: 80
+      mutation-score: 0
+
+  # Article XII — Observability
+  observability: otel-azure
+  infra-monitoring: [activity-logs, diagnostics, alerts, dashboards, resource-health]
+
+  # Article XVI — Security Policies
+  security:
+    vnet: false
+    private-endpoints: false
+    waf: false
+    encryption-keys: azure-managed
+    pii-handling: encryption
+    compliance: [gdpr]
+
+  # Frontend scope decisions
+  frontend:
+    design-tool: none      # penpot-local | penpot-remote | none
+
+# Base constitution articles (always present):
+#   I   — Project Scope & Type
+#   X   — Environments & Configuration
+#   XI  — CI/CD Pipeline
+#   XII — Observability
+#   XVI — Security Policies
+#   XIX — Governance

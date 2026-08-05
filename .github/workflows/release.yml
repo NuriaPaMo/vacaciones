@@ -1,0 +1,394 @@
+# Bolt Framework Release Pipeline
+# Automated release workflow aligned with Release Orchestrator Agent
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        type: string
+      release_type:
+        description: 'Release type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ============================================================================
+  # Version Validation
+  # ============================================================================
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION=${{ github.event.inputs.version }}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
+
+      - name: Validate semantic version
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+            echo "Error: Invalid semantic version format: $VERSION"
+            exit 1
+          fi
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$PREV_TAG" ]; then
+            echo "Generating changelog since $PREV_TAG"
+            CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          else
+            echo "First release - generating full changelog"
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges | head -50)
+          fi
+
+          # Store multiline changelog
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "changelog<<$EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: Check release notes
+        run: |
+          if [ -f "CHANGELOG.md" ]; then
+            echo "✅ CHANGELOG.md found"
+          else
+            echo "⚠️ No CHANGELOG.md - will generate from commits"
+          fi
+
+  # ============================================================================
+  # Build and Test
+  # ============================================================================
+  build:
+    name: Build Release
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: |
+          if node -e "const s=require('./package.json').scripts||{}; process.exit(s['test:unit'] ? 0 : 1)"; then
+            npm run test:unit -- --coverage
+          elif node -e "const s=require('./package.json').scripts||{}; process.exit(s['test'] ? 0 : 1)"; then
+            npm run test -- --coverage
+          else
+            echo "No test script found (test:unit/test). Skipping tests."
+          fi
+
+      - name: Build application
+        run: |
+          if node -e "const s=require('./package.json').scripts||{}; process.exit(s['build'] ? 0 : 1)"; then
+            npm run build
+          else
+            echo "No build script found. Skipping build step."
+          fi
+
+      - name: Update version in package.json
+        run: |
+          npm version ${{ needs.validate.outputs.version }} --no-git-tag-version
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: dist
+          path: dist/
+          retention-days: 5
+
+  # ============================================================================
+  # File Detection (hashFiles() is not available in job-level if:)
+  # ============================================================================
+  detect-files:
+    name: Detect File Types
+    runs-on: ubuntu-latest
+    needs: [validate, build]
+    outputs:
+      has-dockerfile: ${{ steps.detect.outputs.has-dockerfile }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Detect Dockerfile
+        id: detect
+        run: |
+          [[ -f "Dockerfile" ]] \
+            && echo "has-dockerfile=true" >> "$GITHUB_OUTPUT" \
+            || echo "has-dockerfile=false" >> "$GITHUB_OUTPUT"
+
+  # ============================================================================
+  # Container Image Build
+  # ============================================================================
+  docker:
+    name: Build Container Image
+    runs-on: ubuntu-latest
+    needs: [validate, build, detect-files]
+    if: needs.detect-files.outputs.has-dockerfile == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: dist
+          path: dist/
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}},value=v${{ needs.validate.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ needs.validate.outputs.version }}
+            type=semver,pattern={{major}},value=v${{ needs.validate.outputs.version }}
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: true
+          sbom: true
+
+      - name: Sign container image
+        run: |
+          echo "Container image signing with cosign (requires setup)"
+          # cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate.outputs.version }}
+
+  # ============================================================================
+  # NPM Package Publish
+  # ============================================================================
+  npm-publish:
+    name: Publish to NPM
+    runs-on: ubuntu-latest
+    needs: [validate, build]
+    if: github.event.inputs.release_type != 'prerelease'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Download build artifacts
+        id: download
+        uses: actions/download-artifact@v5
+        continue-on-error: true
+        with:
+          name: dist
+          path: dist/
+
+      - name: Check publish preconditions
+        id: check
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [[ "${{ steps.download.outcome }}" != "success" ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "⚠️ No dist artifact found. Skipping NPM publish."
+          elif node -e "const p=require('./package.json'); process.exit(p.private ? 1 : 0)"; then
+            if [[ -z "$NPM_TOKEN" ]]; then
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "⚠️ NPM_TOKEN secret not set. Skipping NPM publish."
+            else
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "⚠️ package.json is private. Skipping NPM publish."
+          fi
+
+      - name: Update version
+        if: steps.check.outputs.skip != 'true'
+        run: npm version ${{ needs.validate.outputs.version }} --no-git-tag-version
+
+      - name: Publish to NPM
+        if: steps.check.outputs.skip != 'true'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ============================================================================
+  # GitHub Release
+  # ============================================================================
+  github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate, build, docker]
+    if: always() && needs.build.result == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Download build artifacts
+        id: download-dist
+        uses: actions/download-artifact@v5
+        continue-on-error: true
+        with:
+          name: dist
+          path: dist/
+
+      - name: Create release archive
+        run: |
+          if [[ "${{ steps.download-dist.outcome }}" == "success" ]] && [[ -d "dist" ]]; then
+            cd dist
+            tar -czvf ../release-${{ needs.validate.outputs.version }}.tar.gz .
+            cd ..
+            zip -r release-${{ needs.validate.outputs.version }}.zip dist/
+          else
+            echo "⚠️ No dist artifact found. Skipping archive creation."
+            touch release-${{ needs.validate.outputs.version }}.tar.gz
+            touch release-${{ needs.validate.outputs.version }}.zip
+          fi
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          cat << 'EOF' > release-notes.md
+          ## What's Changed
+
+          ${{ needs.validate.outputs.changelog }}
+
+          ## Installation
+
+          ### NPM
+          ```bash
+          npm install bolt-framework@${{ needs.validate.outputs.version }}
+          ```
+
+          ### Docker
+          ```bash
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate.outputs.version }}
+          ```
+
+          ## Full Changelog
+          https://github.com/${{ github.repository }}/compare/v${{ needs.validate.outputs.version }}...HEAD
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.validate.outputs.version }}
+          name: Release v${{ needs.validate.outputs.version }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
+          files: |
+            release-${{ needs.validate.outputs.version }}.tar.gz
+            release-${{ needs.validate.outputs.version }}.zip
+          generate_release_notes: true
+
+  # ============================================================================
+  # Post-Release Notifications
+  # ============================================================================
+  notify:
+    name: Release Notifications
+    runs-on: ubuntu-latest
+    needs: [validate, github-release]
+    if: success()
+    steps:
+      - name: Notify success
+        run: |
+          echo "## Release Complete 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.validate.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Release URL:** https://github.com/${{ github.repository }}/releases/tag/v${{ needs.validate.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Post to Slack
+        if: env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"🚀 Release v${{ needs.validate.outputs.version }} has been published!\nSee: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.validate.outputs.version }}\"}" \
+            $SLACK_WEBHOOK_URL
+
+  # ============================================================================
+  # Rollback Preparation
+  # ============================================================================
+  rollback-prep:
+    name: Prepare Rollback
+    runs-on: ubuntu-latest
+    needs: [validate, github-release]
+    if: success()
+    steps:
+      - name: Document rollback procedure
+        run: |
+          echo "## Rollback Information" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "If rollback is needed, use:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "# Rollback to previous version" >> $GITHUB_STEP_SUMMARY
+          echo "git checkout tags/v<PREVIOUS_VERSION>" >> $GITHUB_STEP_SUMMARY
+          echo "# Or redeploy previous container image" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:<PREVIOUS_VERSION>" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

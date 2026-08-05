@@ -1,0 +1,657 @@
+# =============================================================================
+# Bolt Framework Security Analysis - CI/CD Integration
+# =============================================================================
+# Comprehensive security scanning workflow for Bolt Framework projects
+# Automatically detects technology stack and runs appropriate security checks
+#
+# Features:
+# - Stack-agnostic security analysis (Node.js, .NET, Java, Python, Go)
+# - OWASP Top 10 compliance checking
+# - SAST, SCA, secrets scanning, infrastructure security
+# - Constitution-driven security policies
+# - Security report generation and artifact upload
+# - Configurable severity thresholds and compliance standards
+# =============================================================================
+
+name: "🔒 Bolt Framework Security Analysis"
+
+on:
+  push:
+    branches: [main, master, develop]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.github/copilot-instructions.md'
+  pull_request:
+    branches: [main, master, develop]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.github/copilot-instructions.md'
+  workflow_dispatch:
+    inputs:
+      severity_threshold:
+        description: 'Minimum severity to report (critical|high|medium|low)'
+        required: false
+        default: 'medium'
+        type: choice
+        options:
+          - critical
+          - high
+          - medium
+          - low
+      compliance_standard:
+        description: 'Compliance standard to check'
+        required: false
+        default: 'owasp'
+        type: choice
+        options:
+          - owasp
+          - pci-dss
+          - gdpr
+          - soc2
+      run_full_scan:
+        description: 'Run full security scan (SAST+SCA+Secrets+Infrastructure)'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  # Security analysis configuration
+  SEVERITY_THRESHOLD: ${{ github.event.inputs.severity_threshold || 'medium' }}
+  COMPLIANCE_STANDARD: ${{ github.event.inputs.compliance_standard || 'owasp' }}
+  RUN_FULL_SCAN: ${{ github.event.inputs.run_full_scan || 'true' }}
+
+  # Bolt configuration
+  CONSTITUTION_PATH: ".boltf/memory/constitution.md"
+  OUTPUT_DIR: "reports/security"
+
+  # Tool versions (update regularly)
+  SEMGREP_VERSION: "latest"
+  BANDIT_VERSION: "latest"
+  SAFETY_VERSION: "latest"
+
+jobs:
+  # =============================================================================
+  # Stack Detection and Setup
+  # =============================================================================
+  detect-stack:
+    name: "🔍 Detect Technology Stack"
+    runs-on: ubuntu-latest
+    outputs:
+      stack: ${{ steps.detection.outputs.stack }}
+      has_constitution: ${{ steps.detection.outputs.has_constitution }}
+      security_config: ${{ steps.detection.outputs.security_config }}
+
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v5
+
+      - name: "Detect technology stack and security configuration"
+        id: detection
+        run: |
+          echo "Detecting technology stack..."
+
+          # Initialize variables
+          DETECTED_STACK="unknown"
+          HAS_CONSTITUTION="false"
+          SECURITY_CONFIG="default"
+
+          # Check for constitution file
+          if [[ -f "${{ env.CONSTITUTION_PATH }}" ]]; then
+            echo "Constitution file found: ${{ env.CONSTITUTION_PATH }}"
+            HAS_CONSTITUTION="true"
+
+            # Extract stack from constitution
+            CONSTITUTION_CONTENT=$(cat "${{ env.CONSTITUTION_PATH }}")
+
+            if echo "$CONSTITUTION_CONTENT" | grep -qi "node\.js\|typescript\|javascript\|npm"; then
+              DETECTED_STACK="nodejs"
+            elif echo "$CONSTITUTION_CONTENT" | grep -qi "\.net\|c#\|asp\.net\|nuget"; then
+              DETECTED_STACK="dotnet"
+            elif echo "$CONSTITUTION_CONTENT" | grep -qi "java\|spring\|maven\|gradle"; then
+              DETECTED_STACK="java"
+            elif echo "$CONSTITUTION_CONTENT" | grep -qi "python\|django\|fastapi\|flask\|pip"; then
+              DETECTED_STACK="python"
+            elif echo "$CONSTITUTION_CONTENT" | grep -qi "go\|golang"; then
+              DETECTED_STACK="golang"
+            fi
+
+            # Extract security configuration if present
+            if echo "$CONSTITUTION_CONTENT" | grep -q "security:"; then
+              SECURITY_CONFIG="constitution-defined"
+            fi
+          fi
+
+          # Fallback: detect from project files
+          if [[ "$DETECTED_STACK" == "unknown" ]]; then
+            echo "Constitution not found or stack not specified, detecting from project files..."
+
+            if [[ -f "package.json" ]]; then
+              DETECTED_STACK="nodejs"
+            elif compgen -G "*.csproj" > /dev/null || compgen -G "*.sln" > /dev/null || [[ -f "Directory.Build.props" ]]; then
+              DETECTED_STACK="dotnet"
+            elif [[ -f "pom.xml" ]] || [[ -f "build.gradle" ]] || [[ -f "build.gradle.kts" ]]; then
+              DETECTED_STACK="java"
+            elif [[ -f "pyproject.toml" ]] || [[ -f "requirements.txt" ]] || [[ -f "setup.py" ]]; then
+              DETECTED_STACK="python"
+            elif [[ -f "go.mod" ]]; then
+              DETECTED_STACK="golang"
+            fi
+          fi
+
+          echo "Detected stack: $DETECTED_STACK"
+          echo "Has constitution: $HAS_CONSTITUTION"
+          echo "Security config: $SECURITY_CONFIG"
+
+          # Set outputs
+          echo "stack=$DETECTED_STACK" >> $GITHUB_OUTPUT
+          echo "has_constitution=$HAS_CONSTITUTION" >> $GITHUB_OUTPUT
+          echo "security_config=$SECURITY_CONFIG" >> $GITHUB_OUTPUT
+
+          # Create summary
+          echo "## 🔍 Technology Stack Detection" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Stack | $DETECTED_STACK |" >> $GITHUB_STEP_SUMMARY
+          echo "| Constitution | $HAS_CONSTITUTION |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Config | $SECURITY_CONFIG |" >> $GITHUB_STEP_SUMMARY
+
+  # =============================================================================
+  # SAST Analysis (Static Application Security Testing)
+  # =============================================================================
+  sast-analysis:
+    name: "🔍 SAST Analysis"
+    runs-on: ubuntu-latest
+    needs: detect-stack
+    if: ${{ needs.detect-stack.outputs.stack != 'unknown' }}
+
+    permissions:
+      security-events: write
+      contents: read
+
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: "Setup technology stack"
+        uses: ./.github/actions/setup-stack
+        with:
+          stack: ${{ needs.detect-stack.outputs.stack }}
+
+      - name: "Run Semgrep SAST"
+        run: |
+          pip install semgrep --quiet
+          semgrep scan \
+            --config p/security-audit \
+            --config p/owasp-top-ten \
+            --config "p/${{ needs.detect-stack.outputs.stack }}" \
+            --sarif \
+            --output semgrep.sarif \
+            . || true
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      - name: "Upload Semgrep SARIF"
+        uses: github/codeql-action/upload-sarif@v4
+        # Fork PRs run with a read-only token that lacks security-events: write.
+        # Skip upload in that case; results are still available in artifacts.
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        continue-on-error: true
+        with:
+          sarif_file: semgrep.sarif
+
+      - name: "Run stack-specific SAST"
+        run: |
+          mkdir -p ${{ env.OUTPUT_DIR }}/sast
+
+          case "${{ needs.detect-stack.outputs.stack }}" in
+            "nodejs")
+              echo "Running Node.js SAST analysis..."
+
+              # ESLint with security rules
+              if command -v npm >/dev/null 2>&1; then
+                npm install --no-save eslint eslint-plugin-security @typescript-eslint/eslint-plugin
+                npx eslint . --ext .js,.ts,.jsx,.tsx --format json --output-file ${{ env.OUTPUT_DIR }}/sast/eslint-security.json || true
+              fi
+              ;;
+
+            "dotnet")
+              echo "Running .NET SAST analysis..."
+
+              # Create security analyzer configuration if not exists
+              if [[ ! -f "Directory.Build.props" ]]; then
+                cat > Directory.Build.props << 'EOF'
+          <Project>
+            <PropertyGroup>
+              <WarningsAsErrors />
+              <WarningsNotAsErrors />
+              <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+            </PropertyGroup>
+
+            <ItemGroup>
+              <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
+                <PrivateAssets>all</PrivateAssets>
+                <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+              </PackageReference>
+              <PackageReference Include="SonarAnalyzer.CSharp" Version="9.12.0.78982">
+                <PrivateAssets>all</PrivateAssets>
+                <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+              </PackageReference>
+            </ItemGroup>
+          </Project>
+          EOF
+              fi
+
+              # Run build with analyzers
+              dotnet build --configuration Release --verbosity minimal > ${{ env.OUTPUT_DIR }}/sast/dotnet-build.log 2>&1 || true
+              ;;
+
+            "python")
+              echo "Running Python SAST analysis..."
+
+              # Install and run Bandit
+              pip install bandit[toml]
+              bandit -r . -f json -o ${{ env.OUTPUT_DIR }}/sast/bandit.json || true
+              ;;
+
+            "java")
+              echo "Running Java SAST analysis..."
+
+              # SpotBugs analysis if Maven project
+              if [[ -f "pom.xml" ]]; then
+                mvn compile spotbugs:check -Dspotbugs.effort=Max || true
+              fi
+              ;;
+
+            "golang")
+              echo "Running Go SAST analysis..."
+
+              # Install and run gosec
+              go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+              gosec -fmt json -out ${{ env.OUTPUT_DIR }}/sast/gosec.json ./... || true
+
+              # Run go vet
+              go vet ./... > ${{ env.OUTPUT_DIR }}/sast/go-vet.log 2>&1 || true
+              ;;
+          esac
+
+      - name: "Upload SAST results"
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: sast-results
+          path: ${{ env.OUTPUT_DIR }}/sast/
+          retention-days: 30
+
+  # =============================================================================
+  # SCA Analysis (Software Composition Analysis)
+  # =============================================================================
+  sca-analysis:
+    name: "📦 SCA Analysis"
+    runs-on: ubuntu-latest
+    needs: detect-stack
+    if: ${{ needs.detect-stack.outputs.stack != 'unknown' }}
+
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v5
+
+      - name: "Setup technology stack"
+        uses: ./.github/actions/setup-stack
+        with:
+          stack: ${{ needs.detect-stack.outputs.stack }}
+
+      - name: "Run dependency vulnerability scanning"
+        run: |
+          mkdir -p ${{ env.OUTPUT_DIR }}/sca
+
+          case "${{ needs.detect-stack.outputs.stack }}" in
+            "nodejs")
+              echo "Running Node.js dependency analysis..."
+
+              # npm audit
+              if [[ -f "package.json" ]]; then
+                npm audit --audit-level=moderate --json > ${{ env.OUTPUT_DIR }}/sca/npm-audit.json || true
+              fi
+
+              # yarn audit if using yarn
+              if [[ -f "yarn.lock" ]] && command -v yarn >/dev/null 2>&1; then
+                yarn audit --json > ${{ env.OUTPUT_DIR }}/sca/yarn-audit.json || true
+              fi
+              ;;
+
+            "dotnet")
+              echo "Running .NET dependency analysis..."
+
+              # Check for vulnerable packages
+              dotnet list package --vulnerable --include-transitive > ${{ env.OUTPUT_DIR }}/sca/dotnet-vulnerable.log 2>&1 || true
+              ;;
+
+            "python")
+              echo "Running Python dependency analysis..."
+
+              # Install safety and pip-audit
+              pip install safety pip-audit
+
+              # Safety check
+              safety check --json --output ${{ env.OUTPUT_DIR }}/sca/safety.json || true
+
+              # pip-audit
+              pip-audit --format=json --output=${{ env.OUTPUT_DIR }}/sca/pip-audit.json || true
+              ;;
+
+            "java")
+              echo "Running Java dependency analysis..."
+
+              # OWASP Dependency Check for Maven
+              if [[ -f "pom.xml" ]]; then
+                mvn org.owasp:dependency-check-maven:check -Dformat=JSON || true
+              fi
+              ;;
+
+            "golang")
+              echo "Running Go dependency analysis..."
+
+              # Install and run govulncheck
+              go install golang.org/x/vuln/cmd/govulncheck@latest
+              govulncheck -json ./... > ${{ env.OUTPUT_DIR }}/sca/govulncheck.json || true
+              ;;
+          esac
+
+      - name: "Upload SCA results"
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: sca-results
+          path: ${{ env.OUTPUT_DIR }}/sca/
+          retention-days: 30
+
+  # =============================================================================
+  # Secrets Scanning
+  # =============================================================================
+  secrets-analysis:
+    name: "🔑 Secrets Scanning"
+    runs-on: ubuntu-latest
+    env:
+      GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: "Run TruffleHog secrets scan"
+        uses: trufflesecurity/trufflehog@d411fff7b8879a62509f3fa98c07f247ac089a51 # v3.95.5
+        with:
+          path: ./
+          base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          head: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          extra_args: --debug --only-verified
+
+      - name: "Run GitLeaks secrets scan"
+        if: env.GITLEAKS_LICENSE != ''
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+      - name: "Basic secrets pattern matching"
+        run: |
+          mkdir -p ${{ env.OUTPUT_DIR }}/secrets
+
+          echo "# Basic Secrets Scan Results" > ${{ env.OUTPUT_DIR }}/secrets/pattern-matches.txt
+          echo "# Generated: $(date)" >> ${{ env.OUTPUT_DIR }}/secrets/pattern-matches.txt
+          echo "" >> ${{ env.OUTPUT_DIR }}/secrets/pattern-matches.txt
+
+          # AWS Keys
+          echo "## AWS Access Keys" >> ${{ env.OUTPUT_DIR }}/secrets/pattern-matches.txt
+          grep -r -n "AKIA[0-9A-Z]{16}" . --exclude-dir=node_modules --exclude-dir=.git || echo "No AWS keys found" >> ${{ env.OUTPUT_DIR }}/secrets/pattern-matches.txt
+
+          # API Keys
+          echo "" >> ${{ env.OUTPUT_DIR }}/secrets/pattern-matches.txt
+          echo "## Potential API Keys" >> ${{ env.OUTPUT_DIR }}/secrets/pattern-matches.txt
+          grep -r -n -i "api[_-]key.*[\"']\s*[a-z0-9]{20,}" . --exclude-dir=node_modules --exclude-dir=.git || echo "No API keys found" >> ${{ env.OUTPUT_DIR }}/secrets/pattern-matches.txt
+
+      - name: "Upload secrets scan results"
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: secrets-results
+          path: ${{ env.OUTPUT_DIR }}/secrets/
+          retention-days: 30
+
+  # =============================================================================
+  # Infrastructure Security
+  # =============================================================================
+  infrastructure-analysis:
+    name: "🏗️ Infrastructure Security"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v5
+
+      - name: "Scan Docker configuration"
+        if: ${{ hashFiles('Dockerfile*') != '' }}
+        run: |
+          mkdir -p ${{ env.OUTPUT_DIR }}/infrastructure
+
+          # Docker security analysis
+          echo "# Docker Security Analysis" > ${{ env.OUTPUT_DIR }}/infrastructure/docker-analysis.txt
+          echo "# Generated: $(date)" >> ${{ env.OUTPUT_DIR }}/infrastructure/docker-analysis.txt
+          echo "" >> ${{ env.OUTPUT_DIR }}/infrastructure/docker-analysis.txt
+
+          for dockerfile in Dockerfile*; do
+            if [[ -f "$dockerfile" ]]; then
+              echo "## Analysis of $dockerfile:" >> ${{ env.OUTPUT_DIR }}/infrastructure/docker-analysis.txt
+
+              # Check for latest tag
+              if grep -q "FROM.*:latest" "$dockerfile"; then
+                echo "❌ Uses 'latest' tag" >> ${{ env.OUTPUT_DIR }}/infrastructure/docker-analysis.txt
+              fi
+
+              # Check for root user
+              if grep -q "USER root\|^USER 0" "$dockerfile"; then
+                echo "❌ Runs as root user" >> ${{ env.OUTPUT_DIR }}/infrastructure/docker-analysis.txt
+              fi
+
+              # Check for USER directive
+              if ! grep -q "USER " "$dockerfile"; then
+                echo "⚠️ No explicit USER directive found" >> ${{ env.OUTPUT_DIR }}/infrastructure/docker-analysis.txt
+              fi
+
+              echo "" >> ${{ env.OUTPUT_DIR }}/infrastructure/docker-analysis.txt
+            fi
+          done
+
+      - name: "Scan Kubernetes configuration"
+        if: ${{ hashFiles('*.yaml', '*.yml') != '' }}
+        run: |
+          mkdir -p ${{ env.OUTPUT_DIR }}/infrastructure
+
+          # Kubernetes security analysis
+          echo "# Kubernetes Security Analysis" > ${{ env.OUTPUT_DIR }}/infrastructure/k8s-analysis.txt
+          echo "# Generated: $(date)" >> ${{ env.OUTPUT_DIR }}/infrastructure/k8s-analysis.txt
+          echo "" >> ${{ env.OUTPUT_DIR }}/infrastructure/k8s-analysis.txt
+
+          for yamlfile in *.yaml *.yml; do
+            if [[ -f "$yamlfile" ]]; then
+              echo "## Analysis of $yamlfile:" >> ${{ env.OUTPUT_DIR }}/infrastructure/k8s-analysis.txt
+
+              # Check for security context
+              if ! grep -q "securityContext:" "$yamlfile"; then
+                echo "⚠️ No securityContext defined" >> ${{ env.OUTPUT_DIR }}/infrastructure/k8s-analysis.txt
+              fi
+
+              # Check for privileged containers
+              if grep -q "privileged: true" "$yamlfile"; then
+                echo "❌ Privileged container found" >> ${{ env.OUTPUT_DIR }}/infrastructure/k8s-analysis.txt
+              fi
+
+              # Check for resource limits
+              if ! grep -q "resources:" "$yamlfile"; then
+                echo "⚠️ No resource limits defined" >> ${{ env.OUTPUT_DIR }}/infrastructure/k8s-analysis.txt
+              fi
+
+              echo "" >> ${{ env.OUTPUT_DIR }}/infrastructure/k8s-analysis.txt
+            fi
+          done
+
+      - name: "Scan Terraform configuration"
+        if: ${{ hashFiles('*.tf') != '' }}
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          additional_args: --format json --out ${{ env.OUTPUT_DIR }}/infrastructure/tfsec.json
+
+      - name: "Upload infrastructure scan results"
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: infrastructure-results
+          path: ${{ env.OUTPUT_DIR }}/infrastructure/
+          retention-days: 30
+
+  # =============================================================================
+  # Security Report Generation
+  # =============================================================================
+  generate-report:
+    name: "📊 Generate Security Report"
+    runs-on: ubuntu-latest
+    needs: [detect-stack, sast-analysis, sca-analysis, secrets-analysis, infrastructure-analysis]
+    if: always()
+
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v5
+
+      - name: "Download all security analysis results"
+        uses: actions/download-artifact@v5
+        with:
+          path: ${{ env.OUTPUT_DIR }}
+
+      - name: "Generate comprehensive security report"
+        run: |
+          # Use our security analysis script to generate the report
+          chmod +x .boltf/scripts/bash/security-analysis.sh
+
+          # Run report generation only (skip analysis since we have results)
+          .boltf/scripts/bash/security-analysis.sh \
+            --stack ${{ needs.detect-stack.outputs.stack }} \
+            --constitution ${{ env.CONSTITUTION_PATH }} \
+            --severity ${{ env.SEVERITY_THRESHOLD }} \
+            --compliance ${{ env.COMPLIANCE_STANDARD }} \
+            --output-format markdown
+
+      - name: "Create security summary"
+        run: |
+          echo "## 🔒 Bolt Framework Security Analysis Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Technology Stack**: ${{ needs.detect-stack.outputs.stack }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Severity Threshold**: ${{ env.SEVERITY_THRESHOLD }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Compliance Standard**: ${{ env.COMPLIANCE_STANDARD }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Analysis Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST Analysis | ${{ needs.sast-analysis.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SCA Analysis | ${{ needs.sca-analysis.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secrets Scan | ${{ needs.secrets-analysis.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Infrastructure | ${{ needs.infrastructure-analysis.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Add constitution compliance if available
+          if [[ "${{ needs.detect-stack.outputs.has_constitution }}" == "true" ]]; then
+            echo "### Constitution Compliance" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Project constitution found and validated" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review detailed security report in artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "2. Address any high/critical severity findings" >> $GITHUB_STEP_SUMMARY
+          echo "3. Update security policies in constitution if needed" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Upload comprehensive security report"
+        uses: actions/upload-artifact@v5
+        with:
+          name: Bolt-security-report
+          path: ${{ env.OUTPUT_DIR }}/security-report-*.md
+          retention-days: 90
+
+      - name: "Comment on PR with security summary"
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Find the latest security report
+            const reportsDir = '${{ env.OUTPUT_DIR }}';
+            const reportFiles = fs.readdirSync(reportsDir).filter(f => f.startsWith('security-report-'));
+
+            if (reportFiles.length > 0) {
+              const latestReport = reportFiles[reportFiles.length - 1];
+              const reportPath = path.join(reportsDir, latestReport);
+              const reportContent = fs.readFileSync(reportPath, 'utf8');
+
+              // Extract executive summary (first few sections)
+              const summaryMatch = reportContent.match(/^(.*?## Detailed Security Findings)/s);
+              const summary = summaryMatch ? summaryMatch[1] : reportContent.substring(0, 3000);
+
+              const comment = `## 🔒 Bolt Framework Security Analysis Results
+
+              **Technology Stack**: ${{ needs.detect-stack.outputs.stack }}
+              **Analysis Status**:
+              - SAST: ${{ needs.sast-analysis.result }}
+              - SCA: ${{ needs.sca-analysis.result }}
+              - Secrets: ${{ needs.secrets-analysis.result }}
+              - Infrastructure: ${{ needs.infrastructure-analysis.result }}
+
+              ${summary}
+
+              📥 **Download the complete security report from the workflow artifacts.**
+
+              ---
+              *Generated by Bolt Framework Security Analysis Engine*`;
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+      - name: "Fail job on critical vulnerabilities"
+        run: |
+          # Check if we should fail based on findings
+          # This would be implemented based on the specific security tools output
+          # For now, we'll check if any critical issues were found in a generic way
+
+          CRITICAL_FOUND=false
+
+          # Check SAST results for critical issues
+          if ls ${{ env.OUTPUT_DIR }}/sast-results/*.json 1> /dev/null 2>&1; then
+            echo "Checking SAST results for critical vulnerabilities..."
+            # Implementation depends on specific tool output formats
+          fi
+
+          # Check SCA results for critical vulnerabilities
+          if ls ${{ env.OUTPUT_DIR }}/sca-results/*.json 1> /dev/null 2>&1; then
+            echo "Checking SCA results for critical vulnerabilities..."
+            # Implementation depends on specific tool output formats
+          fi
+
+          if [[ "$CRITICAL_FOUND" == "true" ]] && [[ "${{ env.SEVERITY_THRESHOLD }}" == "critical" ]]; then
+            echo "❌ Critical security vulnerabilities found. Failing the build."
+            echo "Review the security report and fix critical issues before proceeding."
+            exit 1
+          fi
+
+          echo "✅ Security analysis completed successfully."

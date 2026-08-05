@@ -1,0 +1,363 @@
+# Bolt Framework Continuous Integration Pipeline
+# This workflow validates code quality, runs tests, and ensures policy compliance
+
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop, 'feature/**', 'release/**']
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ============================================================================
+  # STAGE 1: Code Quality & Static Analysis
+  # ============================================================================
+  lint-and-format:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint --if-present
+
+      - name: Check formatting (Prettier)
+        run: npm run format:check --if-present
+
+      - name: TypeScript type check
+        run: npm run typecheck --if-present
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Detect JS/TS sources for CodeQL
+        id: detect-js-ts
+        run: |
+          if find . -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) \
+            -not -path "./node_modules/*" \
+            -not -path "./dist/*" \
+            -not -path "./coverage/*" \
+            -not -path "./.boltf/*" \
+            -not -path "./.claude/*" \
+            -not -path "./.github/*" \
+            -not -path "./docs/*" \
+            -not -path "./demo/*" \
+            -not -path "./examples/*" \
+            -not -path "./.git/*" | grep -q .; then
+            echo "has_sources=true" >> "$GITHUB_OUTPUT"
+            echo "JS/TS sources detected. CodeQL will run."
+          else
+            echo "has_sources=false" >> "$GITHUB_OUTPUT"
+            echo "No JS/TS sources detected. Skipping CodeQL JS/TS analysis."
+          fi
+
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+        continue-on-error: true
+
+      - name: CodeQL Analysis
+        if: ${{ steps.detect-js-ts.outputs.has_sources == 'true' }}
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript, typescript
+
+      - name: Autobuild
+        if: ${{ steps.detect-js-ts.outputs.has_sources == 'true' }}
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Perform CodeQL Analysis
+        if: ${{ steps.detect-js-ts.outputs.has_sources == 'true' }}
+        uses: github/codeql-action/analyze@v4
+
+      - name: CodeQL skipped notice
+        if: ${{ steps.detect-js-ts.outputs.has_sources != 'true' }}
+        run: echo "Skipping CodeQL JS/TS analysis because no source files were found."
+
+  # ============================================================================
+  # STAGE 2: Unit Tests
+  # ============================================================================
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: [lint-and-format]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        run: |
+          if node -e "const scripts=require('./package.json').scripts||{}; process.exit(scripts['test:unit'] ? 0 : 1)"; then
+            npm run test:unit -- --coverage
+          elif node -e "const scripts=require('./package.json').scripts||{}; process.exit(scripts['test'] ? 0 : 1)"; then
+            npm run test -- --coverage
+          else
+            echo "No unit test script found (test:unit/test). Skipping unit tests."
+          fi
+
+      - name: Upload coverage report
+        if: ${{ hashFiles('coverage/lcov.info') != '' }}
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
+
+      - name: Check coverage threshold
+        if: ${{ hashFiles('coverage/coverage-summary.json') != '' }}
+        run: |
+          COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+          echo "Coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "::warning::Coverage is below 80% threshold"
+          fi
+
+  # ============================================================================
+  # STAGE 3: Contract Tests (BDD/Gherkin)
+  # ============================================================================
+  contract-tests:
+    name: Contract Tests
+    runs-on: ubuntu-latest
+    needs: [lint-and-format]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Cucumber/Gherkin tests
+        run: npm run test:contracts --if-present
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: contract-test-results
+          path: |
+            reports/cucumber-*.json
+            reports/cucumber-*.html
+
+  # ============================================================================
+  # STAGE 4: Integration Tests
+  # ============================================================================
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [unit-tests, contract-tests]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run integration tests
+        run: npm run test:integration --if-present
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          REDIS_URL: redis://localhost:6379
+
+  # ============================================================================
+  # STAGE 5: Build
+  # ============================================================================
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [unit-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: |
+          if node -e "const scripts=require('./package.json').scripts||{}; process.exit(scripts['build'] ? 0 : 1)"; then
+            npm run build
+          else
+            echo "No build script found. Skipping build step."
+          fi
+
+      - name: Upload build artifacts
+        if: ${{ hashFiles('dist/**') != '' }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: build-output
+          path: dist/
+          retention-days: 7
+
+      - name: Build artifact skipped notice
+        if: ${{ hashFiles('dist/**') == '' }}
+        run: echo "Skipping build artifact upload because dist/ was not generated."
+
+  # ============================================================================
+  # STAGE 6: Policy Guardian Check
+  # ============================================================================
+  policy-check:
+    name: Policy Guardian Validation
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Check architecture compliance
+        run: |
+          echo "Validating architecture decisions against ADRs..."
+          # Add architecture validation logic here
+          if [ -d "adr" ]; then
+            echo "Found $(ls adr/*.md 2>/dev/null | wc -l) ADR files"
+          fi
+
+      - name: Check license compliance
+        run: |
+          echo "Checking dependency licenses..."
+          npx license-checker --summary --failOn "GPL;AGPL" || true
+
+      - name: Validate API contracts
+        run: |
+          echo "Validating OpenAPI/GraphQL contracts..."
+          if [ -f "contracts/openapi.yaml" ]; then
+            npx @redocly/cli lint contracts/openapi.yaml || true
+          fi
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          extra_args: --only-verified
+
+      - name: Run Bolt Framework Quality Gates
+        run: |
+          if [[ -f ".boltf/scripts/bash/quality-gates.sh" ]]; then
+            chmod +x .boltf/scripts/bash/quality-gates.sh
+            ./.boltf/scripts/bash/quality-gates.sh --check --full
+          else
+            echo "⚠️ quality-gates.sh not found. Skipping Bolt quality gates."
+          fi
+
+      - name: Upload quality gate results
+        if: always() && (hashFiles('reports/**/*') != '' || hashFiles('coverage/**/*') != '')
+        uses: actions/upload-artifact@v5
+        with:
+          name: quality-gates-results
+          path: |
+            reports/
+            coverage/
+          retention-days: 30
+          if-no-files-found: warn
+
+  # ============================================================================
+  # Summary Job
+  # ============================================================================
+  ci-summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [security-scan, integration-tests, build, policy-check]
+    if: always()
+    steps:
+      - name: Check all jobs status
+        run: |
+          echo "## CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint & Format | ${{ needs.lint-and-format.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Contract Tests | ${{ needs.contract-tests.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | ${{ needs.integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Policy Check | ${{ needs.policy-check.result }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if critical jobs failed
+        if: |
+          needs.build.result == 'failure' ||
+          needs.unit-tests.result == 'failure'
+        run: exit 1

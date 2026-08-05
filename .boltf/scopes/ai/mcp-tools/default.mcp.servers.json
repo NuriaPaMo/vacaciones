@@ -1,0 +1,30 @@
+{
+    "servers": {
+        "context7": {
+            "type": "http",
+            "url": "https://mcp.context7.com/mcp"
+        },
+        "azure": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@azure/mcp@latest",
+                "server",
+                "start",
+                "--mode",
+                "namespace",
+                "--namespace",
+                "foundry"
+            ]
+        },
+        "github": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@github/github-mcp-server@latest"
+            ]
+        }
+    }
+}

@@ -1,0 +1,36 @@
+# Bolt Framework Manifest
+# Este fichero es la fuente de verdad para la versión del framework.
+# No editar manualmente — se actualiza con cada release.
+
+framework:
+  name: bolt-framework
+  version: 0.2.0
+  minimum-compatible: 0.1.0
+  released: 2026-06-21
+  repository: https://github.com/ava-group-iberiademos/bolt-framework
+  license: UNLICENSED
+
+versioning:
+  policy: semver
+  major: "Cambios al schema de scope.yaml, eliminación de skills/agents, reestructuración"
+  minor: "Nuevas skills, nuevos scopes, nuevos agents, nuevos scripts"
+  patch: "Correcciones en scripts, typos, mejoras documentación"
+
+scopes:
+  ai: { version: 0.1.0, last-changed: 2026-05-31 }
+  backend: { version: 0.1.0, last-changed: 2026-05-31 }
+  cloud-platform: { version: 0.1.0, last-changed: 2026-05-31 }
+  common: { version: 0.1.0, last-changed: 2026-05-31 }
+  crm: { version: 0.1.0, last-changed: 2026-05-31 }
+  data: { version: 0.1.0, last-changed: 2026-05-31 }
+  frontend: { version: 0.2.0, last-changed: 2026-06-21 }
+  integration: { version: 0.1.0, last-changed: 2026-05-31 }
+  work-management: { version: 0.1.0, last-changed: 2026-05-31 }
+
+distribution:
+  mechanism: git-subtree
+  prefix: .boltf
+  remote-name: bolt-upstream
+  agents-skills-update: Update-BoltFramework.ps1 / update-bolt-framework.sh
+  sync-state-file: .boltf/bolt-sync-state.json  # tracks hashes of synced agents+skills
+  future-consideration: copier  # Evaluar si Python entra al stack

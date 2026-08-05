@@ -1,0 +1,38 @@
+{
+    "version": "1.0.0",
+    "boltFeatureId": "001-feature-name",
+    "azureDevOps": {
+        "organization": "https://dev.azure.com/jdmveira",
+        "project": "Registro Horario",
+        "featureWorkItemId": 12345,
+        "userStories": [
+            {
+                "workItemId": 12346,
+                "boltStoryId": "US-001",
+                "title": "User story title",
+                "state": "Active"
+            }
+        ],
+        "tasks": [
+            {
+                "workItemId": 12347,
+                "boltTaskId": "001-feature-name-001",
+                "title": "Task title",
+                "state": "To Do"
+            }
+        ]
+    },
+    "lastSync": "2026-02-13T22:00:00.000Z",
+    "syncDirection": "bidirectional",
+    "_comments": {
+        "version": "Metadata schema version",
+        "boltFeatureId": "Folder name from specs/XXX-feature-name/",
+        "azureDevOps.organization": "Azure DevOps organization URL",
+        "azureDevOps.project": "Project name",
+        "azureDevOps.featureWorkItemId": "Parent Feature work item ID",
+        "azureDevOps.userStories": "Array of User Story mappings",
+        "azureDevOps.tasks": "Array of Task mappings",
+        "lastSync": "ISO 8601 timestamp of last synchronization",
+        "syncDirection": "bidirectional | bolt-to-devops | devops-to-bolt"
+    }
+}

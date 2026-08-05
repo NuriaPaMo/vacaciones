@@ -1,0 +1,130 @@
+# Verifica semanalmente si hay actualizaciones del Bolt Framework disponibles.
+# Si detecta una versión nueva, crea un Issue informativo.
+name: "Bolt Framework Update Check"
+
+on:
+  schedule:
+    - cron: "23 8 * * 1" # Lunes a las 8:23 (evita minuto redondo)
+  workflow_dispatch:
+    inputs:
+      force-check:
+        description: "Forzar comprobación aunque ya exista Issue abierto"
+        type: boolean
+        default: false
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: .boltf/bolt-manifest.yaml
+          sparse-checkout-cone-mode: false
+
+      - name: Read local version
+        id: local
+        run: |
+          version=$(grep -m1 'version:' .boltf/bolt-manifest.yaml | awk '{print $2}')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Local version: $version"
+
+      - name: Get latest upstream release
+        id: upstream
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          latest=$(gh api repos/ava-group-iberiademos/bolt-framework/releases/latest --jq '.tag_name' 2>/dev/null || echo "")
+          if [ -z "$latest" ]; then
+            echo "No releases found in upstream"
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          latest_clean="${latest#v}"
+          echo "tag=$latest" >> "$GITHUB_OUTPUT"
+          echo "version=$latest_clean" >> "$GITHUB_OUTPUT"
+          echo "available=true" >> "$GITHUB_OUTPUT"
+          echo "Upstream latest: $latest"
+
+      - name: Compare versions
+        id: compare
+        if: steps.upstream.outputs.available == 'true'
+        run: |
+          local="${{ steps.local.outputs.version }}"
+          upstream="${{ steps.upstream.outputs.version }}"
+          if [ "$local" = "$upstream" ]; then
+            echo "update=false" >> "$GITHUB_OUTPUT"
+            echo "Already up to date (v$local)"
+          else
+            echo "update=true" >> "$GITHUB_OUTPUT"
+            echo "Update available: v$local -> v$upstream"
+          fi
+
+      - name: Check for existing issue
+        id: existing
+        if: steps.compare.outputs.update == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          count=$(gh issue list --label "bolt-framework" --label "update-available" --state open --json number --jq 'length')
+          if [ "$count" -gt "0" ] && [ "${{ inputs.force-check }}" != "true" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Issue already exists, skipping"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get changelog diff
+        id: changelog
+        if: steps.compare.outputs.update == 'true' && steps.existing.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          body=$(gh api repos/ava-group-iberiademos/bolt-framework/releases/latest --jq '.body' 2>/dev/null || echo "Sin notas de release disponibles.")
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$body" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Create update issue
+        if: steps.compare.outputs.update == 'true' && steps.existing.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPSTREAM_TAG: ${{ steps.upstream.outputs.tag }}
+          LOCAL_VERSION: ${{ steps.local.outputs.version }}
+          CHANGELOG_BODY: ${{ steps.changelog.outputs.body }}
+        run: |
+          cat > /tmp/issue-body.md << MDEOF
+          ## Actualización de Bolt Framework disponible
+
+          | | Versión |
+          |---|---|
+          | **Local** | v${LOCAL_VERSION} |
+          | **Disponible** | ${UPSTREAM_TAG} |
+
+          ### Release Notes
+
+          ${CHANGELOG_BODY}
+
+          ### Cómo actualizar
+
+          \`\`\`powershell
+          Import-Module .boltf/scripts/powershell/BoltFramework.psm1
+          Compare-BoltVersions -To ${UPSTREAM_TAG}
+          Update-BoltFramework -Version ${UPSTREAM_TAG}
+          Invoke-BoltSetupConstitution -Provision
+          \`\`\`
+
+          ### Documentación
+
+          - [CONTRIBUTING.md](.boltf/CONTRIBUTING.md) — Flujo de actualización completo
+          - [Changelog upstream](https://github.com/ava-group-iberiademos/bolt-framework/releases/tag/${UPSTREAM_TAG})
+          MDEOF
+
+          gh issue create \
+            --title "[Bolt Framework] ${UPSTREAM_TAG} disponible (actual: v${LOCAL_VERSION})" \
+            --label "bolt-framework,update-available" \
+            --body-file /tmp/issue-body.md

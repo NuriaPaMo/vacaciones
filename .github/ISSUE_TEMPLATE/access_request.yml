@@ -1,0 +1,44 @@
+name: "🔐 Repository Access Request"
+description: "Request access (read/write) specifying reason and duration."
+title: "[Access] Access request for @YOUR_USERNAME"
+labels: ["access-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for requesting access. Please fill out the form with the required information.
+
+        > ⚠️ **Approval Required:** This request will be reviewed by the **@Avanade-Region-Spain/boltf-smes** team before any access is granted. You will be notified once a decision has been made.
+
+        **Note:** Only organization members can request access.
+
+  - type: input
+    id: avanade_user
+    attributes:
+      label: "Avanade Email"
+      description: "Your Avanade email address (e.g. user@avanade.com)"
+      placeholder: "user@avanade.com"
+    validations:
+      required: true
+
+  - type: input
+    id: github_user
+    attributes:
+      label: "GitHub Username"
+      description: "Your GitHub handle (e.g. octocat)"
+      placeholder: "@your_username"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: access_level
+    attributes:
+      label: "Requested Access Level"
+      description: "Select the permission you need"
+      options:
+        - "Read"
+        - "Triage"
+        - "Write (contribute)"
+        - "Maintain"
+    validations:
+      required: true

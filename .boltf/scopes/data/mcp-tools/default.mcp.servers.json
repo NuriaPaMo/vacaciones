@@ -1,0 +1,106 @@
+{
+    "servers": {
+        "dbhub": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@bytebase/dbhub@latest",
+                "--transport",
+                "stdio"
+            ],
+            "env": {
+                "DBHUB_DSN": "${input:dbhub-dsn}"
+            }
+        },
+        "mongoDb": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "mongodb-mcp-server@latest",
+                "--readOnly"
+            ],
+            "env": {
+                "MDB_MCP_CONNECTION_STRING": "${input:mongodb-connection-string}"
+            }
+        },
+        "elasticsearch": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "-e",
+                "ES_URL",
+                "-e",
+                "ES_API_KEY",
+                "docker.elastic.co/mcp/elasticsearch",
+                "stdio"
+            ],
+            "env": {
+                "ES_URL": "${input:elasticsearch-url}",
+                "ES_API_KEY": "${input:elasticsearch-api-key}"
+            }
+        },
+        "azure": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@azure/mcp@latest",
+                "server",
+                "start",
+                "--mode",
+                "namespace",
+                "--namespace",
+                "foundry",
+                "--namespace",
+                "cosmos",
+                "--namespace",
+                "sql",
+                "--namespace",
+                "postgres",
+                "--namespace",
+                "mysql",
+                "--namespace",
+                "kusto",
+                "--namespace",
+                "storage",
+                "--namespace",
+                "monitor"
+            ]
+        },
+        "context7": {
+            "type": "http",
+            "url": "https://mcp.context7.com/mcp"
+        }
+    },
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "dbhub-dsn",
+            "description": "Database DSN for DBHub",
+            "password": true
+        },
+        {
+            "type": "promptString",
+            "id": "mongodb-connection-string",
+            "description": "MongoDB connection string",
+            "password": true
+        },
+        {
+            "type": "promptString",
+            "id": "elasticsearch-url",
+            "description": "Elasticsearch cluster URL",
+            "password": false
+        },
+        {
+            "type": "promptString",
+            "id": "elasticsearch-api-key",
+            "description": "Elasticsearch API key",
+            "password": true
+        }
+    ]
+}

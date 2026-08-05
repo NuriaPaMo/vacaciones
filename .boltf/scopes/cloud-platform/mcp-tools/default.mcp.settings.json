@@ -1,0 +1,27 @@
+{
+    "chat.mcp.access": {
+        "allowedServers": [
+            "azure",
+            "azureDevOps",
+            "terraform",
+            "github"
+        ],
+        "blockedServers": [
+            "desktopCommander"
+        ]
+    },
+    "chat.mcp.tools": {
+        "enabled": [
+            "resourceList",
+            "resourceDescribe",
+            "bestPractices",
+            "pipelineRead",
+            "complianceRead"
+        ],
+        "disabled": [
+            "resourceDelete",
+            "resourcePurge",
+            "policyDisable"
+        ]
+    }
+}

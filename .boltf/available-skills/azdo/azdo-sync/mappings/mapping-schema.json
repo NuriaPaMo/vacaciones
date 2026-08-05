@@ -1,0 +1,235 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jdmveira/registro-horas/blob/main/.claude/skills/azure-devops-sync/mappings/mapping-schema.json",
+  "title": "BOLT-Azure DevOps Work Item Mapping Schema",
+  "description": "Schema defining how BOLT artifacts map to Azure DevOps work item fields",
+  "type": "object",
+  "required": [
+    "workItemType",
+    "referenceName",
+    "description",
+    "boltArtifact",
+    "mappings"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "workItemType": {
+      "type": "string",
+      "description": "Azure DevOps work item type name",
+      "examples": [
+        "Epic",
+        "Feature",
+        "Product Backlog Item",
+        "Task",
+        "Bug"
+      ]
+    },
+    "referenceName": {
+      "type": "string",
+      "description": "Fully qualified work item type reference name",
+      "pattern": "^Microsoft\\.VSTS\\.WorkItemTypes\\.",
+      "examples": [
+        "Microsoft.VSTS.WorkItemTypes.Feature"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the work item type"
+    },
+    "color": {
+      "type": "string",
+      "description": "Hexadecimal color code for the work item type",
+      "pattern": "^[0-9A-F]{6}$"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Icon identifier for the work item type",
+      "examples": [
+        "icon_trophy",
+        "icon_book",
+        "icon_clipboard"
+      ]
+    },
+    "boltArtifact": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Path to the primary BOLT artifact that maps to this work item type",
+      "examples": [
+        "specs/XXX-feature-name/feature.md",
+        "planning/tasks.md",
+        null
+      ]
+    },
+    "mappings": {
+      "type": "object",
+      "description": "Field mappings organized by category",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/definitions/fieldMapping"
+        }
+      }
+    },
+    "relationships": {
+      "type": "object",
+      "description": "Work item link relationships",
+      "additionalProperties": {
+        "$ref": "#/definitions/relationshipMapping"
+      }
+    },
+    "extractionRules": {
+      "type": "object",
+      "description": "Regex patterns and rules for extracting data from BOLT artifacts",
+      "additionalProperties": true
+    },
+    "notes": {
+      "type": "array",
+      "description": "Additional notes about this work item type mapping",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "fieldMapping": {
+      "type": "object",
+      "required": [
+        "boltSource",
+        "description",
+        "required"
+      ],
+      "properties": {
+        "boltSource": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Source of the data in BOLT artifacts",
+          "examples": [
+            "feature.md#title",
+            "requirements.md#user-story.description",
+            "planning/tasks.md#task.estimate",
+            "computed:sum-user-story-effort",
+            "inherited:parent-feature",
+            null
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the field and its purpose"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether this field is required in Azure DevOps"
+        },
+        "type": {
+          "type": "string",
+          "description": "Data type of the field",
+          "enum": [
+            "string",
+            "integer",
+            "double",
+            "datetime",
+            "boolean",
+            "html",
+            "plaintext"
+          ]
+        },
+        "transformation": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Transformation to apply when mapping",
+          "enum": [
+            null,
+            "html",
+            "markdown-to-html",
+            "markdown-to-html-list",
+            "path",
+            "semicolon-separated",
+            "comma-separated"
+          ]
+        },
+        "allowedValues": {
+          "type": "array",
+          "description": "List of allowed values for this field"
+        },
+        "defaultValue": {
+          "description": "Default value if boltSource is null or empty"
+        },
+        "mapping": {
+          "type": "object",
+          "description": "Value mappings from BOLT to Azure DevOps",
+          "additionalProperties": true
+        },
+        "computation": {
+          "type": "string",
+          "description": "Formula or rule for computing the value"
+        },
+        "extractPattern": {
+          "type": "string",
+          "description": "Regex pattern to extract value from BOLT artifact"
+        },
+        "example": {
+          "description": "Example value for documentation"
+        }
+      }
+    },
+    "relationshipMapping": {
+      "type": "object",
+      "required": [
+        "linkType",
+        "targetType",
+        "description"
+      ],
+      "properties": {
+        "linkType": {
+          "type": "string",
+          "description": "Azure DevOps link type",
+          "examples": [
+            "System.LinkTypes.Hierarchy-Forward",
+            "System.LinkTypes.Hierarchy-Reverse",
+            "System.LinkTypes.Related",
+            "System.LinkTypes.Dependency"
+          ]
+        },
+        "targetType": {
+          "description": "Target work item type(s)",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "boltSource": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Source in BOLT artifacts for determining the relationship"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the relationship"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether this relationship is required",
+          "default": false
+        }
+      }
+    }
+  }
+}

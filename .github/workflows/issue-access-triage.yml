@@ -1,0 +1,62 @@
+name: "🔐 Issue Access Triage"
+
+# Main orchestrator workflow.
+#
+# Flow:
+#   issues.opened  + label:access-request  → calls sme-approval-request.yml (reusable)
+#   issues.opened  + other labels          → posts a general triage notification to boltf-smes
+#   issues.labeled + label:approved-by-smes
+#                  + label:access-request  → calls add-to-learning-group.yml (reusable)
+
+on:
+    issues:
+        types: [opened, labeled]
+
+jobs:
+    # ── 1. Notify team of non-access-request issues ────────────────────────────
+    notify-smes:
+        name: "Notify boltf-smes of new issue"
+        if: |
+            github.event.action == 'opened' &&
+            !contains(github.event.issue.labels.*.name, 'access-request')
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+        env:
+            GH_TOKEN: ${{ github.token }}
+            ISSUE_TITLE: ${{ github.event.issue.title }}
+        steps:
+            - name: Post triage notification
+              run: |
+                  BODY="👋 **@Avanade-Region-Spain/boltf-smes** — A new issue has been submitted and is awaiting triage.
+
+                  > **Issue:** #${{ github.event.issue.number }} — $ISSUE_TITLE
+
+                  Please review, triage, and assign a priority. Thank you!"
+
+                  gh issue comment "${{ github.event.issue.number }}" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --body "$BODY"
+
+    # ── 2. Request SME approval for access-request issues ──────────────────────
+    request-access-approval:
+        name: "Request SME approval for access request"
+        if: |
+            github.event.action == 'opened' &&
+            contains(github.event.issue.labels.*.name, 'access-request')
+        uses: ./.github/workflows/sme-approval-request.yml
+        with:
+            issue_number: ${{ github.event.issue.number }}
+        secrets: inherit
+
+    # ── 3. Process access request once approved by SMEs ────────────────────────
+    process-approved-access:
+        name: "Process approved access request"
+        if: |
+            github.event.action == 'labeled' &&
+            github.event.label.name == 'approved-by-smes' &&
+            contains(github.event.issue.labels.*.name, 'access-request')
+        uses: ./.github/workflows/add-to-learning-group.yml
+        with:
+            issue_number: ${{ github.event.issue.number }}
+        secrets: inherit

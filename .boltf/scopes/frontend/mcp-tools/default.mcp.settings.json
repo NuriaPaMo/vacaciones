@@ -1,0 +1,30 @@
+{
+    "chat.mcp.access": {
+        "allowedServers": [
+            "playwright",
+            "chromeDevTools",
+            "context7",
+            "angularCli",
+            "github",
+            "vercelNextDevTools",
+            "primeNg",
+            "penpot"
+        ],
+        "blockedServers": [
+            "desktopCommander"
+        ]
+    },
+    "chat.mcp.tools": {
+        "enabled": [
+            "browserNavigate",
+            "domInspect",
+            "a11ySnapshot",
+            "uiTestFlow",
+            "consoleInspect"
+        ],
+        "disabled": [
+            "infraDelete",
+            "databaseDrop"
+        ]
+    }
+}

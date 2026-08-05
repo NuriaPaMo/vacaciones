@@ -1,0 +1,89 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  azureSubscription: 'Azure-Service-Connection'
+  webAppName: 'app-placeholder-prod'
+  resourceGroupName: 'rg-placeholder-prod'
+
+stages:
+  - stage: Build
+    displayName: 'Build artifact'
+    jobs:
+      - job: PackageApp
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish packaged application'
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'webapp'
+
+  - stage: DeployStaging
+    displayName: 'Deploy to staging slot'
+    dependsOn: Build
+    jobs:
+      - deployment: DeployStagingSlot
+        environment: 'staging'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    artifactName: 'webapp'
+                    targetPath: '$(Pipeline.Workspace)/webapp'
+
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy package to staging slot'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appType: 'webAppLinux'
+                    WebAppName: '$(webAppName)'
+                    deployToSlotOrASE: true
+                    ResourceGroupName: '$(resourceGroupName)'
+                    SlotName: 'staging'
+                    packageForLinux: '$(Pipeline.Workspace)/webapp/**/*.zip'
+
+                - task: AzureCLI@2
+                  displayName: 'Smoke test staging slot'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      STAGING_URL=$(az webapp show \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroupName) \
+                        --slot staging \
+                        --query defaultHostName -o tsv)
+
+                      curl -f https://${STAGING_URL}/health || exit 1
+
+  - stage: DeployProduction
+    displayName: 'Swap to production'
+    dependsOn: DeployStaging
+    condition: succeeded()
+    jobs:
+      - deployment: SwapToProduction
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: 'Swap staging slot to production'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az webapp deployment slot swap \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroupName) \
+                        --slot staging \
+                        --target-slot production

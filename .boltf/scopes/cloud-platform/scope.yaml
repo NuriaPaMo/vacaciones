@@ -1,0 +1,152 @@
+version: 1
+scope: cloud-platform
+description: Artefactos cloud e infraestructura para despliegues y plataforma.
+items:
+  # ============================================
+  # DEVOPS & PLATFORM SKILLS
+  # ============================================
+
+  - id: skill-senior-devops
+    kind: skills
+    enabled: true
+    auto_provision: true
+    tags: ['devops', 'ci-cd', 'iac']
+    source:
+      type: local_folder
+      path: available-skills/cloud-platform/skill-senior-devops
+    destination:
+      folder: .claude/skills
+      name: skill-senior-devops
+    description: >
+      Complete DevOps toolkit with CI/CD, IaC (Terraform/Bicep), containers, and monitoring.
+      Includes Python automation scripts for infrastructure management.
+
+  # ============================================
+  # MCP & EXTERNAL RESOURCES
+  # ============================================
+
+  - id: cloud-platform-mcp-settings-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'settings']
+    source:
+      type: local_file
+      path: scopes/cloud-platform/mcp-tools/default.mcp.settings.json
+    destination:
+      folder: .vscode
+      name: settings.json
+
+  - id: cloud-platform-mcp-servers-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'servers']
+    source:
+      type: local_file
+      path: scopes/cloud-platform/mcp-tools/default.mcp.servers.json
+    destination:
+      folder: .vscode
+      name: mcp.json
+
+  - id: cloud-appservice-bicep-context7
+    kind: templates
+    enabled: false
+    tags: ['azure', 'bicep']
+    source:
+      type: context7
+      library: /microsoftdocs/azure-docs
+      query: Define Linux App Service and Deployment from GitHub using Bicep
+      resolved_url: https://learn.microsoft.com/azure/app-service/provision-resource-bicep
+      resolved_ref: latest
+      resolved_doc_id: azure-app-service-provision-resource-bicep
+      content_hash: ''
+      fetched_at: ''
+      license: Microsoft Learn terms
+    destination:
+      folder: infra/bicep
+      name: appservice-linux-github.bicep
+
+  - id: cloud-azure-devops-yaml-context7
+    kind: prompts
+    enabled: false
+    tags: ['csharp', 'pipelines']
+    source:
+      type: context7
+      library: /microsoftdocs/azure-docs
+      query: Define and Deploy .NET Core App with Azure DevOps YAML Pipeline
+      resolved_url: https://learn.microsoft.com/azure/devops/pipelines/create-first-pipeline
+      resolved_ref: latest
+      resolved_doc_id: azure-devops-create-first-pipeline
+      content_hash: ''
+      fetched_at: ''
+      license: Microsoft Learn terms
+    destination:
+      folder: .github/prompts
+      name: azure-devops-dotnet-pipeline.prompt.md
+
+  - id: cloud-bicep-best-practices-awesome
+    kind: instructions
+    enabled: false
+    tags: ['azure', 'bicep']
+    source:
+      type: awesome_copilot
+      collection: azure-cloud-development
+      item_path: instructions/bicep-code-best-practices.instructions.md
+      resolved_url: https://github.com/github/awesome-copilot/tree/main/collections/azure-cloud-development/instructions/bicep-code-best-practices.instructions.md
+      resolved_ref: main
+      resolved_doc_id: azure-cloud-development/instructions/bicep-code-best-practices.instructions.md
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .github/instructions
+      name: bicep-code-best-practices.instructions.md
+
+  - id: cloud-kubernetes-best-practices-awesome
+    kind: instructions
+    enabled: false
+    tags: ['kubernetes', 'deployment']
+    source:
+      type: awesome_copilot
+      collection: azure-cloud-development
+      item_path: instructions/kubernetes-deployment-best-practices.instructions.md
+      resolved_url: https://github.com/github/awesome-copilot/tree/main/collections/azure-cloud-development/instructions/kubernetes-deployment-best-practices.instructions.md
+      resolved_ref: main
+      resolved_doc_id: azure-cloud-development/instructions/kubernetes-deployment-best-practices.instructions.md
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .github/instructions
+      name: kubernetes-deployment-best-practices.instructions.md
+
+  - id: cloud-hashicorp-terraform-style-guide-awesome-skills
+    kind: skills
+    enabled: false
+    tags: ['terraform', 'iac']
+    source:
+      type: awesome_skills
+      catalog_url: https://awesome-skills.com/
+      repository: https://github.com/hashicorp/agent-skills
+      skill_path: terraform/code-generation/skills/terraform-style-guide
+      listing_url: https://github.com/hashicorp/agent-skills
+      resolved_url: https://github.com/hashicorp/agent-skills
+      resolved_ref: main
+      resolved_doc_id: hashicorp/agent-skills/terraform-style-guide
+      content_hash: ''
+      fetched_at: ''
+      license: MPL-2.0
+    destination:
+      folder: .claude/skills
+      name: terraform-style-guide
+
+  - id: cloud-platform-constitution
+    kind: templates
+    enabled: true
+    auto_provision: true # Automatically copy when scope is active
+    tags: ['constitution', 'memory']
+    source:
+      type: local_file
+      path: scopes/cloud-platform/memory/constitution.md
+    destination:
+      folder: memory
+      name: constitution.md

@@ -1,0 +1,28 @@
+{
+    "chat.mcp.access": {
+        "allowedServers": [
+            "dbhub",
+            "mongoDb",
+            "elasticsearch",
+            "azure",
+            "context7"
+        ],
+        "blockedServers": [
+            "desktopCommander"
+        ]
+    },
+    "chat.mcp.tools": {
+        "enabled": [
+            "databaseRead",
+            "databaseQuery",
+            "schemaInspect",
+            "indexInspect",
+            "sampleData"
+        ],
+        "disabled": [
+            "databaseDrop",
+            "databaseDelete",
+            "schemaAlter"
+        ]
+    }
+}

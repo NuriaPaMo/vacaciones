@@ -1,0 +1,39 @@
+name: "🏷️ Bootstrap Repository Labels"
+
+# Run manually once after initial repo setup, or whenever labels.yml changes.
+# Uses the gh CLI (pre-installed on GitHub-hosted runners) — no external actions needed.
+
+on:
+    workflow_dispatch:
+
+jobs:
+    bootstrap:
+        name: "Create / sync labels"
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+        env:
+            GH_TOKEN: ${{ github.token }}
+        steps:
+            - name: Create or update labels
+              run: |
+                  upsert_label() {
+                    local name="$1" color="$2" description="$3"
+                    if gh label list --repo "$GITHUB_REPOSITORY" --json name -q '.[].name' | grep -qx "$name"; then
+                      gh label edit "$name" --repo "$GITHUB_REPOSITORY" --color "$color" --description "$description"
+                      echo "🔄 Updated: $name"
+                    else
+                      gh label create "$name" --repo "$GITHUB_REPOSITORY" --color "$color" --description "$description"
+                      echo "✅ Created: $name"
+                    fi
+                  }
+
+                  upsert_label "access-request"   "c5def5" "Request for repository or team access"
+                  upsert_label "approved-by-smes" "0e8a16" "Reviewed and approved by the boltf-smes team"
+                  upsert_label "pending-approval" "e4e669" "Waiting for boltf-smes team approval"
+                  upsert_label "access-granted"   "0075ca" "Access has been successfully granted"
+                  upsert_label "needs-triage"     "e11d48" "Needs triage by project maintainers"
+                  upsert_label "bug"              "d73a4a" "Something isn't working"
+                  upsert_label "enhancement"      "a2eeef" "New feature or request"
+                  upsert_label "spec-drift"      "0075ca" "Automated spec drift report"
+                  upsert_label "technical-debt"  "e4e669" "Technical debt tracking"

@@ -1,0 +1,28 @@
+{
+    "chat.mcp.access": {
+        "allowedServers": [
+            "github",
+            "context7",
+            "azure",
+            "dbhub",
+            "mongoDb"
+        ],
+        "blockedServers": [
+            "playwright"
+        ]
+    },
+    "chat.mcp.tools": {
+        "enabled": [
+            "repoRead",
+            "issueRead",
+            "pullRequestRead",
+            "databaseRead",
+            "docsFetch"
+        ],
+        "disabled": [
+            "databaseDrop",
+            "databaseDelete",
+            "repoAdminWrite"
+        ]
+    }
+}

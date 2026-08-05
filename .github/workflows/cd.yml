@@ -1,0 +1,370 @@
+# Bolt Framework Continuous Deployment Pipeline
+# This workflow handles deployments to various environments
+
+name: CD Pipeline
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      skip_tests:
+        description: 'Skip test stage'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ============================================================================
+  # Prepare Release
+  # ============================================================================
+  prepare:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      environment: ${{ steps.env.outputs.environment }}
+      image_tag: ${{ steps.version.outputs.image_tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            IMAGE_TAG=$VERSION
+          else
+            VERSION=$(git describe --tags --always --dirty)
+            IMAGE_TAG=sha-${GITHUB_SHA::8}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+          echo "Image Tag: $IMAGE_TAG"
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" != "" ]]; then
+            ENV="${{ github.event.inputs.environment }}"
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            ENV="production"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            ENV="staging"
+          else
+            ENV="development"
+          fi
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+          echo "Deploying to: $ENV"
+
+  # ============================================================================
+  # Run CI (if not skipped)
+  # ============================================================================
+  ci:
+    name: Run CI Pipeline
+    needs: [prepare]
+    if: ${{ github.event.inputs.skip_tests != 'true' }}
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  # ============================================================================
+  # Build Container Image (only if Dockerfile exists)
+  # ============================================================================
+  build-image:
+    name: Build Container Image
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.output.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
+      has_dockerfile: ${{ steps.check.outputs.has_dockerfile }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Check for Dockerfile
+        id: check
+        run: |
+          if [ -f "Dockerfile" ]; then
+            echo "has_dockerfile=true" >> $GITHUB_OUTPUT
+            echo "Dockerfile found — proceeding with image build."
+          else
+            echo "has_dockerfile=false" >> $GITHUB_OUTPUT
+            echo "No Dockerfile found — skipping image build."
+          fi
+
+      - name: Set up Docker Buildx
+        if: steps.check.outputs.has_dockerfile == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: steps.check.outputs.has_dockerfile == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        if: steps.check.outputs.has_dockerfile == 'true'
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+
+      - name: Build and push image
+        id: build
+        if: steps.check.outputs.has_dockerfile == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ needs.prepare.outputs.version }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            GIT_SHA=${{ github.sha }}
+
+      - name: Output image details
+        id: output
+        run: |
+          if [ "${{ steps.check.outputs.has_dockerfile }}" == "true" ]; then
+            echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.image_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "image=" >> $GITHUB_OUTPUT
+            echo "No image produced (no Dockerfile)." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ============================================================================
+  # Deploy to Development
+  # ============================================================================
+  deploy-dev:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    needs: [prepare, build-image]
+    if: needs.prepare.outputs.environment == 'development'
+    environment:
+      name: development
+      url: https://dev.example.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Deploy to Development
+        run: |
+          echo "Deploying version ${{ needs.prepare.outputs.version }} to Development"
+          echo "Image: ${{ needs.build-image.outputs.image }}"
+          # Add deployment commands here (kubectl, helm, etc.)
+
+      - name: Verify deployment
+        run: |
+          echo "Verifying deployment health..."
+          # Add health check commands
+
+      - name: Post deployment summary
+        run: |
+          echo "## Development Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** ${{ needs.prepare.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** ${{ needs.build-image.outputs.image }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** Development" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # Deploy to Staging
+  # ============================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [prepare, build-image, ci]
+    if: |
+      always() &&
+      needs.prepare.outputs.environment == 'staging' &&
+      (needs.ci.result == 'success' || needs.ci.result == 'skipped')
+    environment:
+      name: staging
+      url: https://staging.example.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Deploy to Staging
+        run: |
+          echo "Deploying version ${{ needs.prepare.outputs.version }} to Staging"
+          # Add deployment commands here
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against staging..."
+          # npm run test:smoke
+
+      - name: Post deployment summary
+        run: |
+          echo "## Staging Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** ${{ needs.prepare.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** Staging" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # Deploy to Production
+  # ============================================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [prepare, build-image, ci]
+    if: |
+      always() &&
+      needs.prepare.outputs.environment == 'production' &&
+      (needs.ci.result == 'success' || needs.ci.result == 'skipped')
+    environment:
+      name: production
+      url: https://example.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Pre-deployment checks
+        run: |
+          echo "Running pre-deployment checks..."
+          # Verify all required approvals
+          # Check system health
+          # Verify rollback plan
+
+      - name: Create deployment record
+        run: |
+          echo "Creating deployment record for audit..."
+          # Log deployment details
+
+      - name: Deploy to Production (Canary)
+        run: |
+          echo "Deploying canary (10% traffic)..."
+          # Deploy canary release
+
+      - name: Monitor canary
+        run: |
+          echo "Monitoring canary for 5 minutes..."
+          sleep 30  # Shortened for demo
+          # Monitor error rates, latency, etc.
+
+      - name: Promote to full deployment
+        run: |
+          echo "Canary healthy, promoting to 100%..."
+          # Complete rollout
+
+      - name: Verify production deployment
+        run: |
+          echo "Running production verification..."
+          # Run critical path tests
+
+      - name: Post deployment summary
+        run: |
+          echo "## Production Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** ${{ needs.prepare.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Strategy:** Canary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** Success" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # Generate Release Notes
+  # ============================================================================
+  release-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+    needs: [prepare, deploy-production]
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get commits since last tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREVIOUS_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD)
+          else
+            COMMITS=$(git log --pretty=format:"- %s (%h)" HEAD~10..HEAD)
+          fi
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ needs.prepare.outputs.version }}
+          body: |
+            ## What's Changed
+
+            ${{ steps.changelog.outputs.commits }}
+
+            ## Deployment
+            - **Environment:** Production
+            - **Image:** `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}`
+
+            ## Documentation
+            - [Changelog](./CHANGELOG.md)
+            - [Migration Guide](./docs/migration.md)
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') }}
+
+  # ============================================================================
+  # Rollback (Manual Trigger)
+  # ============================================================================
+  rollback:
+    name: Rollback Deployment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && failure()
+    environment:
+      name: ${{ needs.prepare.outputs.environment }}
+    steps:
+      - name: Rollback to previous version
+        run: |
+          echo "Initiating rollback..."
+          # Implement rollback logic
+          # kubectl rollout undo deployment/app
+
+      - name: Notify team
+        run: |
+          echo "Rollback completed, notifying team..."
+          # Send notification to Slack/Teams
+
+      - name: Create incident ticket
+        run: |
+          echo "Creating incident ticket..."
+          # Create ticket in issue tracker

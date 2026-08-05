@@ -1,0 +1,30 @@
+name: Bolt Framework Quality Gates
+on:
+  push:
+    branches: [main, develop, "feature/*"]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  quality-gates:
+    name: 🚦 Bolt Framework Quality Gates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Run Quality Gates
+        run: |
+          chmod +x .boltf/scripts/bash/quality-gates.sh
+          ./.boltf/scripts/bash/quality-gates.sh --check --full
+
+      - name: Upload results
+        uses: actions/upload-artifact@v5
+        if: always() && (hashFiles('reports/**/*') || hashFiles('coverage/**/*'))
+        with:
+          name: quality-gates-results
+          path: |
+            reports/
+            coverage/
+          retention-days: 30
+          if-no-files-found: warn

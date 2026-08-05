@@ -1,0 +1,115 @@
+version: 1
+scope: integration
+description: Integraciones y sincronización entre artefactos BOLT Framework y herramientas externas.
+items:
+  - id: integration-mcp-settings-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'settings']
+    source:
+      type: local_file
+      path: scopes/integration/mcp-tools/default.mcp.settings.json
+    destination:
+      folder: .vscode
+      name: settings.json
+
+  - id: integration-mcp-servers-local
+    kind: templates
+    enabled: false
+    tags: ['mcp', 'servers']
+    source:
+      type: local_file
+      path: scopes/integration/mcp-tools/default.mcp.servers.json
+    destination:
+      folder: .vscode
+      name: mcp.json
+
+  - id: integration-azure-devops-sync-skill
+    kind: skills
+    enabled: false
+    tags: ['integration', 'azure-devops']
+    source:
+      type: local_folder
+      path: available-skills/azdo/azdo-sync
+    destination:
+      folder: .claude/skills
+      name: azdo-sync
+
+  - id: integration-azure-wiki-agent-skill
+    kind: skills
+    enabled: false
+    tags: ['integration', 'wiki']
+    source:
+      type: local_folder
+      path: available-skills/azdo/azdo-wiki
+    destination:
+      folder: .claude/skills
+      name: azdo-wiki
+
+  - id: integration-azure-devops-pipelines-context7
+    kind: prompts
+    enabled: false
+    tags: ['integration', 'pipelines']
+    source:
+      type: context7
+      library: /microsoftdocs/azure-docs
+      query: Orchestrate Multi-Stage Deployment to Azure Web Apps in YAML
+      resolved_url: https://learn.microsoft.com/azure/devops/pipelines/process/stages
+      resolved_ref: latest
+      resolved_doc_id: azure-devops-pipelines-stages
+      content_hash: ''
+      fetched_at: ''
+      license: Microsoft Learn terms
+    destination:
+      folder: .github/prompts
+      name: azure-devops-multistage-deploy.prompt.md
+
+  - id: integration-spec-driven-workflow-awesome
+    kind: instructions
+    enabled: false
+    tags: ['planning', 'workflow']
+    source:
+      type: awesome_copilot
+      collection: project-planning
+      item_path: instructions/spec-driven-workflow-v1.instructions.md
+      resolved_url: https://github.com/github/awesome-copilot/tree/main/collections/project-planning/instructions/spec-driven-workflow-v1.instructions.md
+      resolved_ref: main
+      resolved_doc_id: project-planning/instructions/spec-driven-workflow-v1.instructions.md
+      content_hash: ''
+      fetched_at: ''
+      license: repository-defined
+    destination:
+      folder: .github/instructions
+      name: spec-driven-workflow-v1.instructions.md
+
+  - id: integration-planning-with-files-awesome-skills
+    kind: skills
+    enabled: false
+    tags: ['planning', 'workflow']
+    source:
+      type: awesome_skills
+      catalog_url: https://awesome-skills.com/
+      repository: https://github.com/OthmanAdi/planning-with-files
+      skill_path: skills/planning-with-files
+      listing_url: https://github.com/OthmanAdi/planning-with-files
+      resolved_url: https://github.com/OthmanAdi/planning-with-files
+      resolved_ref: master
+      resolved_doc_id: OthmanAdi/planning-with-files/planning-with-files
+      content_hash: ''
+      fetched_at: ''
+      license: MIT
+    destination:
+      folder: .claude/skills
+      name: planning-with-files
+
+  - id: integration-constitution
+    kind: templates
+    enabled: true
+    auto_provision: true # Automatically copy when scope is active
+    tags: ['constitution', 'memory']
+    source:
+      type: local_file
+      path: scopes/integration/memory/constitution.md
+    destination:
+      folder: memory
+      name: constitution.md

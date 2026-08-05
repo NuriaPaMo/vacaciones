@@ -1,0 +1,185 @@
+{
+  "$schema": "./mapping-schema.json",
+  "workItemType": "Task",
+  "referenceName": "Microsoft.VSTS.WorkItemTypes.Task",
+  "description": "Tracks work that needs to be done - maps to Bolt Tasks in BOLT",
+  "color": "F2CB1D",
+  "icon": "icon_clipboard",
+  "boltArtifact": "specs/XXX-feature-name/planning/tasks.md (Bolt task items)",
+  "mappings": {
+    "core": {
+      "System.Title": {
+        "boltSource": "planning/tasks.md#task.description",
+        "description": "Task description from Bolt task list",
+        "required": true,
+        "transformation": null,
+        "example": "Implement TimeEntry aggregate root with validation rules"
+      },
+      "System.Description": {
+        "boltSource": "planning/tasks.md#task.details",
+        "description": "Detailed task description and notes",
+        "required": false,
+        "transformation": "markdown-to-html"
+      },
+      "System.State": {
+        "boltSource": "planning/tasks.md#task.checkbox",
+        "description": "State mapped from task checkbox status",
+        "required": true,
+        "allowedValues": [
+          "To Do",
+          "In Progress",
+          "Done"
+        ],
+        "mapping": {
+          "unchecked": "To Do",
+          "in-progress": "In Progress",
+          "checked": "Done"
+        },
+        "defaultValue": "To Do"
+      },
+      "System.AssignedTo": {
+        "boltSource": "planning/tasks.md#task.assignedTo",
+        "description": "Developer assigned to task",
+        "required": false,
+        "extractPattern": "@(\\w+)"
+      }
+    },
+    "planning": {
+      "Microsoft.VSTS.Scheduling.OriginalEstimate": {
+        "boltSource": "planning/tasks.md#task.estimate",
+        "description": "Original effort estimate in hours",
+        "required": false,
+        "type": "double",
+        "extractPattern": "\\((\\d+(?:\\.\\d+)?)h\\)",
+        "example": 4.5
+      },
+      "Microsoft.VSTS.Scheduling.RemainingWork": {
+        "boltSource": "computed:remaining-work",
+        "description": "Remaining work (equals original if To Do, 0 if Done)",
+        "required": false,
+        "type": "double",
+        "computation": "state == 'Done' ? 0 : originalEstimate"
+      },
+      "Microsoft.VSTS.Scheduling.CompletedWork": {
+        "boltSource": "computed:completed-work",
+        "description": "Completed work (equals original if Done, 0 otherwise)",
+        "required": false,
+        "type": "double",
+        "computation": "state == 'Done' ? originalEstimate : 0"
+      },
+      "Microsoft.VSTS.Common.Priority": {
+        "boltSource": "planning/tasks.md#task.priority",
+        "description": "Task priority",
+        "required": false,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "defaultValue": 2
+      }
+    },
+    "activity": {
+      "Microsoft.VSTS.Common.Activity": {
+        "boltSource": "planning/tasks.md#task.activity",
+        "description": "Activity type",
+        "required": false,
+        "allowedValues": [
+          "Deployment",
+          "Design",
+          "Development",
+          "Documentation",
+          "Requirements",
+          "Testing"
+        ],
+        "mapping": {
+          "design": "Design",
+          "implement": "Development",
+          "code": "Development",
+          "test": "Testing",
+          "deploy": "Deployment",
+          "document": "Documentation"
+        },
+        "defaultValue": "Development"
+      }
+    },
+    "schedule": {
+      "Microsoft.VSTS.Scheduling.StartDate": {
+        "boltSource": "planning/tasks.md#task.startDate",
+        "description": "Task start date",
+        "required": false,
+        "type": "datetime"
+      },
+      "Microsoft.VSTS.Scheduling.DueDate": {
+        "boltSource": "planning/tasks.md#task.dueDate",
+        "description": "Task due date",
+        "required": false,
+        "type": "datetime"
+      }
+    },
+    "classification": {
+      "System.AreaPath": {
+        "boltSource": "inherited:parent-pbi",
+        "description": "Area path inherited from parent PBI/Feature",
+        "required": true,
+        "transformation": "path"
+      },
+      "System.IterationPath": {
+        "boltSource": "planning/tasks.md#task.iteration",
+        "description": "Sprint assignment for this task",
+        "required": false,
+        "transformation": "path"
+      },
+      "System.Tags": {
+        "boltSource": "computed:tags",
+        "description": "Tags including Bolt task ID",
+        "required": false,
+        "transformation": "semicolon-separated",
+        "computation": "concat('Bolt Framework', 'bolt', taskId)",
+        "example": "Bolt Framework;bolt;001-time-tracking-001"
+      }
+    },
+    "custom": {
+      "Custom.ADPT30TaskType": {
+        "boltSource": "planning/tasks.md#task.taskType",
+        "description": "Custom task type classification",
+        "required": false
+      },
+      "Custom.ADPT30IsBlocked": {
+        "boltSource": "planning/tasks.md#task.blocked",
+        "description": "Whether task is blocked",
+        "required": false,
+        "type": "boolean",
+        "extractPattern": "\\[BLOCKED\\]"
+      }
+    }
+  },
+  "relationships": {
+    "parent": {
+      "linkType": "System.LinkTypes.Hierarchy-Reverse",
+      "targetType": "Product Backlog Item",
+      "boltSource": "computed:parent-user-story",
+      "description": "Parent Product Backlog Item (User Story)",
+      "required": true
+    }
+  },
+  "extractionRules": {
+    "taskIdPattern": "^- \\[([ x])\\] \\*\\*(\\d{3}-[\\w-]+-\\d{3})\\*\\*",
+    "estimatePattern": "\\((\\d+(?:\\.\\d+)?)h\\)",
+    "assigneePattern": "@(\\w+)",
+    "checkboxStates": {
+      "[ ]": "To Do",
+      "[x]": "Done"
+    }
+  },
+  "notes": [
+    "Task work items map to Bolt tasks in planning/tasks.md",
+    "Each checkbox item in tasks.md becomes one Task work item",
+    "Task ID format: XXX-feature-name-YYY (e.g., 001-time-tracking-001)",
+    "Estimate extracted from (Xh) notation in task description",
+    "State syncs bidirectionally: checkbox ↔ work item state",
+    "Tasks always have a parent Product Backlog Item (User Story)",
+    "RemainingWork and CompletedWork auto-calculated based on state"
+  ]
+}

@@ -1,0 +1,89 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  azureSubscription: 'Azure-Service-Connection'
+
+stages:
+  - stage: Build
+    displayName: 'Build and Test'
+    jobs:
+      - job: BuildAndVerify
+        displayName: 'Compile, test, and publish artifact'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Install .NET SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '8.0.x'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore'
+            inputs:
+              command: 'restore'
+              projects: '**/*.csproj'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Build'
+            inputs:
+              command: 'build'
+              arguments: '--configuration $(buildConfiguration) --no-restore'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Test'
+            inputs:
+              command: 'test'
+              arguments: '--configuration $(buildConfiguration) --no-build --collect:"XPlat Code Coverage"'
+              publishTestResults: true
+
+          - task: PublishCodeCoverageResults@2
+            displayName: 'Publish code coverage'
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish app'
+            inputs:
+              command: 'publish'
+              publishWebProjects: true
+              arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+              zipAfterPublish: true
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish build artifact'
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'application'
+
+  - stage: DeployNonProd
+    displayName: 'Deploy to non-production'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployNonProdJob
+        displayName: 'Deploy artifact to target environment'
+        environment: 'development'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    artifactName: 'application'
+                    targetPath: '$(Pipeline.Workspace)/application'
+
+                - task: AzureWebApp@1
+                  displayName: 'Deploy to App Service'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appType: 'webAppLinux'
+                    appName: 'app-placeholder-dev'
+                    package: '$(Pipeline.Workspace)/application/**/*.zip'

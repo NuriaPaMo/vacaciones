@@ -1,0 +1,26 @@
+{
+    "chat.mcp.access": {
+        "allowedServers": [
+            "github",
+            "azureDevOps",
+            "azure",
+            "context7"
+        ],
+        "blockedServers": [
+            "desktopCommander"
+        ]
+    },
+    "chat.mcp.tools": {
+        "enabled": [
+            "repoRead",
+            "pullRequestRead",
+            "workItemRead",
+            "pipelineRead",
+            "docsFetch"
+        ],
+        "disabled": [
+            "crossSystemDelete",
+            "adminWrite"
+        ]
+    }
+}

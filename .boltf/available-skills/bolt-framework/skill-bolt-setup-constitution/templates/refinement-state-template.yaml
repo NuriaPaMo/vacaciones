@@ -1,0 +1,21 @@
+constitution:
+  number_of_articles: <total number of articles in constitution.master.md>
+  scopes:
+    - scope_name: <scope-name>
+      articles_count: <number of articles from this scope in constitution.master.md>
+      decisions: <array of decisions made on articles from this scope, e.g. "keep", "modify", "remove">
+  articles:
+    - article: <article-id-or-title>
+      scope: <scope-name, if applicable, common for articles shared by multiple scopes>
+      content: <full article content>
+      reference: <path to constitution.master.md or source document>
+      chapter: <chapter in constitution.master.md, if applicable>
+      line: <line number in constitution.master.md, if applicable>
+      decisions: <array of decisions made on this article, e.g. "keep", "modify", "remove">
+      refined: true|false
+      criticallity: low|medium|high
+      notes: <any additional notes or comments on this article>
+      skills:
+        - skill_name: <name of the skill relevant to this article, if applicable>
+          relevance: low|medium|high
+          notes: <any additional notes on how this skill relates to the article>

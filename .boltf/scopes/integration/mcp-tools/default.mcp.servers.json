@@ -1,0 +1,52 @@
+{
+    "servers": {
+        "github": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@github/github-mcp-server@latest"
+            ]
+        },
+        "azureDevOps": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@azure-devops/mcp@latest"
+            ]
+        },
+        "azure": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@azure/mcp@latest",
+                "server",
+                "start",
+                "--mode",
+                "namespace",
+                "--namespace",
+                "foundry",
+                "--namespace",
+                "servicebus",
+                "--namespace",
+                "eventgrid",
+                "--namespace",
+                "eventhubs",
+                "--namespace",
+                "appconfig",
+                "--namespace",
+                "functionapp",
+                "--namespace",
+                "storage",
+                "--namespace",
+                "monitor"
+            ]
+        },
+        "context7": {
+            "type": "http",
+            "url": "https://mcp.context7.com/mcp"
+        }
+    }
+}

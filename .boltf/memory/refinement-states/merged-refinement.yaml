@@ -1,0 +1,847 @@
+﻿# =============================================================================
+# Bolt Framework - Merged Refinement State
+# Generated: 2026-08-05 13:35:10
+# =============================================================================
+# This file contains the merged refinement decisions from all active scopes.
+# Used by constitution generation phase to create the final constitution.md
+# =============================================================================
+
+# Summary Statistics
+total_scopes: 3
+total_articles: 39
+total_decisions: 37
+# articles_excluded: 2 (VIII backend skip, XVII frontend skip)
+merge_timestamp: 2026-08-05 13:35:10
+has_conflicts: False
+
+# Scopes
+scopes:
+  - scope: backend
+    articles_count: 0
+    decisions_count: 0
+    source_file: backend-refinement.yaml
+  - scope: cloud-platform
+    articles_count: 0
+    decisions_count: 0
+    source_file: cloud-platform-refinement.yaml
+  - scope: frontend
+    articles_count: 0
+    decisions_count: 0
+    source_file: frontend-refinement.yaml
+
+
+# =============================================================================
+# Detailed Scope Data
+# =============================================================================
+# Each scope's full refinement data is preserved below for reference.
+# The constitution generator will merge these based on the summary above.
+# =============================================================================
+
+scope_data:
+
+  # Scope: backend
+  backend:
+    scope: backend
+    status: completed
+    completed_at: '2026-08-05 13:29:17'
+    total_articles: 15
+    articles:
+    
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      # HIGH CRITICALITY
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    
+      - number: 'II'
+        title: 'Application Configuration â€” Backend Language & Runtime'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:28:31'
+        reason: 'User selected C# / .NET 10 + Minimal APIs. Greenfield project 2026.'
+        modified_content: |
+          ## Article II: Backend Language & Runtime
+    
+          - **Language**: C# / .NET 10
+          - **API Style**: Minimal APIs
+          - **Cloud Provider**: Microsoft Azure (mandatory)
+    
+      - number: 'III'
+        title: 'Application Architecture â€” Backend Style + CQRS'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'Modular Monolith for greenfield. Simple CQRS with native .NET interfaces (no MediatR). No Event Sourcing.'
+        modified_content: |
+          ## Article III: Application Architecture
+    
+          - **Architecture Style**: Modular Monolith â€” single deployment, modular boundaries
+          - **CQRS**: Enabled â€” Simple CQRS (same model, separated handlers)
+          - **Event Sourcing**: Disabled
+    
+          ### Native CQRS Interfaces (NO MediatR)
+    
+          ```csharp
+          public interface ICommand { }
+          public interface ICommandHandler<in TCommand> where TCommand : ICommand
+          {
+              Task HandleAsync(TCommand command, CancellationToken ct = default);
+          }
+          public interface ICommandHandler<in TCommand, TResult> where TCommand : ICommand
+          {
+              Task<TResult> HandleAsync(TCommand command, CancellationToken ct = default);
+          }
+          public interface IQuery<TResult> { }
+          public interface IQueryHandler<in TQuery, TResult> where TQuery : IQuery<TResult>
+          {
+              Task<TResult> HandleAsync(TQuery query, CancellationToken ct = default);
+          }
+          public interface ICommandDispatcher
+          {
+              Task DispatchAsync<TCommand>(TCommand command, CancellationToken ct = default)
+                  where TCommand : ICommand;
+          }
+          public interface IQueryDispatcher
+          {
+              Task<TResult> DispatchAsync<TQuery, TResult>(TQuery query, CancellationToken ct = default)
+                  where TQuery : IQuery<TResult>;
+          }
+          public interface IDomainEvent
+          {
+              Guid EventId { get; }
+              DateTime OccurredOn { get; }
+          }
+          public interface IDomainEventHandler<in TEvent> where TEvent : IDomainEvent
+          {
+              Task HandleAsync(TEvent domainEvent, CancellationToken ct = default);
+          }
+          ```
+    
+      - number: 'IV'
+        title: 'Communication'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'Hybrid (REST + async). REST for sync, Azure Service Bus for async. .NET BackgroundService for background jobs.'
+        modified_content: |
+          ## Article IV: Communication
+    
+          - **Style**: Hybrid â€” synchronous + asynchronous
+          - **Synchronous**: REST API (no gRPC, no GraphQL)
+          - **Asynchronous Message Broker**: Azure Service Bus (cloud-native, enterprise)
+          - **Background Processing**: .NET BackgroundService (native, no extra dependencies)
+    
+      - number: 'V'
+        title: 'Data Storage'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:28:31'
+        reason: 'Azure SQL Database. EF Core for writes + Dapper for reads (aligned with Simple CQRS). Repository + UoW patterns. EF Core Migrations.'
+        modified_content: |
+          ## Article V: Data Storage
+    
+          - **Primary Database**: Azure SQL Database (Managed SQL Server)
+          - **Data Access**:
+            - Writes: Entity Framework Core (ORM)
+            - Reads: Dapper (micro-ORM, performance-focused)
+          - **Repository Pattern**: Enabled
+          - **Unit of Work Pattern**: Enabled
+          - **Database Migrations**: EF Core Migrations (code-first)
+    
+      - number: 'VII'
+        title: 'Identity & Access Management'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:28:31'
+        reason: 'Microsoft Entra ID for enterprise/internal users. Mock IDP for dev/test. Policy-Based authorization.'
+        modified_content: |
+          ## Article VII: Identity & Access Management
+    
+          - **Identity Provider (Production)**: Microsoft Entra ID (Azure AD)
+          - **Identity Provider (Development/Testing)**: Mock IDP (in-memory, fake tokens)
+          - **Authentication Flows**:
+            - SPA Frontend: Authorization Code + PKCE â€” Enabled
+            - Service-to-Service: Client Credentials â€” Enabled
+            - Backend API: JWT Bearer â€” Enabled
+            - Mobile App: Disabled
+          - **Authorization Model**: Policy-Based (.NET Authorization Policies)
+    
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      # MEDIUM CRITICALITY
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    
+      - number: 'VI'
+        title: 'Caching Strategy'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'L1 in-memory for hot paths. L2 Azure Cache for Redis for distributed. No CDN (managed by frontend/cloud scope). Cache-Aside pattern.'
+        modified_content: |
+          ## Article VI: Caching Strategy
+    
+          - **L1 In-Memory**: Enabled (IMemoryCache) â€” TTL: 5 minutes default
+          - **L2 Distributed**: Azure Cache for Redis â€” TTL: 30 minutes default
+          - **L3 CDN**: None (managed by frontend/cloud-platform scope)
+          - **Cache Pattern**: Cache-Aside (application manages cache)
+    
+      - number: 'X'
+        title: 'Environments & Configuration'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'From scopes.yaml wizard decisions: dev+prod environments, config-files, env-files for dev secrets, no feature flags.'
+        modified_content: |
+          ## Article X: Environments & Configuration
+    
+          - **Environments**:
+            - dev â€” Development, rapid iteration â€” Auto-deploy on commit to develop
+            - prod â€” Production â€” Manual approval
+          - **Configuration Management**: appsettings.{Environment}.json + environment variables
+          - **Secrets Management**: Azure Key Vault (production) / .env files gitignored (local dev)
+          - **Feature Flags**: None
+    
+      - number: 'XI'
+        title: 'CI/CD Pipeline'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'From scopes.yaml: Azure DevOps Pipelines, GitFlow, Rolling Update. Stages: build, lint, unit tests, security scan, deploy dev, deploy prod.'
+        modified_content: |
+          ## Article XI: CI/CD Pipeline
+    
+          - **Platform**: Azure DevOps Pipelines
+          - **Branch Strategy**: GitFlow (feature/, develop, release/, main)
+          - **Deployment Strategy**: Rolling Update
+          - **Pipeline Stages (Application)**:
+            - Build (warnings as errors: Yes)
+            - Lint/Format
+            - Unit Tests (coverage >= 80%)
+            - Security Scan (0 Critical)
+          - **Deployment Stages**:
+            - Deploy Dev â€” Auto on commit to develop
+            - Deploy Prod â€” Manual approval
+          - **IaC Tool**: Terraform
+    
+      - number: 'XII'
+        title: 'Observability'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'From scopes.yaml: OpenTelemetry SDK â†’ Azure Monitor Exporter. Standard health check endpoints.'
+        modified_content: |
+          ## Article XII: Observability
+    
+          - **Strategy**: OpenTelemetry â†’ Azure Monitor Exporter (OTel SDK)
+          - **Health Check Endpoints**:
+            - /health â€” Full health check
+            - /health/ready â€” Readiness probe
+            - /health/live â€” Liveness probe
+    
+      - number: 'XIII'
+        title: 'Testing Standards'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'xUnit + Testcontainers + Reqnroll (BDD/Gherkin) + Playwright (E2E). 80% coverage minimum. No mutation tests configured yet.'
+        modified_content: |
+          ## Article XIII: Testing Standards
+    
+          - **Philosophy**: Coverage-First validated by Mutation Testing
+          - **Thresholds**:
+            - Line Coverage: >= 80% (coverlet)
+            - Branch Coverage: >= 75% (coverlet)
+            - Mutation Score: >= 70% (Stryker.NET) â€” deferred to later sprint
+          - **Frameworks**:
+            - Unit Tests: xUnit
+            - Integration Tests: xUnit + Testcontainers
+            - Architecture Tests: NetArchTest
+            - BDD/Gherkin: Reqnroll
+            - E2E Tests: Playwright
+            - Performance Tests: k6
+          - **Test Project Structure**:
+            ```
+            tests/
+            â”œâ”€â”€ {Module}.UnitTests/
+            â”œâ”€â”€ {Module}.IntegrationTests/
+            â”œâ”€â”€ Architecture.Tests/
+            â”œâ”€â”€ E2E.Tests/
+            â””â”€â”€ Common.Tests/
+                â”œâ”€â”€ Fixtures/
+                â”œâ”€â”€ Fakes/
+                â””â”€â”€ Builders/
+            ```
+    
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      # LOW CRITICALITY (auto-approved)
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    
+      - number: 'XIV'
+        title: 'Code Standards'
+        criticality: LOW
+        status: refined
+        decision: include
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'Auto-approved: standard .NET naming conventions and formatting.'
+        content: |
+          ## Article XIV: Code Standards
+    
+          ### Naming Conventions (C#/.NET)
+    
+          | Element        | Convention     | Example                      |
+          |----------------|----------------|------------------------------|
+          | Namespaces     | PascalCase     | `MyCompany.MyProject.Domain` |
+          | Classes        | PascalCase     | `OrderService`               |
+          | Interfaces     | I + PascalCase | `IOrderService`              |
+          | Methods        | PascalCase     | `GetOrderByIdAsync`          |
+          | Properties     | PascalCase     | `OrderId`                    |
+          | Private fields | _camelCase     | `_orderRepository`           |
+          | Async methods  | Suffix Async   | `GetOrderByIdAsync`          |
+    
+          ### Code Formatting
+    
+          | Setting                  | Value                         |
+          |--------------------------|-------------------------------|
+          | Indentation              | 4 spaces                      |
+          | Line Length              | 120 characters                |
+          | File-scoped namespaces   | Yes                           |
+          | Nullable reference types | Enabled                       |
+          | Tooling                  | .editorconfig + dotnet format |
+    
+      - number: 'XVI'
+        title: 'Security Policies'
+        criticality: LOW
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'From scopes.yaml: no VNet/private endpoints/WAF for simplicity. Azure-managed keys. GDPR compliance. TLS 1.2+.'
+        modified_content: |
+          ## Article XVI: Security Policies
+    
+          - **Network Security**: No VNet, no Private Endpoints, no WAF (can be added later)
+          - **Encryption at Rest**: Azure-managed keys
+          - **Encryption in Transit**: TLS 1.2+ (mandatory)
+          - **PII Handling**: Encryption
+          - **Compliance**: GDPR required
+    
+      - number: 'VIII'
+        title: 'Containers & Orchestration'
+        criticality: HIGH
+        status: refined
+        decision: skip
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'Deferred to cloud-platform scope â€” containers and orchestration governed there.'
+    
+      - number: 'XVII'
+        title: 'Legacy & Migration'
+        criticality: LOW
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'Greenfield project â€” no legacy migration needed.'
+        modified_content: |
+          ## Article XVII: Legacy & Migration
+    
+          - **Context**: Greenfield â€” new project, no legacy code
+    
+      - number: 'XIX'
+        title: 'Governance'
+        criticality: LOW
+        status: refined
+        decision: include
+        decided_at: '2026-08-05 13:29:17'
+        reason: 'Auto-approved: standard governance process.'
+        content: |
+          ## Article XIX: Governance
+    
+          ### Constitution Amendments
+          1. **Proposal**: Any team member may propose amendments
+          2. **Review**: Tech Lead + Architect review required
+          3. **Approval**: Majority approval from signatories
+          4. **Implementation**: Update constitution + notify AI agents
+          5. **Versioning**: Semantic versioning (MAJOR.MINOR.PATCH)
+    
+          ### AI Agent Compliance
+          All AI agents MUST:
+          1. Read this constitution before any operation
+          2. Validate all decisions against constitution principles
+          3. FAIL operations that violate constitution
+          4. Request amendment for justified exceptions
+          5. Log all constitution checks for audit
+    
+
+  # Scope: cloud-platform
+  cloud-platform:
+    scope: cloud-platform
+    status: completed
+    completed_at: '2026-08-05 13:33:42'
+    total_articles: 12
+    articles:
+    
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      # HIGH CRITICALITY
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    
+      - number: 'VIII.8.1'
+        title: 'Container Strategy'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'Docker containers. Maximum portability and standard deployment model for Azure Container Apps.'
+        modified_content: |
+          ## Article VIII Â§8.1: Container Strategy
+    
+          - **Strategy**: Docker (standard containers)
+          - **Runtime**: Docker (local dev) / Azure Container Apps (production)
+    
+      - number: 'VIII.8.2'
+        title: 'Orchestration Platform'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'Azure Container Apps â€” serverless containers, lower operational overhead vs AKS. Ideal for Modular Monolith + greenfield.'
+        modified_content: |
+          ## Article VIII Â§8.2: Orchestration Platform
+    
+          - **Platform**: Azure Container Apps (serverless containers)
+          - **Benefits**: No K8s cluster management, auto-scaling, built-in Dapr support, native Azure integration
+          - **Local Dev**: Docker (container-runtime: none in wizard â€” use docker directly)
+    
+      - number: 'VIII-B.8B.1'
+        title: 'Infrastructure Scope & Landing Zone Strategy'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'Workload Infrastructure only. Greenfield project, focuses on app-specific Azure resources. No enterprise Landing Zone complexity needed.'
+        modified_content: |
+          ## Article VIII-B Â§8B.1: Infrastructure Scope
+    
+          - **Scope**: Workload Infrastructure only
+          - **Workload Components**:
+            - Compute: Azure Container Apps
+            - Data: Azure SQL Database + Azure Cache for Redis
+            - Integration: Azure Service Bus
+            - Frontend Hosting: Azure Static Web Apps
+            - Secrets: Azure Key Vault
+            - Identity: Microsoft Entra ID
+            - Monitoring: Azure Monitor + Application Insights
+          - **Assumption**: Platform/networking provided by existing subscription
+    
+      - number: 'IX.9.1'
+        title: 'Infrastructure as Code Tool'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'Terraform â€” already decided in wizard (iac-tool: terraform). Multi-cloud HCL, strong ecosystem.'
+        modified_content: |
+          ## Article IX Â§9.1: Infrastructure as Code
+    
+          - **IaC Tool**: Terraform (HCL)
+          - **State Backend**: Azure Storage Account (remote state)
+          - **Structure**:
+            ```
+            infra/
+            â”œâ”€â”€ terraform/
+            â”‚   â”œâ”€â”€ modules/
+            â”‚   â”‚   â”œâ”€â”€ container-apps/
+            â”‚   â”‚   â”œâ”€â”€ sql/
+            â”‚   â”‚   â”œâ”€â”€ redis/
+            â”‚   â”‚   â”œâ”€â”€ service-bus/
+            â”‚   â”‚   â”œâ”€â”€ static-web-apps/
+            â”‚   â”‚   â””â”€â”€ key-vault/
+            â”‚   â”œâ”€â”€ environments/
+            â”‚   â”‚   â”œâ”€â”€ dev.tfvars
+            â”‚   â”‚   â””â”€â”€ prod.tfvars
+            â”‚   â”œâ”€â”€ main.tf
+            â”‚   â”œâ”€â”€ variables.tf
+            â”‚   â””â”€â”€ outputs.tf
+            â””â”€â”€ scripts/
+                â””â”€â”€ deploy.ps1
+            ```
+    
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      # MEDIUM CRITICALITY (auto-recommended)
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    
+      - number: 'VIII.8.3-8.4'
+        title: 'K8s Config & Cloud-Native Extensions'
+        criticality: MEDIUM
+        status: refined
+        decision: skip
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'Not applicable â€” Azure Container Apps selected, no Kubernetes cluster. KEDA and Dapr available natively in Container Apps if needed later.'
+    
+      - number: 'VIII-C'
+        title: '.NET Aspire Orchestration'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'Enabled for local dev orchestration. .NET 10 + Modular Monolith benefits from unified service discovery and built-in OTel dashboard.'
+        modified_content: |
+          ## Article VIII-C: .NET Aspire Orchestration
+    
+          - **Aspire**: Enabled (local development orchestration)
+          - **AppHost**: src/AppHost/ â€” defines service topology
+          - **ServiceDefaults**: src/ServiceDefaults/ â€” shared OTel, health checks, resilience
+          - **Service Discovery**: Aspire automatic (WithReference() API)
+          - **Dashboard**: http://localhost:15888 (local OTel observability)
+          - **Production**: Deploy via `azd up` or Azure DevOps pipeline (Container Apps)
+          - **Note**: Aspire is for local dev only; production uses Azure Container Apps directly
+    
+      - number: 'X'
+        title: 'Environments & Configuration (Cloud)'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'From scopes.yaml: dev + prod. Terraform workspaces per environment. Secrets in Azure Key Vault.'
+        modified_content: |
+          ## Article X: Environments & Configuration (Cloud Platform)
+    
+          - **Environments**: dev, prod
+          - **Terraform Workspaces**: one per environment (dev, prod)
+          - **Secrets**: Azure Key Vault (one vault per environment)
+          - **Feature Flags**: None
+    
+      - number: 'XI'
+        title: 'CI/CD Pipeline (Infrastructure)'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'From scopes.yaml: Azure DevOps, GitFlow, Rolling. IaC pipeline: lint + validate + security scan + deploy.'
+        modified_content: |
+          ## Article XI: CI/CD Pipeline (Infrastructure)
+    
+          - **Platform**: Azure DevOps Pipelines
+          - **Branch Strategy**: GitFlow
+          - **IaC Pipeline Stages**:
+            - IaC Lint (tflint)
+            - IaC Validation (terraform plan)
+            - Security Scan (Checkov / tfsec â€” 0 Critical)
+            - Cost Estimation (Infracost)
+            - Deploy Dev â€” Auto on commit to develop
+            - Deploy Prod â€” Manual approval
+    
+      - number: 'XII'
+        title: 'Observability & Infrastructure Monitoring'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'From scopes.yaml: OTel â†’ Azure. Infra monitoring: activity logs, diagnostics, alerts, dashboards, resource health â€” all enabled.'
+        modified_content: |
+          ## Article XII: Observability & Infrastructure Monitoring
+    
+          - **Strategy**: OpenTelemetry â†’ Azure Monitor Exporter
+          - **Infrastructure Monitoring** (all enabled):
+            - Activity Logs â€” Azure Monitor
+            - Diagnostics â€” Log Analytics Workspace
+            - Alerts â€” Azure Monitor Alerts
+            - Dashboards â€” Azure Workbooks
+            - Resource Health â€” Azure Resource Health
+    
+      - number: 'XIII.13.4'
+        title: 'Infrastructure Testing'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'Terraform-based IaC testing. tflint + Checkov for static analysis. Terratest for integration tests post-deploy.'
+        modified_content: |
+          ## Article XIII Â§13.4: Infrastructure Testing
+    
+          | Test Type       | Tool             | Purpose                        |
+          |-----------------|------------------|--------------------------------|
+          | IaC Lint        | tflint           | Syntax and best practices      |
+          | Security Scan   | Checkov / tfsec  | Security misconfigurations     |
+          | Cost Estimation | Infracost        | Budget validation              |
+          | Integration     | Terratest (Go)   | Post-deployment validation     |
+    
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      # LOW CRITICALITY (auto-approved)
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    
+      - number: 'IX.9.2'
+        title: 'IaC Structure'
+        criticality: LOW
+        status: refined
+        decision: include
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'Auto-approved: standard Terraform workload structure.'
+        content: |
+          ## Article IX Â§9.2: IaC Structure
+    
+          ```
+          infra/
+          â”œâ”€â”€ terraform/
+          â”‚   â”œâ”€â”€ modules/
+          â”‚   â”‚   â”œâ”€â”€ container-apps/
+          â”‚   â”‚   â”œâ”€â”€ sql/
+          â”‚   â”‚   â”œâ”€â”€ redis/
+          â”‚   â”‚   â”œâ”€â”€ service-bus/
+          â”‚   â”‚   â”œâ”€â”€ static-web-apps/
+          â”‚   â”‚   â””â”€â”€ key-vault/
+          â”‚   â”œâ”€â”€ environments/
+          â”‚   â”‚   â”œâ”€â”€ dev.tfvars
+          â”‚   â”‚   â””â”€â”€ prod.tfvars
+          â”‚   â”œâ”€â”€ main.tf
+          â”‚   â”œâ”€â”€ variables.tf
+          â”‚   â””â”€â”€ outputs.tf
+          â””â”€â”€ scripts/
+              â””â”€â”€ deploy.ps1
+          ```
+    
+      - number: 'XVI'
+        title: 'Security Policies (Cloud Platform)'
+        criticality: LOW
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:33:42'
+        reason: 'From scopes.yaml: no VNet/private endpoints. Azure-managed keys. GDPR. TLS 1.2+.'
+        modified_content: |
+          ## Article XVI: Security Policies (Cloud Platform)
+    
+          - **Network**: No VNet / No Private Endpoints (simplicity for greenfield)
+          - **Encryption at Rest**: Azure-managed keys
+          - **Encryption in Transit**: TLS 1.2+ (mandatory)
+          - **Compliance**: GDPR required
+          - **Container Security**: Managed identity for Container Apps (no secrets in env vars)
+    
+
+  # Scope: frontend
+  frontend:
+    scope: frontend
+    status: completed
+    completed_at: '2026-08-05 13:31:35'
+    total_articles: 12
+    articles:
+    
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      # HIGH CRITICALITY
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    
+      - number: 'II.2.2'
+        title: 'Frontend Framework'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'Wizard selected Vue. User confirmed Vue 3.x â€” only viable option in 2026.'
+        modified_content: |
+          ## Article II Â§2.2: Frontend Framework
+    
+          - **Framework**: Vue.js 3.x
+          - **Language**: TypeScript
+          - **Build Tool**: Vite
+    
+      - number: 'II.2.3'
+        title: 'Mobile Application'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'No mobile app required for this project.'
+        modified_content: |
+          ## Article II Â§2.3: Mobile Application
+    
+          - **Mobile**: None â€” no mobile app
+    
+      - number: 'II.2.4'
+        title: 'Design Tooling'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'Wizard selected design-tool: none. HTML mockups only via bolt-mockup / bolt-ux-design. Design gate inactive.'
+        modified_content: |
+          ## Article II Â§2.4: Design Tooling
+    
+          - **Design Tool**: None â€” HTML mockups only (bolt-mockup / bolt-ux-design)
+          - **Design Gate**: Inactive (no Penpot integration)
+          - **Token Pipeline**: Not applicable
+    
+      - number: 'III.3.2'
+        title: 'Frontend Architecture Style'
+        criticality: HIGH
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'Monolith SPA aligned with Modular Monolith backend. Vue 3 SPA served via Azure Static Web Apps.'
+        modified_content: |
+          ## Article III Â§3.2: Frontend Architecture Style
+    
+          - **Style**: Monolith SPA (Single Page Application)
+          - **Hosting**: Azure Static Web Apps
+          - **Routing**: Vue Router
+          - **State Management**: Pinia
+    
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      # MEDIUM CRITICALITY (auto-recommended, accepted)
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    
+      - number: 'VII.7.3-7.4'
+        title: 'Authentication Flows & Authorization (Frontend)'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'Aligned with backend: Entra ID, Auth Code + PKCE for SPA. Policy-Based (via JWT claims in Vue).'
+        modified_content: |
+          ## Article VII: Identity & Access Management (Frontend)
+    
+          - **Authentication Flow (SPA)**: Authorization Code + PKCE (Entra ID)
+          - **Library**: MSAL.js v3 (@azure/msal-browser + @azure/msal-vue)
+          - **Authorization**: Claims-based routing guards (Vue Router)
+          - **Mobile App Auth**: Not applicable
+    
+      - number: 'X'
+        title: 'Environments & Configuration (Frontend)'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'From scopes.yaml: dev + prod. Config via .env files. No feature flags.'
+        modified_content: |
+          ## Article X: Environments & Configuration (Frontend)
+    
+          - **Environments**: dev, prod
+          - **Configuration**: .env files (Vite VITE_* variables, gitignored for secrets)
+          - **Secrets (local)**: .env.local (gitignored)
+          - **Feature Flags**: None
+    
+      - number: 'XI'
+        title: 'CI/CD Pipeline (Frontend)'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'From scopes.yaml: Azure DevOps, GitFlow, Rolling. Frontend pipeline stages aligned with backend.'
+        modified_content: |
+          ## Article XI: CI/CD Pipeline (Frontend)
+    
+          - **Platform**: Azure DevOps Pipelines
+          - **Branch Strategy**: GitFlow (feature/, develop, release/, main)
+          - **Deployment Strategy**: Rolling Update
+          - **Pipeline Stages**:
+            - Build (Vite)
+            - Lint/Format (ESLint + Prettier)
+            - Unit Tests (coverage >= 80%)
+            - E2E Tests (Playwright)
+            - Security Scan (0 Critical)
+            - Deploy to Azure Static Web Apps
+          - **Deployment**:
+            - Deploy Dev â€” Auto on commit to develop
+            - Deploy Prod â€” Manual approval
+    
+      - number: 'XII'
+        title: 'Observability (Frontend)'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'Azure Application Insights JS SDK for client-side error tracking + RUM. Aligned with OTel â†’ Azure strategy.'
+        modified_content: |
+          ## Article XII: Observability (Frontend)
+    
+          - **Strategy**: Azure Application Insights JavaScript SDK
+          - **Tracking**: Automatic exception tracking, dependency tracking, RUM (Real User Monitoring)
+          - **Core Web Vitals**: Monitored via Application Insights
+    
+      - number: 'XIII'
+        title: 'Testing Standards (Frontend)'
+        criticality: MEDIUM
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'Vitest for unit/component tests (faster with Vite). Playwright for E2E. Testing Library for Vue components.'
+        modified_content: |
+          ## Article XIII: Testing Standards (Frontend)
+    
+          - **Philosophy**: Coverage-First validated by Mutation Testing
+          - **Thresholds**:
+            - Line Coverage: >= 80% (istanbul/v8)
+            - Branch Coverage: >= 75% (istanbul/v8)
+            - Mutation Score: >= 70% (Stryker Mutator) â€” deferred
+          - **Frameworks**:
+            - Unit Tests: Vitest
+            - Component Tests: Vue Testing Library (@testing-library/vue)
+            - E2E Tests: Playwright
+            - Visual Regression: Playwright screenshots
+            - Performance: Lighthouse CI (Core Web Vitals)
+    
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      # LOW CRITICALITY (auto-approved)
+      # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    
+      - number: 'XIV'
+        title: 'Code Standards (Frontend)'
+        criticality: LOW
+        status: refined
+        decision: include
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'Auto-approved: standard Vue/TypeScript naming conventions and formatting.'
+        content: |
+          ## Article XIV: Code Standards (Frontend)
+    
+          ### Naming Conventions (TypeScript/Vue)
+    
+          | Element    | Convention       | Example             |
+          |------------|------------------|---------------------|
+          | Files      | kebab-case       | `order-detail.vue`  |
+          | Components | PascalCase       | `OrderDetail.vue`   |
+          | Composables| use + camelCase  | `useOrderStore.ts`  |
+          | Interfaces | I + PascalCase   | `IOrderService`     |
+          | Functions  | camelCase        | `getOrderById`      |
+          | Variables  | camelCase        | `orderId`           |
+          | Constants  | UPPER_SNAKE_CASE | `MAX_RETRIES`       |
+    
+          ### Code Formatting
+    
+          | Setting     | Value             |
+          |-------------|-------------------|
+          | Indentation | 2 spaces          |
+          | Line Length | 100 characters    |
+          | Semicolons  | No                |
+          | Quotes      | Single            |
+          | Tooling     | ESLint + Prettier |
+    
+      - number: 'XVI'
+        title: 'Security Policies (Frontend)'
+        criticality: LOW
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'From scopes.yaml: no WAF standalone (managed at Azure Front Door if added later). TLS 1.2+. GDPR.'
+        modified_content: |
+          ## Article XVI: Security Policies (Frontend)
+    
+          - **Encryption in Transit**: TLS 1.2+ (mandatory, Azure Static Web Apps enforced)
+          - **WAF**: None (can add Azure Front Door WAF later)
+          - **PII Handling**: No PII stored client-side; encryption server-side
+          - **Compliance**: GDPR â€” no analytics cookies without consent
+    
+      - number: 'XVII'
+        title: 'Legacy & Migration (Frontend)'
+        criticality: LOW
+        status: refined
+        decision: modified
+        decided_at: '2026-08-05 13:31:35'
+        reason: 'Greenfield project â€” no legacy frontend migration.'
+        modified_content: |
+          ## Article XVII: Legacy & Migration (Frontend)
+    
+          - **Context**: Greenfield â€” new Vue 3 SPA, no legacy frontend
+    

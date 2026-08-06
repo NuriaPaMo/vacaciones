@@ -1,0 +1,304 @@
+<h2 id='introduccion'>1. Introducción</h2>
+<p>Este documento presenta los requisitos funcionales y no funcionales que han sido identificados y confirmados durante las sesiones de Discovery. El propósito es establecer una base clara para el desarrollo del sistema.</p>
+<p class='meta-info'>Fecha: 07/07/2026 | Versión: 1.0</p>
+<br>
+<h2 id='requisitos'>2. Requisitos Funcionales</h2>
+<p>Los requisitos funcionales definen las funcionalidades específicas que el sistema debe proporcionar:</p>
+<ul>
+<li>
+<strong>RF-001:</strong> El sistema debe devolver información sobre cuántas personas hay en un periodo de tiempo.
+<div class='warning'>⚠️ Nota: No se especifica qué personas se cuentan, qué información exacta se devuelve ni cómo se define el periodo de tiempo.</div>
+</li>
+<li>
+<strong>RF-002:</strong> El sistema debe acceder a una jerarquía organizativa con varios niveles de profundidad.
+<div class='warning'>⚠️ Nota: No se especifica la fuente de la jerarquía ni cómo debe accederse a ella.</div>
+</li>
+<li>
+<strong>RF-003:</strong> El sistema debe permitir seleccionar un nivel de la jerarquía organizativa según la necesidad.
+<div class='warning'>⚠️ Nota: No se define quién selecciona el nivel ni con qué propósito o criterio.</div>
+</li>
+<li>
+<strong>RF-004:</strong> La población debe estar estructurada por departamentos.
+</li>
+<li>
+<strong>RF-005:</strong> El periodo de tiempo debe poder configurarse en semanas o días.
+<div class='warning'>⚠️ Nota: No se especifica qué periodo de tiempo aplica ni en qué contexto debe configurarse.</div>
+</li>
+<li>
+<strong>RF-006:</strong> El sistema debe permitir rechazar las solicitudes de vacaciones.
+<div class='warning'>⚠️ Nota: No se especifica quién puede rechazarlas ni bajo qué condiciones.</div>
+</li>
+<li>
+<strong>RF-007:</strong> El sistema debe permitir gestionar cuántas personas pueden estar de vacaciones al mismo tiempo en un periodo determinado.
+<div class='warning'>⚠️ Nota: No se especifica quién configura el límite ni cómo se define el periodo de tiempo.</div>
+</li>
+<li>
+<strong>RF-008:</strong> Se requiere una aplicación para la aprobación de turnos de vacaciones.
+</li>
+<li>
+<strong>RF-009:</strong> El sistema debe permitir visualizar las semanas de julio en las que el equipo tenga solicitudes de vacaciones superiores al 70%.
+<div class='warning'>⚠️ Nota: No se especifica qué significa exactamente 'que le sea fácil de ver' ni cómo debe presentarse visualmente la información.</div>
+</li>
+<li>
+<strong>RF-010:</strong> El sistema debe permitir a los responsables ver qué vacaciones ha solicitado cada usuario.
+</li>
+<li>
+<strong>RF-011:</strong> El sistema debe permitir consultar cuándo un empleado ha ido de vacaciones.
+<div class='warning'>⚠️ Nota: No se especifica el actor que realiza la consulta ni el alcance temporal de la información.</div>
+</li>
+<li>
+<strong>RF-012:</strong> El sistema debe permitir consultar cuáles vacaciones de un empleado están aprobadas.
+<div class='warning'>⚠️ Nota: No se especifica el actor que realiza la consulta ni el alcance temporal de la información.</div>
+</li>
+<li>
+<strong>RF-013:</strong> El sistema debe permitir consultar cuáles vacaciones de un empleado no están aprobadas.
+<div class='warning'>⚠️ Nota: No se especifica el actor que realiza la consulta ni el alcance temporal de la información.</div>
+</li>
+<li>
+<strong>RF-014:</strong> No se propondrán alternativas en el proceso.
+<div class='warning'>⚠️ Nota: No se especifica qué tipo de alternativas ni en qué contexto del proceso aplican.</div>
+</li>
+<li>
+<strong>RF-015:</strong> El sistema debe permitir al usuario cancelar sus solicitudes.
+</li>
+<li>
+<strong>RF-016:</strong> El sistema debe permitir al responsable rechazar las solicitudes.
+</li>
+<li>
+<strong>RF-017:</strong> El sistema debe notificar a los usuarios cuando sus solicitudes sean aprobadas.
+</li>
+<li>
+<strong>RF-018:</strong> El sistema debe notificar a los usuarios cuando sus solicitudes sean canceladas.
+</li>
+<li>
+<strong>RF-019:</strong> El sistema debe contar con un proceso de cancelación.
+<div class='warning'>⚠️ Nota: No se especifica qué entidad se cancela ni cómo debe funcionar el proceso.</div>
+</li>
+<li>
+<strong>RF-020:</strong> El sistema debe realizar una descarga nocturna de las actualizaciones.
+<div class='warning'>⚠️ Nota: No se especifica la hora exacta, frecuencia detallada ni el alcance de las actualizaciones.</div>
+</li>
+<li>
+<strong>RF-021:</strong> El sistema debe enviar a Service Now el listado de vacaciones aprobadas.
+<div class='warning'>⚠️ Nota: No se especifica el momento, frecuencia ni el mecanismo de envío.</div>
+</li>
+<li>
+<strong>RF-022:</strong> El sistema debe incluir únicamente las vacaciones aprobadas en el listado enviado a Service Now.
+</li>
+<li>
+<strong>RF-023:</strong> Cada solicitud de vacaciones debe estar aprobada por cada uno de los responsables antes de ser enviada a Service Now.
+<div class='warning'>⚠️ Nota: No se define quiénes son los responsables ni cuántos deben aprobar.</div>
+</li>
+<li>
+<strong>RF-024:</strong> El sistema debe permitir que se pueda probar mediante un enlace en una primera etapa.
+<div class='warning'>⚠️ Nota: No se especifica qué funcionalidad se probará ni las condiciones de acceso mediante el enlace.</div>
+</li>
+<li>
+<strong>RF-025:</strong> El sistema debe incorporar tarjetas adaptativas en una etapa posterior.
+<div class='warning'>⚠️ Nota: No se define el alcance, propósito ni el momento concreto de incorporación de las tarjetas adaptativas.</div>
+</li>
+<li>
+<strong>RF-026:</strong> Debe existir un enlace que permita navegar a la aplicación.
+</li>
+<li>
+<strong>RF-027:</strong> El sistema debe enviar la información por correo electrónico.
+<div class='warning'>⚠️ Nota: No se especifica qué información se envía, en qué evento ni a qué destinatarios.</div>
+</li>
+<li>
+<strong>RF-028:</strong> El sistema puede enviar la información opcionalmente por Teams.
+<div class='warning'>⚠️ Nota: No se especifica qué información se envía, en qué evento, a qué destinatarios ni el criterio de opcionalidad.</div>
+</li>
+<li>
+<strong>RF-029:</strong> El sistema debería enviar alarmas por correo electrónico o por Teams.
+<div class='warning'>⚠️ Nota: La redacción expresa preferencia y no define si el canal debe ser correo electrónico, Teams o ambos.</div>
+</li>
+<li>
+<strong>RF-030:</strong> El responsable del departamento debe poder aprobar las solicitudes de vacaciones.
+</li>
+<li>
+<strong>RF-031:</strong> La aprobación de solicitudes debe poder delegarse a otras personas del mismo proyecto.
+<div class='warning'>⚠️ Nota: No se especifican las condiciones, alcance ni reglas de la delegación.</div>
+</li>
+<li>
+<strong>RF-032:</strong> Si una solicitud no se aprueba en un tiempo determinado, el sistema debe generar una alarma al responsable del departamento.
+<div class='warning'>⚠️ Nota: No se define el tiempo límite ni el medio o comportamiento exacto de la alarma.</div>
+</li>
+<li>
+<strong>RF-033:</strong> El sistema debe contemplar un aprobador del proyecto para las solicitudes.
+<div class='warning'>⚠️ Nota: No se especifica qué acciones realiza el aprobador ni en qué flujo interviene exactamente.</div>
+</li>
+<li>
+<strong>RF-034:</strong> En departamentos grandes de aproximadamente 50 personas debe existir al menos un aprobador de vacaciones.
+<div class='warning'>⚠️ Nota: El umbral de 'departamentos grandes' es impreciso y no se define si 50 personas es un ejemplo o una regla.</div>
+</li>
+<li>
+<strong>RF-035:</strong> El sistema debe permitir la delegación del aprobador de vacaciones.
+<div class='warning'>⚠️ Nota: No se especifican las condiciones, alcance ni reglas de la delegación.</div>
+</li>
+<li>
+<strong>RF-036:</strong> El sistema debe obtener desde ServiceNow la información de qué personas pertenecen al departamento.
+<div class='warning'>⚠️ Nota: No se especifica qué departamento ni bajo qué condiciones debe obtenerse la información.</div>
+</li>
+<li>
+<strong>RF-037:</strong> El sistema debe obtener desde Active Directory la información de qué personas pertenecen al departamento.
+<div class='warning'>⚠️ Nota: No se especifica qué departamento ni bajo qué condiciones debe obtenerse la información.</div>
+</li>
+<li>
+<strong>RF-038:</strong> El sistema debe obtener la información de quién es el responsable de cada proyecto.
+<div class='warning'>⚠️ Nota: No se define la fuente de datos ni el alcance de los proyectos a considerar.</div>
+</li>
+<li>
+<strong>RF-039:</strong> El sistema debe obtener la información de quiénes están bajo la responsabilidad de cada responsable de proyecto.
+<div class='warning'>⚠️ Nota: La frase original es imprecisa y no define claramente la relación jerárquica ni la fuente de datos.</div>
+</li>
+<li>
+<strong>RF-040:</strong> El sistema debe permitir seleccionar un nivel de la estructura organizativa según el interés del usuario.
+<div class='warning'>⚠️ Nota: No se define qué niveles existen ni cómo se representan en la estructura organizativa.</div>
+</li>
+<li>
+<strong>RF-041:</strong> El sistema debe devolver cuántas personas corresponden al nivel organizativo seleccionado en un periodo de tiempo concreto.
+<div class='warning'>⚠️ Nota: No se especifica qué significa corresponder al nivel ni cómo se determina el periodo de tiempo.</div>
+</li>
+<li>
+<strong>RF-042:</strong> La estructura de la población debe estar organizada por departamentos.
+</li>
+<li>
+<strong>RF-043:</strong> La estructura organizativa debe tener un solo nivel.
+<div class='warning'>⚠️ Nota: La expresión 'se supone' introduce incertidumbre sobre si es un requisito confirmado.</div>
+</li>
+<li>
+<strong>RF-044:</strong> El periodo de tiempo puede configurarse en semanas o días.
+<div class='warning'>⚠️ Nota: No se especifica qué periodo de tiempo aplica ni bajo qué condiciones debe usarse semanas o días.</div>
+</li>
+<li>
+<strong>RF-045:</strong> El sistema debe permitir al responsable de proyecto ver las solicitudes de vacaciones.
+</li>
+<li>
+<strong>RF-046:</strong> El sistema debe permitir al responsable de proyecto valorar las solicitudes de vacaciones.
+<div class='warning'>⚠️ Nota: El término 'valorar' es vago y no especifica la acción o criterio esperado.</div>
+</li>
+<li>
+<strong>RF-047:</strong> El sistema debe permitir al responsable de proyecto aprobar las solicitudes de vacaciones.
+</li>
+<li>
+<strong>RF-048:</strong> El sistema debe permitir al responsable de proyecto rechazar o cerrar solicitudes de vacaciones.
+<div class='warning'>⚠️ Nota: No queda claro si 'echa cerrar colecciones' significa rechazar, cerrar o una acción distinta.</div>
+</li>
+<li>
+<strong>RF-049:</strong> El sistema debe permitir al responsable departamental conocer cuánta gente está de vacaciones a nivel de todo el departamento.
+<div class='warning'>⚠️ Nota: No se especifica si la información debe ser en tiempo real, por periodo o mediante un reporte concreto.</div>
+</li>
+<li>
+<strong>RF-050:</strong> Las solicitudes de vacaciones deben aprobarse a nivel de proyecto.
+</li>
+<li>
+<strong>RF-051:</strong> Las solicitudes de vacaciones deben aprobarse a nivel departamental.
+</li>
+<li>
+<strong>RF-052:</strong> El sistema debe ser una aplicación para la aprobación de turnos de vacaciones.
+</li>
+</ul>
+<br>
+<h2 id='no-funcionales'>3. Requisitos No Funcionales</h2>
+<p>Los requisitos no funcionales especifican criterios de calidad y restricciones del sistema:</p>
+<ul>
+<li>
+<strong>RNF-001:</strong> El sistema debe soportar 500 usuarios a la vez.
+</li>
+<li>
+<strong>RNF-002:</strong> El sistema debe mostrar de manera muy visual cuándo un periodo de tiempo está sobresolicitado.
+<div class='warning'>⚠️ Nota: Los términos 'muy visual' y 'sobresolicitado' no tienen criterios definidos ni umbrales claros.</div>
+</li>
+<li>
+<strong>RNF-003:</strong> El sistema debe permitir a los responsables ver de manera sencilla qué vacaciones ha pedido cada usuario.
+<div class='warning'>⚠️ Nota: El término 'de manera sencilla' es subjetivo y no define criterios de usabilidad medibles.</div>
+</li>
+<li>
+<strong>RNF-004:</strong> El usuario debe poder ver los calendarios fácilmente.
+<div class='warning'>⚠️ Nota: El término 'fácilmente' es subjetivo y no define criterios de usabilidad medibles.</div>
+</li>
+<li>
+<strong>RNF-005:</strong> El sistema debe ser fácil de ver.
+<div class='warning'>⚠️ Nota: El término 'fácil de ver' es subjetivo y no define criterios de diseño, accesibilidad o legibilidad.</div>
+</li>
+<li>
+<strong>RNF-006:</strong> El sistema no requiere sincronización en tiempo real.
+</li>
+<li>
+<strong>RNF-007:</strong> El sistema debe escalar dependiendo de la estación, esto quiere decir, hay temporadas que tendrá muy poco uso, y otras como navidad donde habrá muchos mas usuarios simultáneos.
+<div class='warning'>⚠️ Nota: Faltan métricas y umbrales de escalabilidad, como cantidad de usuarios simultáneos, tiempos de respuesta esperados y criterio temporal de las temporadas.</div>
+</li>
+<li>
+<strong>RNF-008:</strong> El sistema debe optimizar los costos operativos para evitar pagos innecesarios.
+<div class='warning'>⚠️ Nota: No se definen umbrales de costo, objetivos de ahorro ni condiciones medibles.</div>
+</li>
+<li>
+<strong>RNF-009:</strong> El sistema debe contemplar un volumen de uso de aproximadamente 500 personas del departamento.
+<div class='warning'>⚠️ Nota: No se especifica si las 500 personas son usuarios concurrentes, totales o activos en un periodo determinado.</div>
+</li>
+<li>
+<strong>RNF-010:</strong> El uso del sistema será estacional.
+<div class='warning'>⚠️ Nota: No se detallan los periodos estacionales ni el impacto esperado en la demanda.</div>
+</li>
+</ul>
+<br>
+<h2 id='restricciones'>4. Restricciones Técnicas</h2>
+<p>Las restricciones técnicas definen limitaciones tecnológicas y de infraestructura:</p>
+<ul>
+<li><strong>RT-001:</strong> El sistema necesita acceso a información de Active Directory sobre la organización para obtener datos de su estructura.</li>
+<li><strong>RT-002:</strong> La población debe tener un único nivel de estructura.</li>
+<li><strong>RT-003:</strong> El sistema debe desplegarse en una infraestructura en la nube existente como Azure o Amazon.</li>
+<li><strong>RT-004:</strong> La aplicación nueva debe integrarse con otros sistemas o infraestructura existente.</li>
+<li><strong>RT-005:</strong> La aplicación debe ser de uso exclusivo para un departamento.</li>
+</ul>
+<br>
+<h2 id='arquitectura'>5. Arquitectura Propuesta</h2>
+<p>Basándose en los requisitos y conceptos identificados, se propone la siguiente arquitectura:</p>
+<h3>5.1 Estilo Arquitectónico</h3>
+<p>Para avanade se recomienda una <strong>arquitectura web en capas con enfoque modular</strong>, desplegada en <strong>Microsoft Azure</strong>, compuesta por una <strong>aplicación frontend en Vue</strong>, una <strong>API de negocio</strong> y un <strong>módulo de integración</strong> con sistemas corporativos externos.</p>
+<p>El estilo propuesto es <strong>monolito modular</strong> como punto de partida, porque el alcance funcional identificado se concentra en un único dominio principal: <strong>gestión y aprobación de vacaciones</strong>. Este enfoque permite entregar antes, reducir complejidad operativa y mantener separadas las responsabilidades internas del sistema sin introducir el coste de microservicios.</p>
+<p>La arquitectura debe contemplar <strong>integraciones asíncronas o programadas</strong> para la carga nocturna de datos, dado que se indica explícitamente que <strong>no se requiere sincronización en tiempo real</strong>. Esto aplica especialmente a la obtención de información desde <strong>Active Directory</strong> y <strong>ServiceNow</strong>, así como al envío del listado de vacaciones aprobadas a ServiceNow.</p>
+
+<h3>5.2 Capas del Sistema</h3>
+<ul>
+  <li><strong>Capa de presentación</strong><br>Aplicación web desarrollada en <strong>Vue</strong>, accesible mediante un <strong>enlace</strong> en una primera etapa. Debe cubrir consulta de calendarios, visualización de periodos sobresolicitados, revisión de solicitudes y acciones de aprobación, rechazo o cancelación según el rol.</li>
+  <li><strong>Capa de aplicación / API</strong><br>Expone los casos de uso del sistema: alta y consulta de solicitudes, aprobación a nivel de proyecto y departamental, rechazo, cancelación, consulta histórica, notificaciones y reglas de validación sobre cupos o periodos.</li>
+  <li><strong>Capa de dominio</strong><br>Contiene la lógica de negocio de vacaciones: solicitudes, estados, flujo de aprobación, responsables, delegación, jerarquía organizativa, periodos configurables en días o semanas y reglas para identificar sobresolicitación.</li>
+  <li><strong>Capa de integración</strong><br>Encapsula el acceso a <strong>Active Directory</strong> para estructura organizativa y pertenencia, a <strong>ServiceNow</strong> para datos de departamento y para el envío de vacaciones aprobadas, y a los canales de notificación por <strong>correo electrónico</strong> y opcionalmente <strong>Teams</strong>.</li>
+  <li><strong>Capa de persistencia</strong><br>Base de datos transaccional para solicitudes, aprobaciones, cancelaciones, delegaciones, trazabilidad de estados, configuración de periodos y resultados de sincronizaciones nocturnas.</li>
+  <li><strong>Procesos batch y tareas programadas</strong><br>Responsables de la <strong>descarga nocturna de actualizaciones</strong>, consolidación de datos organizativos desde fuentes externas y preparación del listado de vacaciones aprobadas a enviar a ServiceNow.</li>
+  <li><strong>Capa de seguridad y acceso</strong><br>Gestión de autenticación y autorización basada en roles organizativos, diferenciando al menos usuario solicitante, responsable de proyecto y responsable departamental, de acuerdo con los requisitos funcionales identificados.</li>
+</ul>
+
+<h3>5.3 Justificación</h3>
+<ul>
+  <li><strong>Ajuste al volumen</strong><br>Con un objetivo de <strong>500 usuarios concurrentes</strong>, un monolito modular en Azure es suficiente y más pragmático que una arquitectura distribuida compleja.</li>
+  <li><strong>Ajuste al dominio</strong><br>La funcionalidad gira alrededor de un proceso central de vacaciones y aprobaciones, por lo que conviene mantener una única aplicación con módulos internos bien separados.</li>
+  <li><strong>Integración desacoplada</strong><br>Como no se exige tiempo real, las integraciones con Active Directory y ServiceNow deben resolverse mediante sincronización programada, reduciendo dependencia operativa de sistemas externos durante el uso diario.</li>
+  <li><strong>Escalabilidad estacional</strong><br>El despliegue en <strong>Azure</strong> permite escalar horizontal o verticalmente en periodos de alta demanda, alineándose con el uso estacional indicado y con la necesidad de optimizar costes cuando el uso sea bajo.</li>
+  <li><strong>Mantenibilidad</strong><br>Separar presentación, negocio, integración y persistencia facilita evolucionar reglas ambiguas que todavía deben aclararse, como delegación, definición exacta de responsables, umbrales de sobresolicitación o alcance de la jerarquía organizativa.</li>
+  <li><strong>Experiencia de usuario</strong><br>El uso de <strong>Vue</strong> encaja bien con los requisitos de visualización de calendarios, periodos sobresolicitados y consulta sencilla por responsables.</li>
+  <li><strong>Evolución futura</strong><br>La modularidad permite incorporar después capacidades como <strong>tarjetas adaptativas</strong> sin rediseñar la solución completa.</li>
+  <li><strong>Uso exclusivo departamental</strong><br>La solución puede configurarse para un único departamento, tal como se indica, sin impedir una futura extensión si el alcance cambia.</li>
+</ul>
+
+<h3>5.4 Riesgos y Mitigaciones</h3>
+<ul>
+  <li><strong>Ambigüedad en datos de Active Directory</strong><br>Riesgo: no está definido qué información exacta de estructura organizativa debe obtenerse ni su alcance.<br>Mitigación: definir un contrato de integración mínimo antes del diseño detallado, incluyendo atributos, frecuencia de carga y reglas de correspondencia con usuarios y responsables.</li>
+  <li><strong>Ambigüedad en ServiceNow</strong><br>Riesgo: no está completamente cerrado qué datos de pertenencia departamental se obtienen ni cómo se enviará el listado de vacaciones aprobadas.<br>Mitigación: acordar formato, frecuencia, mecanismo de intercambio y criterios de inclusión antes de construir la integración.</li>
+  <li><strong>Reglas de aprobación incompletas</strong><br>Riesgo: existen requisitos sobre aprobación por proyecto, por departamento y por varios responsables, pero faltan detalles de precedencia y número de aprobadores.<br>Mitigación: modelar el flujo de aprobación como configurable y validar con negocio las variantes antes de la implementación final.</li>
+  <li><strong>Delegación poco definida</strong><br>Riesgo: no están claras las condiciones y alcance de la delegación de aprobadores.<br>Mitigación: aislar esta lógica en el dominio y parametrizarla para evitar cambios invasivos.</li>
+  <li><strong>Conceptos funcionales subjetivos</strong><br>Riesgo: expresiones como “muy visual”, “de manera sencilla” o “fácilmente” no son verificables.<br>Mitigación: traducirlas a criterios concretos de interfaz y validarlas mediante prototipos de la aplicación web.</li>
+  <li><strong>Picos estacionales de uso</strong><br>Riesgo: la demanda puede concentrarse en campañas concretas.<br>Mitigación: desplegar en Azure con capacidad de escalado y monitorización, y dimensionar pruebas de carga al menos para el objetivo conocido de 500 usuarios concurrentes.</li>
+  <li><strong>Dependencia de sistemas externos</strong><br>Riesgo: caídas o cambios en Active Directory, ServiceNow, correo o Teams pueden afectar el proceso.<br>Mitigación: usar adaptadores desacoplados, reintentos, trazabilidad de errores y procesamiento batch nocturno para reducir impacto operativo.</li>
+  <li><strong>Posible crecimiento de alcance</strong><br>Riesgo: se menciona interés de otros departamentos, aunque no es requisito actual.<br>Mitigación: mantener diseño modular y parametrizable, pero sin sobredimensionar la primera versión.</li>
+</ul>
+<br>
+<h2 id='proximos'>6. Próximos Pasos</h2>
+<p>Una vez validados estos requisitos, se procederá con:</p>
+<ul>
+<li>Diseño arquitectónico del sistema</li>
+<li>Priorización de requisitos para el desarrollo</li>
+<li>Estimación de esfuerzo y planificación</li>
+<li>Definición de criterios de aceptación detallados</li>
+</ul>

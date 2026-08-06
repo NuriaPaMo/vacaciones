@@ -1,0 +1,221 @@
+scope: frontend
+status: completed
+completed_at: '2026-08-05 13:31:35'
+total_articles: 12
+articles:
+
+  # ──────────────────────────────────────────────────────────────────
+  # HIGH CRITICALITY
+  # ──────────────────────────────────────────────────────────────────
+
+  - number: 'II.2.2'
+    title: 'Frontend Framework'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'Wizard selected Vue. User confirmed Vue 3.x — only viable option in 2026.'
+    modified_content: |
+      ## Article II §2.2: Frontend Framework
+
+      - **Framework**: Vue.js 3.x
+      - **Language**: TypeScript
+      - **Build Tool**: Vite
+
+  - number: 'II.2.3'
+    title: 'Mobile Application'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'No mobile app required for this project.'
+    modified_content: |
+      ## Article II §2.3: Mobile Application
+
+      - **Mobile**: None — no mobile app
+
+  - number: 'II.2.4'
+    title: 'Design Tooling'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'Wizard selected design-tool: none. HTML mockups only via bolt-mockup / bolt-ux-design. Design gate inactive.'
+    modified_content: |
+      ## Article II §2.4: Design Tooling
+
+      - **Design Tool**: None — HTML mockups only (bolt-mockup / bolt-ux-design)
+      - **Design Gate**: Inactive (no Penpot integration)
+      - **Token Pipeline**: Not applicable
+
+  - number: 'III.3.2'
+    title: 'Frontend Architecture Style'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'Monolith SPA aligned with Modular Monolith backend. Vue 3 SPA served via Azure Static Web Apps.'
+    modified_content: |
+      ## Article III §3.2: Frontend Architecture Style
+
+      - **Style**: Monolith SPA (Single Page Application)
+      - **Hosting**: Azure Static Web Apps
+      - **Routing**: Vue Router
+      - **State Management**: Pinia
+
+  # ──────────────────────────────────────────────────────────────────
+  # MEDIUM CRITICALITY (auto-recommended, accepted)
+  # ──────────────────────────────────────────────────────────────────
+
+  - number: 'VII.7.3-7.4'
+    title: 'Authentication Flows & Authorization (Frontend)'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'Aligned with backend: Entra ID, Auth Code + PKCE for SPA. Policy-Based (via JWT claims in Vue).'
+    modified_content: |
+      ## Article VII: Identity & Access Management (Frontend)
+
+      - **Authentication Flow (SPA)**: Authorization Code + PKCE (Entra ID)
+      - **Library**: MSAL.js v3 (@azure/msal-browser + @azure/msal-vue)
+      - **Authorization**: Claims-based routing guards (Vue Router)
+      - **Mobile App Auth**: Not applicable
+
+  - number: 'X'
+    title: 'Environments & Configuration (Frontend)'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'From scopes.yaml: dev + prod. Config via .env files. No feature flags.'
+    modified_content: |
+      ## Article X: Environments & Configuration (Frontend)
+
+      - **Environments**: dev, prod
+      - **Configuration**: .env files (Vite VITE_* variables, gitignored for secrets)
+      - **Secrets (local)**: .env.local (gitignored)
+      - **Feature Flags**: None
+
+  - number: 'XI'
+    title: 'CI/CD Pipeline (Frontend)'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'From scopes.yaml: Azure DevOps, GitFlow, Rolling. Frontend pipeline stages aligned with backend.'
+    modified_content: |
+      ## Article XI: CI/CD Pipeline (Frontend)
+
+      - **Platform**: Azure DevOps Pipelines
+      - **Branch Strategy**: GitFlow (feature/, develop, release/, main)
+      - **Deployment Strategy**: Rolling Update
+      - **Pipeline Stages**:
+        - Build (Vite)
+        - Lint/Format (ESLint + Prettier)
+        - Unit Tests (coverage >= 80%)
+        - E2E Tests (Playwright)
+        - Security Scan (0 Critical)
+        - Deploy to Azure Static Web Apps
+      - **Deployment**:
+        - Deploy Dev — Auto on commit to develop
+        - Deploy Prod — Manual approval
+
+  - number: 'XII'
+    title: 'Observability (Frontend)'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'Azure Application Insights JS SDK for client-side error tracking + RUM. Aligned with OTel → Azure strategy.'
+    modified_content: |
+      ## Article XII: Observability (Frontend)
+
+      - **Strategy**: Azure Application Insights JavaScript SDK
+      - **Tracking**: Automatic exception tracking, dependency tracking, RUM (Real User Monitoring)
+      - **Core Web Vitals**: Monitored via Application Insights
+
+  - number: 'XIII'
+    title: 'Testing Standards (Frontend)'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'Vitest for unit/component tests (faster with Vite). Playwright for E2E. Testing Library for Vue components.'
+    modified_content: |
+      ## Article XIII: Testing Standards (Frontend)
+
+      - **Philosophy**: Coverage-First validated by Mutation Testing
+      - **Thresholds**:
+        - Line Coverage: >= 80% (istanbul/v8)
+        - Branch Coverage: >= 75% (istanbul/v8)
+        - Mutation Score: >= 70% (Stryker Mutator) — deferred
+      - **Frameworks**:
+        - Unit Tests: Vitest
+        - Component Tests: Vue Testing Library (@testing-library/vue)
+        - E2E Tests: Playwright
+        - Visual Regression: Playwright screenshots
+        - Performance: Lighthouse CI (Core Web Vitals)
+
+  # ──────────────────────────────────────────────────────────────────
+  # LOW CRITICALITY (auto-approved)
+  # ──────────────────────────────────────────────────────────────────
+
+  - number: 'XIV'
+    title: 'Code Standards (Frontend)'
+    criticality: LOW
+    status: refined
+    decision: include
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'Auto-approved: standard Vue/TypeScript naming conventions and formatting.'
+    content: |
+      ## Article XIV: Code Standards (Frontend)
+
+      ### Naming Conventions (TypeScript/Vue)
+
+      | Element    | Convention       | Example             |
+      |------------|------------------|---------------------|
+      | Files      | kebab-case       | `order-detail.vue`  |
+      | Components | PascalCase       | `OrderDetail.vue`   |
+      | Composables| use + camelCase  | `useOrderStore.ts`  |
+      | Interfaces | I + PascalCase   | `IOrderService`     |
+      | Functions  | camelCase        | `getOrderById`      |
+      | Variables  | camelCase        | `orderId`           |
+      | Constants  | UPPER_SNAKE_CASE | `MAX_RETRIES`       |
+
+      ### Code Formatting
+
+      | Setting     | Value             |
+      |-------------|-------------------|
+      | Indentation | 2 spaces          |
+      | Line Length | 100 characters    |
+      | Semicolons  | No                |
+      | Quotes      | Single            |
+      | Tooling     | ESLint + Prettier |
+
+  - number: 'XVI'
+    title: 'Security Policies (Frontend)'
+    criticality: LOW
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'From scopes.yaml: no WAF standalone (managed at Azure Front Door if added later). TLS 1.2+. GDPR.'
+    modified_content: |
+      ## Article XVI: Security Policies (Frontend)
+
+      - **Encryption in Transit**: TLS 1.2+ (mandatory, Azure Static Web Apps enforced)
+      - **WAF**: None (can add Azure Front Door WAF later)
+      - **PII Handling**: No PII stored client-side; encryption server-side
+      - **Compliance**: GDPR — no analytics cookies without consent
+
+  - number: 'XVII'
+    title: 'Legacy & Migration (Frontend)'
+    criticality: LOW
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:31:35'
+    reason: 'Greenfield project — no legacy frontend migration.'
+    modified_content: |
+      ## Article XVII: Legacy & Migration (Frontend)
+
+      - **Context**: Greenfield — new Vue 3 SPA, no legacy frontend

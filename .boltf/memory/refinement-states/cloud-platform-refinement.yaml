@@ -1,0 +1,240 @@
+scope: cloud-platform
+status: completed
+completed_at: '2026-08-05 13:33:42'
+total_articles: 12
+articles:
+
+  # ──────────────────────────────────────────────────────────────────
+  # HIGH CRITICALITY
+  # ──────────────────────────────────────────────────────────────────
+
+  - number: 'VIII.8.1'
+    title: 'Container Strategy'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'Docker containers. Maximum portability and standard deployment model for Azure Container Apps.'
+    modified_content: |
+      ## Article VIII §8.1: Container Strategy
+
+      - **Strategy**: Docker (standard containers)
+      - **Runtime**: Docker (local dev) / Azure Container Apps (production)
+
+  - number: 'VIII.8.2'
+    title: 'Orchestration Platform'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'Azure Container Apps — serverless containers, lower operational overhead vs AKS. Ideal for Modular Monolith + greenfield.'
+    modified_content: |
+      ## Article VIII §8.2: Orchestration Platform
+
+      - **Platform**: Azure Container Apps (serverless containers)
+      - **Benefits**: No K8s cluster management, auto-scaling, built-in Dapr support, native Azure integration
+      - **Local Dev**: Docker (container-runtime: none in wizard — use docker directly)
+
+  - number: 'VIII-B.8B.1'
+    title: 'Infrastructure Scope & Landing Zone Strategy'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'Workload Infrastructure only. Greenfield project, focuses on app-specific Azure resources. No enterprise Landing Zone complexity needed.'
+    modified_content: |
+      ## Article VIII-B §8B.1: Infrastructure Scope
+
+      - **Scope**: Workload Infrastructure only
+      - **Workload Components**:
+        - Compute: Azure Container Apps
+        - Data: Azure SQL Database + Azure Cache for Redis
+        - Integration: Azure Service Bus
+        - Frontend Hosting: Azure Static Web Apps
+        - Secrets: Azure Key Vault
+        - Identity: Microsoft Entra ID
+        - Monitoring: Azure Monitor + Application Insights
+      - **Assumption**: Platform/networking provided by existing subscription
+
+  - number: 'IX.9.1'
+    title: 'Infrastructure as Code Tool'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'Terraform — already decided in wizard (iac-tool: terraform). Multi-cloud HCL, strong ecosystem.'
+    modified_content: |
+      ## Article IX §9.1: Infrastructure as Code
+
+      - **IaC Tool**: Terraform (HCL)
+      - **State Backend**: Azure Storage Account (remote state)
+      - **Structure**:
+        ```
+        infra/
+        ├── terraform/
+        │   ├── modules/
+        │   │   ├── container-apps/
+        │   │   ├── sql/
+        │   │   ├── redis/
+        │   │   ├── service-bus/
+        │   │   ├── static-web-apps/
+        │   │   └── key-vault/
+        │   ├── environments/
+        │   │   ├── dev.tfvars
+        │   │   └── prod.tfvars
+        │   ├── main.tf
+        │   ├── variables.tf
+        │   └── outputs.tf
+        └── scripts/
+            └── deploy.ps1
+        ```
+
+  # ──────────────────────────────────────────────────────────────────
+  # MEDIUM CRITICALITY (auto-recommended)
+  # ──────────────────────────────────────────────────────────────────
+
+  - number: 'VIII.8.3-8.4'
+    title: 'K8s Config & Cloud-Native Extensions'
+    criticality: MEDIUM
+    status: refined
+    decision: skip
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'Not applicable — Azure Container Apps selected, no Kubernetes cluster. KEDA and Dapr available natively in Container Apps if needed later.'
+
+  - number: 'VIII-C'
+    title: '.NET Aspire Orchestration'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'Enabled for local dev orchestration. .NET 10 + Modular Monolith benefits from unified service discovery and built-in OTel dashboard.'
+    modified_content: |
+      ## Article VIII-C: .NET Aspire Orchestration
+
+      - **Aspire**: Enabled (local development orchestration)
+      - **AppHost**: src/AppHost/ — defines service topology
+      - **ServiceDefaults**: src/ServiceDefaults/ — shared OTel, health checks, resilience
+      - **Service Discovery**: Aspire automatic (WithReference() API)
+      - **Dashboard**: http://localhost:15888 (local OTel observability)
+      - **Production**: Deploy via `azd up` or Azure DevOps pipeline (Container Apps)
+      - **Note**: Aspire is for local dev only; production uses Azure Container Apps directly
+
+  - number: 'X'
+    title: 'Environments & Configuration (Cloud)'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'From scopes.yaml: dev + prod. Terraform workspaces per environment. Secrets in Azure Key Vault.'
+    modified_content: |
+      ## Article X: Environments & Configuration (Cloud Platform)
+
+      - **Environments**: dev, prod
+      - **Terraform Workspaces**: one per environment (dev, prod)
+      - **Secrets**: Azure Key Vault (one vault per environment)
+      - **Feature Flags**: None
+
+  - number: 'XI'
+    title: 'CI/CD Pipeline (Infrastructure)'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'From scopes.yaml: Azure DevOps, GitFlow, Rolling. IaC pipeline: lint + validate + security scan + deploy.'
+    modified_content: |
+      ## Article XI: CI/CD Pipeline (Infrastructure)
+
+      - **Platform**: Azure DevOps Pipelines
+      - **Branch Strategy**: GitFlow
+      - **IaC Pipeline Stages**:
+        - IaC Lint (tflint)
+        - IaC Validation (terraform plan)
+        - Security Scan (Checkov / tfsec — 0 Critical)
+        - Cost Estimation (Infracost)
+        - Deploy Dev — Auto on commit to develop
+        - Deploy Prod — Manual approval
+
+  - number: 'XII'
+    title: 'Observability & Infrastructure Monitoring'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'From scopes.yaml: OTel → Azure. Infra monitoring: activity logs, diagnostics, alerts, dashboards, resource health — all enabled.'
+    modified_content: |
+      ## Article XII: Observability & Infrastructure Monitoring
+
+      - **Strategy**: OpenTelemetry → Azure Monitor Exporter
+      - **Infrastructure Monitoring** (all enabled):
+        - Activity Logs — Azure Monitor
+        - Diagnostics — Log Analytics Workspace
+        - Alerts — Azure Monitor Alerts
+        - Dashboards — Azure Workbooks
+        - Resource Health — Azure Resource Health
+
+  - number: 'XIII.13.4'
+    title: 'Infrastructure Testing'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'Terraform-based IaC testing. tflint + Checkov for static analysis. Terratest for integration tests post-deploy.'
+    modified_content: |
+      ## Article XIII §13.4: Infrastructure Testing
+
+      | Test Type       | Tool             | Purpose                        |
+      |-----------------|------------------|--------------------------------|
+      | IaC Lint        | tflint           | Syntax and best practices      |
+      | Security Scan   | Checkov / tfsec  | Security misconfigurations     |
+      | Cost Estimation | Infracost        | Budget validation              |
+      | Integration     | Terratest (Go)   | Post-deployment validation     |
+
+  # ──────────────────────────────────────────────────────────────────
+  # LOW CRITICALITY (auto-approved)
+  # ──────────────────────────────────────────────────────────────────
+
+  - number: 'IX.9.2'
+    title: 'IaC Structure'
+    criticality: LOW
+    status: refined
+    decision: include
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'Auto-approved: standard Terraform workload structure.'
+    content: |
+      ## Article IX §9.2: IaC Structure
+
+      ```
+      infra/
+      ├── terraform/
+      │   ├── modules/
+      │   │   ├── container-apps/
+      │   │   ├── sql/
+      │   │   ├── redis/
+      │   │   ├── service-bus/
+      │   │   ├── static-web-apps/
+      │   │   └── key-vault/
+      │   ├── environments/
+      │   │   ├── dev.tfvars
+      │   │   └── prod.tfvars
+      │   ├── main.tf
+      │   ├── variables.tf
+      │   └── outputs.tf
+      └── scripts/
+          └── deploy.ps1
+      ```
+
+  - number: 'XVI'
+    title: 'Security Policies (Cloud Platform)'
+    criticality: LOW
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:33:42'
+    reason: 'From scopes.yaml: no VNet/private endpoints. Azure-managed keys. GDPR. TLS 1.2+.'
+    modified_content: |
+      ## Article XVI: Security Policies (Cloud Platform)
+
+      - **Network**: No VNet / No Private Endpoints (simplicity for greenfield)
+      - **Encryption at Rest**: Azure-managed keys
+      - **Encryption in Transit**: TLS 1.2+ (mandatory)
+      - **Compliance**: GDPR required
+      - **Container Security**: Managed identity for Container Apps (no secrets in env vars)

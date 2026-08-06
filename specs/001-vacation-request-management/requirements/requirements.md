@@ -64,7 +64,8 @@ lifecycle of a vacation request from submission through approval to completion.
 | AC-001.4  | Given a request, when the employee already has an overlapping request (any status except Cancelled), then the system prevents duplicate submission | Functional   | —      |
 | AC-001.5  | Given a request submission, when the employee adds optional notes/comments, then the notes are stored with the request | Functional   | —      |
 | AC-001.6  | Given the visual calendar interface, when the employee selects dates, then the selected range is highlighted and total days shown | Functional   | @smoke |
-| AC-001.7  | Given a request submission, the API response time must be < 300ms (P95)                            | Non-Functional | —     |
+| AC-001.7  | Given a request submission, when the employee's vacation balance is insufficient, then the system rejects the submission with a validation error showing remaining days | Functional   | —      |
+| AC-001.8  | Given a request submission, the API response time must be < 300ms (P95)                            | Non-Functional | —     |
 
 #### Business Rules
 
@@ -73,6 +74,9 @@ lifecycle of a vacation request from submission through approval to completion.
 - BR-003: Total days are calculated as business days only (Mon-Fri)
 - BR-004: An employee cannot have overlapping requests in Pending or Approved status
 - BR-005: Notes/comments are optional, max 500 characters
+- BR-006a: No maximum limit on consecutive vacation days per request (CL-002 resolved)
+- BR-006b: No blackout periods exist in Phase 1 (CL-003 resolved)
+- BR-006c: Vacation balance must be validated against ServiceNow-imported balance before submission (CL-013 resolved)
 
 ---
 
@@ -200,7 +204,7 @@ _None (greenfield)_
 - ServiceNow integration (F-005)
 - Notifications beyond in-app status (F-006)
 - Reporting (F-007)
-- Vacation balance management (handled in ServiceNow)
+- Vacation balance management logic (balance data imported by F-005; validation enforced here)
 
 ## Dependencies
 
@@ -208,12 +212,17 @@ _None (greenfield)_
 - Azure SQL Database provisioned
 - Azure Container Apps environment ready
 - Frontend project scaffolded (Vue 3 + TypeScript + Vite)
+- F-005 (US-017): Vacation balance data imported from ServiceNow for submission validation
+
+## Resolved Questions
+
+- ~~Q-001~~: **Resolved (CL-001)** — Minimum 1 business day advance required. Same-day requests not allowed.
+- ~~Q-002~~: **Resolved (CL-003)** — No blackout periods in Phase 1.
+- ~~Q-003~~: **Resolved (CL-002)** — No maximum consecutive vacation days limit.
 
 ## Open Questions
 
-- Q-001: Should start date allow same-day requests or require minimum 1 business day advance?
-- Q-002: Are there blackout periods where no vacations can be requested?
-- Q-003: Is there a maximum consecutive vacation days limit?
+_None — all questions resolved._
 
 ---
 

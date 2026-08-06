@@ -59,7 +59,7 @@ is no formal delegation mechanism, and escalation for overdue approvals does not
 | ID        | Criterion                                                                                          | Type         | Smoke  |
 | --------- | -------------------------------------------------------------------------------------------------- | ------------ | ------ |
 | AC-004.1  | Given a pending request from a team member, when the PM clicks "Approve", then the request advances to department-level approval | Functional   | @smoke |
-| AC-004.2  | Given a pending request, when the PM clicks "Reject" and provides a reason, then the request status changes to "Rejected" | Functional   | @smoke |
+| AC-004.2  | Given a pending request, when the PM clicks "Reject" and provides a reason, then the request status changes to "Rejected at Project Level" (employee can appeal to DM) | Functional   | @smoke |
 | AC-004.3  | Given a rejection, when no reason is provided, then the system prevents the action with a validation error | Functional   | —      |
 | AC-004.4  | Given an authenticated PM, when they view their approval queue, then they see only requests from employees assigned to their projects | Functional   | @smoke |
 | AC-004.5  | Given a request approved at project level, when the department manager has not yet acted, then the request status shows "Pending Department Approval" | Functional   | —      |
@@ -68,10 +68,13 @@ is no formal delegation mechanism, and escalation for overdue approvals does not
 #### Business Rules
 
 - BR-015: Project approval is Level 1 in the approval chain
-- BR-016: Rejection at project level is final (no escalation to department)
+- BR-016: Rejection at project level is NOT final; employee can appeal to the DM who may override (CL-006 resolved)
 - BR-017: Rejection requires a mandatory reason (min 10 characters)
 - BR-018: A PM can only see/approve requests from employees in their projects
 - BR-019: If an employee belongs to multiple projects, the primary project PM approves
+- BR-019a: A PM who is also a DM can self-approve at both levels (CL-005 resolved)
+- BR-019b: A DM can approve their own vacation request (self-approval allowed) (CL-005 resolved)
+- BR-019c: Single PM approves per project; single DM approves per department (CL-008 resolved)
 
 ---
 
@@ -91,8 +94,8 @@ is no formal delegation mechanism, and escalation for overdue approvals does not
 | --------- | -------------------------------------------------------------------------------------------------- | ------------ | ------ |
 | AC-005.1  | Given a request approved at project level, when the DM clicks "Approve", then the request status changes to "Approved" (final) | Functional   | @smoke |
 | AC-005.2  | Given a request, when the DM clicks "Reject" with a reason, then the request status changes to "Rejected" (overriding project approval) | Functional   | @smoke |
-| AC-005.3  | Given an authenticated DM, when they view their approval queue, then they see all project-approved requests from their department | Functional   | —      |
-| AC-005.4  | Given the DM approval queue, when a request is in an over-requested period (>70%), then a visual warning is displayed | Functional   | —      |
+| AC-005.3  | Given an authenticated DM, when they view their approval queue, then they see all project-approved requests AND project-rejected appeals from their department | Functional   | —      |
+| AC-005.4  | Given the DM approval queue, when a request is in an over-requested period (>70%), then a visual warning is displayed with suggested alternative dates | Functional   | —      |
 | AC-005.5  | Given a final approval, when the request becomes "Approved", then the capacity calculation for the affected period is updated | Functional   | —      |
 
 #### Business Rules
@@ -129,10 +132,12 @@ is no formal delegation mechanism, and escalation for overdue approvals does not
 #### Business Rules
 
 - BR-025: Delegation can be temporary (date range) or permanent (until revoked)
-- BR-026: A delegate must be from the same project (for PM delegation) or department (for DM delegation)
+- BR-026: Delegates must be designated backup approvers from the same project (PM) or department (DM); cannot delegate to any employee (CL-009 resolved)
 - BR-027: Circular delegation is not allowed (A → B → A)
 - BR-028: Maximum one active delegation per approver at any time
 - BR-029: Delegated actions are fully audited with both delegate and delegator identity
+- BR-029a: When a PM submits their own vacation request, the system must auto-trigger delegation to a designated backup (CL-009 resolved)
+- BR-029b: Delegation conditions (e.g., max days) are not supported; delegation covers all requests (CL-009 resolved)
 
 ---
 
@@ -160,7 +165,7 @@ is no formal delegation mechanism, and escalation for overdue approvals does not
 
 - BR-030: Default escalation thresholds: reminder at 3 days, escalation at 5 days
 - BR-031: Escalation thresholds are configurable per department (by admin)
-- BR-032: Escalation grants the DM authority to bypass project-level approval
+- BR-032: Escalation does NOT revoke PM authority; both PM and DM can act on escalated requests (CL-007 resolved)
 - BR-033: Escalation does not auto-approve; it alerts and enables action
 - BR-034: Business days only count for escalation calculations
 
@@ -240,11 +245,15 @@ is no formal delegation mechanism, and escalation for overdue approvals does not
 - Entra ID roles/claims for PM and DM identification
 - Azure Service Bus for scheduled escalation processing
 
+## Resolved Questions
+
+- ~~Q-004~~: **Resolved (CL-006)** — Yes, DM can override a PM rejection. Employee can appeal project-level rejections to DM.
+- ~~Q-005~~: **Resolved (CL-005)** — Yes, PM/DM can self-approve at both levels.
+- ~~Q-006~~: **Resolved (CL-007)** — Escalation does NOT revoke PM authority. Both PM and DM can act after escalation. Priority conflict resolution deferred (not required this phase).
+
 ## Open Questions
 
-- Q-004: Can a DM approve a request that was rejected at project level (appeal mechanism)?
-- Q-005: What happens if a PM is also a DM? Do they self-approve at both levels?
-- Q-006: Should escalation bypass be time-limited or permanent once triggered?
+_None — all questions resolved._
 
 ---
 

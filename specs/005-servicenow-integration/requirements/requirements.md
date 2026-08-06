@@ -82,7 +82,7 @@ and department level) are exported nightly.
 **I want** to import employee vacation balance information from ServiceNow
 **So that** employees can see their remaining vacation days when submitting requests
 
-**Priority**: P3
+**Priority**: P1
 **Effort**: M
 **Dependencies**: US-016, F-004 (employee entity must exist)
 
@@ -98,8 +98,8 @@ and department level) are exported nightly.
 #### Business Rules
 
 - BR-076: Import runs after export (6:00 AM - 7:00 AM window)
-- BR-077: Balance data is informational only (validation against balance is optional in Phase 1)
-- BR-078: If ServiceNow is unavailable, the system continues to function with stale balance data
+- BR-077: Balance data is used for validation on submission; requests exceeding remaining balance are rejected (CL-013 resolved)
+- BR-078: If ServiceNow is unavailable, the system continues to function with stale balance data (last known balance used)
 - BR-079: Balance displayed to employees with a "last updated" timestamp
 
 ---
@@ -179,7 +179,7 @@ and department level) are exported nightly.
 | Entity          | Changes                                  | Impact                             |
 | --------------- | ---------------------------------------- | ---------------------------------- |
 | VacationRequest | Add: IsExported, ExportedAt, ServiceNowId | Track export status               |
-| Employee        | Add: VacationBalance, BalanceUpdatedAt    | Store imported balance (Phase 2)   |
+| Employee        | Add: VacationBalance, BalanceUpdatedAt    | Store imported balance (Phase 1, CL-013) |
 
 ---
 
@@ -188,7 +188,7 @@ and department level) are exported nightly.
 | System            | Direction | Protocol              | Purpose                              |
 | ----------------- | --------- | --------------------- | ------------------------------------ |
 | ServiceNow        | Outbound  | REST API (Table API)  | Export approved vacations            |
-| ServiceNow        | Inbound   | REST API (Table API)  | Import vacation balance (Phase 2)    |
+| ServiceNow        | Inbound   | REST API (Table API)  | Import vacation balance (Phase 1, CL-013) |
 | Azure Key Vault   | Inbound   | Managed Identity      | Retrieve ServiceNow credentials      |
 | Azure Service Bus | Internal  | Message queue         | Trigger manual retry async           |
 | Azure Monitor     | Outbound  | OTel                  | Export health metrics and alerts     |
@@ -211,12 +211,15 @@ and department level) are exported nightly.
 - Azure Key Vault for credential storage
 - F-001 + F-002: Approved vacation requests must exist
 
+## Resolved Questions
+
+- ~~Q-016~~: **Resolved (CL-013)** — Vacation balance import IS required for Phase 1. System must validate balance before request submission.
+
 ## Open Questions
 
 - Q-013: What is the exact ServiceNow table name and field mapping for vacation records?
 - Q-014: Does ServiceNow have rate limits that affect batch export?
 - Q-015: Should the system handle ServiceNow downtime by queuing exports for later?
-- Q-016: Is vacation balance import critical for Phase 1 or can it be deferred to Phase 2?
 
 ---
 

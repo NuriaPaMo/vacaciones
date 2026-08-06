@@ -96,7 +96,8 @@ during July (summer peak).
 | AC-009.4  | Given a period where coverage is 65-70%, then the cell background is orange with a warning indicator | Functional   | —      |
 | AC-009.5  | Given a period where coverage exceeds 70%, then the cell background is red with a critical alert icon | Functional   | @smoke |
 | AC-009.6  | Given a critical period (>70%), when the user clicks on the cell, then they see the list of employees contributing to the over-capacity | Functional   | —      |
-| AC-009.7  | Given configurable thresholds, when an admin changes the default (70%), then the heat map recalculates using the new threshold | Functional   | —      |
+| AC-009.7  | Given a critical period (>70%), when the user views the drill-down, then the system suggests alternative dates with lower capacity as a recommendation | Functional   | —      |
+| AC-009.8  | Given configurable thresholds, when an admin changes the default (70%), then the heat map recalculates using the new threshold | Functional   | —      |
 
 #### Business Rules
 
@@ -105,6 +106,8 @@ during July (summer peak).
 - BR-042: Capacity is calculated as: (employees on vacation / total employees) × 100
 - BR-043: Only Approved + Pending requests count toward capacity
 - BR-044: Capacity considers the organizational level selected (department/project/team)
+- BR-044a: Over-capacity periods are shown as warnings only; the system does NOT block new requests (CL-004 resolved)
+- BR-044b: When a period is over-requested, the system suggests alternative dates with lower capacity (CL-004 resolved)
 
 ---
 

@@ -1,0 +1,334 @@
+scope: backend
+status: completed
+completed_at: '2026-08-05 13:29:17'
+total_articles: 15
+articles:
+
+  # ──────────────────────────────────────────────────────────────────
+  # HIGH CRITICALITY
+  # ──────────────────────────────────────────────────────────────────
+
+  - number: 'II'
+    title: 'Application Configuration — Backend Language & Runtime'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:28:31'
+    reason: 'User selected C# / .NET 10 + Minimal APIs. Greenfield project 2026.'
+    modified_content: |
+      ## Article II: Backend Language & Runtime
+
+      - **Language**: C# / .NET 10
+      - **API Style**: Minimal APIs
+      - **Cloud Provider**: Microsoft Azure (mandatory)
+
+  - number: 'III'
+    title: 'Application Architecture — Backend Style + CQRS'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'Modular Monolith for greenfield. Simple CQRS with native .NET interfaces (no MediatR). No Event Sourcing.'
+    modified_content: |
+      ## Article III: Application Architecture
+
+      - **Architecture Style**: Modular Monolith — single deployment, modular boundaries
+      - **CQRS**: Enabled — Simple CQRS (same model, separated handlers)
+      - **Event Sourcing**: Disabled
+
+      ### Native CQRS Interfaces (NO MediatR)
+
+      ```csharp
+      public interface ICommand { }
+      public interface ICommandHandler<in TCommand> where TCommand : ICommand
+      {
+          Task HandleAsync(TCommand command, CancellationToken ct = default);
+      }
+      public interface ICommandHandler<in TCommand, TResult> where TCommand : ICommand
+      {
+          Task<TResult> HandleAsync(TCommand command, CancellationToken ct = default);
+      }
+      public interface IQuery<TResult> { }
+      public interface IQueryHandler<in TQuery, TResult> where TQuery : IQuery<TResult>
+      {
+          Task<TResult> HandleAsync(TQuery query, CancellationToken ct = default);
+      }
+      public interface ICommandDispatcher
+      {
+          Task DispatchAsync<TCommand>(TCommand command, CancellationToken ct = default)
+              where TCommand : ICommand;
+      }
+      public interface IQueryDispatcher
+      {
+          Task<TResult> DispatchAsync<TQuery, TResult>(TQuery query, CancellationToken ct = default)
+              where TQuery : IQuery<TResult>;
+      }
+      public interface IDomainEvent
+      {
+          Guid EventId { get; }
+          DateTime OccurredOn { get; }
+      }
+      public interface IDomainEventHandler<in TEvent> where TEvent : IDomainEvent
+      {
+          Task HandleAsync(TEvent domainEvent, CancellationToken ct = default);
+      }
+      ```
+
+  - number: 'IV'
+    title: 'Communication'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'Hybrid (REST + async). REST for sync, Azure Service Bus for async. .NET BackgroundService for background jobs.'
+    modified_content: |
+      ## Article IV: Communication
+
+      - **Style**: Hybrid — synchronous + asynchronous
+      - **Synchronous**: REST API (no gRPC, no GraphQL)
+      - **Asynchronous Message Broker**: Azure Service Bus (cloud-native, enterprise)
+      - **Background Processing**: .NET BackgroundService (native, no extra dependencies)
+
+  - number: 'V'
+    title: 'Data Storage'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:28:31'
+    reason: 'Azure SQL Database. EF Core for writes + Dapper for reads (aligned with Simple CQRS). Repository + UoW patterns. EF Core Migrations.'
+    modified_content: |
+      ## Article V: Data Storage
+
+      - **Primary Database**: Azure SQL Database (Managed SQL Server)
+      - **Data Access**:
+        - Writes: Entity Framework Core (ORM)
+        - Reads: Dapper (micro-ORM, performance-focused)
+      - **Repository Pattern**: Enabled
+      - **Unit of Work Pattern**: Enabled
+      - **Database Migrations**: EF Core Migrations (code-first)
+
+  - number: 'VII'
+    title: 'Identity & Access Management'
+    criticality: HIGH
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:28:31'
+    reason: 'Microsoft Entra ID for enterprise/internal users. Mock IDP for dev/test. Policy-Based authorization.'
+    modified_content: |
+      ## Article VII: Identity & Access Management
+
+      - **Identity Provider (Production)**: Microsoft Entra ID (Azure AD)
+      - **Identity Provider (Development/Testing)**: Mock IDP (in-memory, fake tokens)
+      - **Authentication Flows**:
+        - SPA Frontend: Authorization Code + PKCE — Enabled
+        - Service-to-Service: Client Credentials — Enabled
+        - Backend API: JWT Bearer — Enabled
+        - Mobile App: Disabled
+      - **Authorization Model**: Policy-Based (.NET Authorization Policies)
+
+  # ──────────────────────────────────────────────────────────────────
+  # MEDIUM CRITICALITY
+  # ──────────────────────────────────────────────────────────────────
+
+  - number: 'VI'
+    title: 'Caching Strategy'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'L1 in-memory for hot paths. L2 Azure Cache for Redis for distributed. No CDN (managed by frontend/cloud scope). Cache-Aside pattern.'
+    modified_content: |
+      ## Article VI: Caching Strategy
+
+      - **L1 In-Memory**: Enabled (IMemoryCache) — TTL: 5 minutes default
+      - **L2 Distributed**: Azure Cache for Redis — TTL: 30 minutes default
+      - **L3 CDN**: None (managed by frontend/cloud-platform scope)
+      - **Cache Pattern**: Cache-Aside (application manages cache)
+
+  - number: 'X'
+    title: 'Environments & Configuration'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'From scopes.yaml wizard decisions: dev+prod environments, config-files, env-files for dev secrets, no feature flags.'
+    modified_content: |
+      ## Article X: Environments & Configuration
+
+      - **Environments**:
+        - dev — Development, rapid iteration — Auto-deploy on commit to develop
+        - prod — Production — Manual approval
+      - **Configuration Management**: appsettings.{Environment}.json + environment variables
+      - **Secrets Management**: Azure Key Vault (production) / .env files gitignored (local dev)
+      - **Feature Flags**: None
+
+  - number: 'XI'
+    title: 'CI/CD Pipeline'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'From scopes.yaml: Azure DevOps Pipelines, GitFlow, Rolling Update. Stages: build, lint, unit tests, security scan, deploy dev, deploy prod.'
+    modified_content: |
+      ## Article XI: CI/CD Pipeline
+
+      - **Platform**: Azure DevOps Pipelines
+      - **Branch Strategy**: GitFlow (feature/, develop, release/, main)
+      - **Deployment Strategy**: Rolling Update
+      - **Pipeline Stages (Application)**:
+        - Build (warnings as errors: Yes)
+        - Lint/Format
+        - Unit Tests (coverage >= 80%)
+        - Security Scan (0 Critical)
+      - **Deployment Stages**:
+        - Deploy Dev — Auto on commit to develop
+        - Deploy Prod — Manual approval
+      - **IaC Tool**: Terraform
+
+  - number: 'XII'
+    title: 'Observability'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'From scopes.yaml: OpenTelemetry SDK → Azure Monitor Exporter. Standard health check endpoints.'
+    modified_content: |
+      ## Article XII: Observability
+
+      - **Strategy**: OpenTelemetry → Azure Monitor Exporter (OTel SDK)
+      - **Health Check Endpoints**:
+        - /health — Full health check
+        - /health/ready — Readiness probe
+        - /health/live — Liveness probe
+
+  - number: 'XIII'
+    title: 'Testing Standards'
+    criticality: MEDIUM
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'xUnit + Testcontainers + Reqnroll (BDD/Gherkin) + Playwright (E2E). 80% coverage minimum. No mutation tests configured yet.'
+    modified_content: |
+      ## Article XIII: Testing Standards
+
+      - **Philosophy**: Coverage-First validated by Mutation Testing
+      - **Thresholds**:
+        - Line Coverage: >= 80% (coverlet)
+        - Branch Coverage: >= 75% (coverlet)
+        - Mutation Score: >= 70% (Stryker.NET) — deferred to later sprint
+      - **Frameworks**:
+        - Unit Tests: xUnit
+        - Integration Tests: xUnit + Testcontainers
+        - Architecture Tests: NetArchTest
+        - BDD/Gherkin: Reqnroll
+        - E2E Tests: Playwright
+        - Performance Tests: k6
+      - **Test Project Structure**:
+        ```
+        tests/
+        ├── {Module}.UnitTests/
+        ├── {Module}.IntegrationTests/
+        ├── Architecture.Tests/
+        ├── E2E.Tests/
+        └── Common.Tests/
+            ├── Fixtures/
+            ├── Fakes/
+            └── Builders/
+        ```
+
+  # ──────────────────────────────────────────────────────────────────
+  # LOW CRITICALITY (auto-approved)
+  # ──────────────────────────────────────────────────────────────────
+
+  - number: 'XIV'
+    title: 'Code Standards'
+    criticality: LOW
+    status: refined
+    decision: include
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'Auto-approved: standard .NET naming conventions and formatting.'
+    content: |
+      ## Article XIV: Code Standards
+
+      ### Naming Conventions (C#/.NET)
+
+      | Element        | Convention     | Example                      |
+      |----------------|----------------|------------------------------|
+      | Namespaces     | PascalCase     | `MyCompany.MyProject.Domain` |
+      | Classes        | PascalCase     | `OrderService`               |
+      | Interfaces     | I + PascalCase | `IOrderService`              |
+      | Methods        | PascalCase     | `GetOrderByIdAsync`          |
+      | Properties     | PascalCase     | `OrderId`                    |
+      | Private fields | _camelCase     | `_orderRepository`           |
+      | Async methods  | Suffix Async   | `GetOrderByIdAsync`          |
+
+      ### Code Formatting
+
+      | Setting                  | Value                         |
+      |--------------------------|-------------------------------|
+      | Indentation              | 4 spaces                      |
+      | Line Length              | 120 characters                |
+      | File-scoped namespaces   | Yes                           |
+      | Nullable reference types | Enabled                       |
+      | Tooling                  | .editorconfig + dotnet format |
+
+  - number: 'XVI'
+    title: 'Security Policies'
+    criticality: LOW
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'From scopes.yaml: no VNet/private endpoints/WAF for simplicity. Azure-managed keys. GDPR compliance. TLS 1.2+.'
+    modified_content: |
+      ## Article XVI: Security Policies
+
+      - **Network Security**: No VNet, no Private Endpoints, no WAF (can be added later)
+      - **Encryption at Rest**: Azure-managed keys
+      - **Encryption in Transit**: TLS 1.2+ (mandatory)
+      - **PII Handling**: Encryption
+      - **Compliance**: GDPR required
+
+  - number: 'VIII'
+    title: 'Containers & Orchestration'
+    criticality: HIGH
+    status: refined
+    decision: skip
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'Deferred to cloud-platform scope — containers and orchestration governed there.'
+
+  - number: 'XVII'
+    title: 'Legacy & Migration'
+    criticality: LOW
+    status: refined
+    decision: modified
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'Greenfield project — no legacy migration needed.'
+    modified_content: |
+      ## Article XVII: Legacy & Migration
+
+      - **Context**: Greenfield — new project, no legacy code
+
+  - number: 'XIX'
+    title: 'Governance'
+    criticality: LOW
+    status: refined
+    decision: include
+    decided_at: '2026-08-05 13:29:17'
+    reason: 'Auto-approved: standard governance process.'
+    content: |
+      ## Article XIX: Governance
+
+      ### Constitution Amendments
+      1. **Proposal**: Any team member may propose amendments
+      2. **Review**: Tech Lead + Architect review required
+      3. **Approval**: Majority approval from signatories
+      4. **Implementation**: Update constitution + notify AI agents
+      5. **Versioning**: Semantic versioning (MAJOR.MINOR.PATCH)
+
+      ### AI Agent Compliance
+      All AI agents MUST:
+      1. Read this constitution before any operation
+      2. Validate all decisions against constitution principles
+      3. FAIL operations that violate constitution
+      4. Request amendment for justified exceptions
+      5. Log all constitution checks for audit

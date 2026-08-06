@@ -34,9 +34,20 @@ answers your need:
 Tier 0/1 are generated from `merged-refinement.yaml` by `skill-bolt-setup-constitution` (Phase 5).
 
 <!-- BOLT:SCOPE-CARD (generated from merged-refinement.yaml — do not edit by hand) -->
-> *Scope card and `constitution.digest.md` are generated during constitution setup
-> (`skill-bolt-setup-constitution` Phase 5). Until then (fresh/template project), read the full
-> `.boltf/memory/constitution.md`.*
+> **Project**: full-stack · greenfield · Practice: Apps & Infra
+>
+> | Scope | Stack |
+> |-------|-------|
+> | **backend** | C# / .NET 10 · Minimal APIs · Modular Monolith · Simple CQRS (no MediatR) · Azure SQL · EF Core+Dapper · Entra ID · OTel→Azure |
+> | **frontend** | Vue 3.x · TypeScript · Vite · SPA · Azure Static Web Apps · Pinia · Vitest · Playwright |
+> | **cloud-platform** | Azure Container Apps · Docker · Terraform · Azure Service Bus · Redis · Key Vault · Aspire (local dev) |
+>
+> **Cross-scope**: Azure DevOps · GitFlow · Rolling · OTel→Azure Monitor · TLS 1.2+ · GDPR · No VNet (greenfield)
+>
+> **Naming (backend)**: PascalCase classes/methods · _camelCase fields · IInterface · 4sp · 120ch · nullable enabled
+> **Naming (frontend)**: kebab-case files · PascalCase components · use+camelCase composables · 2sp · 100ch · no semicolons
+>
+> Read `.boltf/memory/constitution.digest.md` (Tier 1) before generating code.
 <!-- /BOLT:SCOPE-CARD -->
 
 ### Features (`specs/XXX-feature-name/`)

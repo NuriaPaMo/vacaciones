@@ -1,297 +1,488 @@
-# BOLT Framework Project Constitution
+﻿# Bolt Framework Project Constitution
 
+> **Generated**: 2026-08-05 13:35:00
+> **Practice**: Apps & Infra
+> **Project Type**: full-stack (green)
+> **Active Scopes**: backend, frontend, cloud-platform
 > **Version**: 1.0.0
-> **Ratification Date**: [YYYY-MM-DD]
-> **Last Amended**: [YYYY-MM-DD]
-> **Status**: Template
+> **Status**: Ratified
 
 ---
 
-## Preamble
-
-This Constitution establishes the governing principles, technology decisions, and standards for the **[PROJECT_NAME]** project. All AI agents, developers, and automated systems MUST adhere to this document.
-
-**This document is the SINGLE SOURCE OF TRUTH.**
-
-**Cloud Provider**: Microsoft Azure (mandatory for all deployments)
+This constitution contains only articles explicitly approved during refinement.
 
 ---
 
-## Article I: Project Scope & Type
+# Scope: backend
 
-> **⚠️ IMPORTANT**: Define the active scopes FIRST. This determines which articles and scope constitutions apply. The project type (Infrastructure / Application / Full Stack) is automatically derived from the selected scopes.
+## Article II: Backend Language & Runtime
 
-### Section 1.1: Active Scopes
+- **Language**: C# / .NET 10
+- **API Style**: Minimal APIs
+- **Cloud Provider**: Microsoft Azure (mandatory)
 
-Select ONE or MORE scopes. Each active scope injects its own constitution sections and activates the corresponding articles. Scopes are **combinable** — a typical project activates 2-4 scopes.
+---
 
-|     | Scope              | Description                                                  | Activates                                                                                             |
-| --- | ------------------ | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| [ ] | **backend**        | Server-side APIs, services, domain logic                     | Articles II §2.1, III §3.1/3.3/3.4, IV, V, VI, VII, VIII, XIII §13.1-13.3, XIV, XV (A-D), XVII, XVIII |
-| [ ] | **frontend**       | Web/mobile UI, SPA, design system                            | Articles II §2.2-2.3, III §3.2, VII §7.3-7.4, XIII (E2E), XIV, XV (frontend)                          |
-| [ ] | **cloud-platform** | Infrastructure, Landing Zones, IaC, platform engineering     | Articles VIII, IX, XII §12.3, XIII §13.4, XV (E-F)                                                    |
-| [ ] | **data**           | Databases, ETL/ELT, analytics, data governance               | Articles V, VI                                                                                        |
-| [ ] | **integration**    | API management, messaging, external system connectors        | Articles IV, XVII, XVIII                                                                              |
-| [ ] | **ai**             | AI/ML models, agents, prompt engineering, responsible AI     | Article XIX §19.2 (emphasis) + AI-specific extensions                                                 |
-| [ ] | **crm**            | Dynamics 365, Power Platform, Dataverse, business automation | Article VII                                                                                           |
+## Article III: Application Architecture
 
-> **Note**: The `work-management` scope (Azure DevOps, GitHub Projects, Jira synchronization) is **transversal** and managed separately. It does not appear here because it applies to all projects regardless of scope selection.
+- **Architecture Style**: Modular Monolith — single deployment, modular boundaries
+- **CQRS**: Enabled — Simple CQRS (same model, separated handlers)
+- **Event Sourcing**: Disabled
 
-#### Common Scope Combinations
+### Native CQRS Interfaces (NO MediatR)
 
-| Project Profile                     | Recommended Scopes                                                 |
-| ----------------------------------- | ------------------------------------------------------------------ |
-| REST API microservices              | `backend` + `cloud-platform` + `integration`                       |
-| Full-stack web application          | `backend` + `frontend` + `data`                                    |
-| AI-powered application              | `backend` + `ai` + `data`                                          |
-| Enterprise CRM solution             | `crm` + `integration` + `data`                                     |
-| Data platform / analytics           | `data` + `cloud-platform`                                          |
-| Landing Zone / platform engineering | `cloud-platform`                                                   |
-| Complete enterprise solution        | `backend` + `frontend` + `cloud-platform` + `data` + `integration` |
+```csharp
+public interface ICommand { }
+public interface ICommandHandler<in TCommand> where TCommand : ICommand
+{
+    Task HandleAsync(TCommand command, CancellationToken ct = default);
+}
+public interface ICommandHandler<in TCommand, TResult> where TCommand : ICommand
+{
+    Task<TResult> HandleAsync(TCommand command, CancellationToken ct = default);
+}
+public interface IQuery<TResult> { }
+public interface IQueryHandler<in TQuery, TResult> where TQuery : IQuery<TResult>
+{
+    Task<TResult> HandleAsync(TQuery query, CancellationToken ct = default);
+}
+public interface ICommandDispatcher
+{
+    Task DispatchAsync<TCommand>(TCommand command, CancellationToken ct = default)
+        where TCommand : ICommand;
+}
+public interface IQueryDispatcher
+{
+    Task<TResult> DispatchAsync<TQuery, TResult>(TQuery query, CancellationToken ct = default)
+        where TQuery : IQuery<TResult>;
+}
+public interface IDomainEvent
+{
+    Guid EventId { get; }
+    DateTime OccurredOn { get; }
+}
+public interface IDomainEventHandler<in TEvent> where TEvent : IDomainEvent
+{
+    Task HandleAsync(TEvent domainEvent, CancellationToken ct = default);
+}
+```
+
+---
+
+## Article IV: Communication
+
+- **Style**: Hybrid — synchronous + asynchronous
+- **Synchronous**: REST API (no gRPC, no GraphQL)
+- **Asynchronous Message Broker**: Azure Service Bus (cloud-native, enterprise)
+- **Background Processing**: .NET BackgroundService (native, no extra dependencies)
+
+---
+
+## Article V: Data Storage
+
+- **Primary Database**: Azure SQL Database (Managed SQL Server)
+- **Data Access**:
+  - Writes: Entity Framework Core (ORM)
+  - Reads: Dapper (micro-ORM, performance-focused)
+- **Repository Pattern**: Enabled
+- **Unit of Work Pattern**: Enabled
+- **Database Migrations**: EF Core Migrations (code-first)
+
+---
+
+## Article VI: Caching Strategy
+
+- **L1 In-Memory**: Enabled (IMemoryCache) — TTL: 5 minutes default
+- **L2 Distributed**: Azure Cache for Redis — TTL: 30 minutes default
+- **L3 CDN**: None (managed by frontend/cloud-platform scope)
+- **Cache Pattern**: Cache-Aside (application manages cache)
+
+---
+
+## Article VII: Identity & Access Management
+
+- **Identity Provider (Production)**: Microsoft Entra ID (Azure AD)
+- **Identity Provider (Development/Testing)**: Mock IDP (in-memory, fake tokens)
+- **Authentication Flows**:
+  - SPA Frontend: Authorization Code + PKCE — Enabled
+  - Service-to-Service: Client Credentials — Enabled
+  - Backend API: JWT Bearer — Enabled
+  - Mobile App: Disabled
+- **Authorization Model**: Policy-Based (.NET Authorization Policies)
 
 ---
 
 ## Article X: Environments & Configuration
 
-> **📋 Applies to**: ALL project types
-
-### Section 10.1: Environment Strategy
-
-| Environment | Purpose                      | Enabled | Auto-Deploy              |
-| ----------- | ---------------------------- | ------- | ------------------------ |
-| **dev**     | Development, rapid iteration | [ ] Yes | [ ] On commit to develop |
-| **uat**     | User Acceptance Testing      | [ ] Yes | [ ] On PR merge          |
-| **pre**     | Pre-production, staging      | [ ] Yes | [ ] Manual trigger       |
-| **prod**    | Production                   | [ ] Yes | [ ] Manual approval      |
-
-### Section 10.2: Configuration Management
-
-Select strategy:
-
-- [ ] **Azure App Configuration** - Centralized, feature flags (recommended)
-- [ ] **Environment Variables** - Container/App Service config
-- [ ] **appsettings.{Environment}.json** (.NET) / **.env files** (Node.js)
-- [ ] **Combination** - App Config + Key Vault (recommended)
-
-### Section 10.3: Secrets Management
-
-| Secret Type        | Storage         |
-| ------------------ | --------------- |
-| Connection Strings | Azure Key Vault |
-| API Keys           | Azure Key Vault |
-| Certificates       | Azure Key Vault |
-
-Local Development Secrets:
-
-- [ ] **User Secrets** (.NET) - `dotnet user-secrets`
-- [ ] **.env files** (Node.js) - gitignored
-- [ ] **Local Key Vault** - Azure Key Vault dev instance
-
-### Section 10.4: Feature Flags
-
-Feature Flag Provider:
-
-- [ ] **None**
-- [ ] **Azure App Configuration** - Native integration
-- [ ] **LaunchDarkly** - Enterprise features
-- [ ] **Unleash** - Open-source
+- **Environments**:
+  - dev — Development, rapid iteration — Auto-deploy on commit to develop
+  - prod — Production — Manual approval
+- **Configuration Management**: appsettings.{Environment}.json + environment variables
+- **Secrets Management**: Azure Key Vault (production) / .env files gitignored (local dev)
+- **Feature Flags**: None
 
 ---
 
 ## Article XI: CI/CD Pipeline
 
-> **📋 Applies to**: ALL project types
-
-### Section 11.1: CI/CD Platform
-
-Select ONE:
-
-- [ ] **GitHub Actions** - GitHub-native
-- [ ] **Azure DevOps Pipelines** - Azure-native
-
-### Section 11.2: Pipeline Stages
-
-#### For Application Development
-
-| Stage                  | Enabled | Threshold                          |
-| ---------------------- | ------- | ---------------------------------- |
-| **Build**              | [ ] Yes | Warnings as errors: [ ] Yes [ ] No |
-| **Lint/Format**        | [ ] Yes | -                                  |
-| **Unit Tests**         | [ ] Yes | Coverage >= \_\_%                  |
-| **Integration Tests**  | [ ] Yes | -                                  |
-| **Architecture Tests** | [ ] Yes | -                                  |
-| **Mutation Tests**     | [ ] Yes | Score >= \_\_%                     |
-| **Security Scan**      | [ ] Yes | 0 Critical                         |
-| **Container Build**    | [ ] Yes | -                                  |
-| **Container Scan**     | [ ] Yes | 0 Critical                         |
-
-#### For Infrastructure
-
-| Stage                | Enabled | Threshold           |
-| -------------------- | ------- | ------------------- |
-| **IaC Lint**         | [ ] Yes | Bicep lint / tflint |
-| **IaC Validation**   | [ ] Yes | what-if / plan      |
-| **Security Scan**    | [ ] Yes | Checkov / tfsec     |
-| **Cost Estimation**  | [ ] Yes | Infracost           |
-| **Compliance Check** | [ ] Yes | Azure Policy        |
-
-#### Deployment Stages
-
-| Stage           | Enabled | Trigger            |
-| --------------- | ------- | ------------------ |
-| **Deploy Dev**  | [ ] Yes | Auto on develop    |
-| **Deploy UAT**  | [ ] Yes | Auto on release/\* |
-| **Deploy Pre**  | [ ] Yes | Manual trigger     |
-| **Deploy Prod** | [ ] Yes | Manual approval    |
-
-### Section 11.3: Deployment Strategy
-
-Select ONE:
-
-- [ ] **Rolling Update** - Gradual replacement
-- [ ] **Blue-Green** - Azure Deployment Slots / K8s
-- [ ] **Canary** - Gradual traffic shift
-- [ ] **Feature Flags** - Deploy dark, enable via flags
-
-### Section 11.4: Branch Strategy
-
-Select ONE:
-
-- [ ] **GitFlow** - feature/, develop, release/, main
-- [ ] **GitHub Flow** - feature/, main
-- [ ] **Trunk-Based** - Short-lived branches, main
+- **Platform**: Azure DevOps Pipelines
+- **Branch Strategy**: GitFlow (feature/, develop, release/, main)
+- **Deployment Strategy**: Rolling Update
+- **Pipeline Stages (Application)**:
+  - Build (warnings as errors: Yes)
+  - Lint/Format
+  - Unit Tests (coverage >= 80%)
+  - Security Scan (0 Critical)
+- **Deployment Stages**:
+  - Deploy Dev — Auto on commit to develop
+  - Deploy Prod — Manual approval
+- **IaC Tool**: Terraform
 
 ---
 
 ## Article XII: Observability
 
-> **📋 Applies to**: ALL project types
-
-### Section 12.1: Observability Strategy
-
-Select ONE:
-
-- [ ] **Azure-Native** - Azure Monitor + Application Insights
-- [ ] **OpenTelemetry → Azure** - OTel SDK → Azure Monitor Exporter
-- [ ] **OpenTelemetry → Grafana Stack** - Self-hosted Grafana/Loki/Tempo
-
-### Section 12.2: Health Checks
-
-```text
-/health       - Full health check
-/health/ready - Readiness probe
-/health/live  - Liveness probe
-```
-
-### Section 12.3: Infrastructure Monitoring (if Infrastructure scope)
-
-| Component       | Tool                      | Enabled |
-| --------------- | ------------------------- | ------- |
-| Resource Health | Azure Resource Health     | [ ] Yes |
-| Activity Logs   | Azure Monitor             | [ ] Yes |
-| Diagnostics     | Log Analytics             | [ ] Yes |
-| Alerts          | Azure Monitor Alerts      | [ ] Yes |
-| Dashboards      | Azure Workbooks / Grafana | [ ] Yes |
+- **Strategy**: OpenTelemetry → Azure Monitor Exporter (OTel SDK)
+- **Health Check Endpoints**:
+  - /health — Full health check
+  - /health/ready — Readiness probe
+  - /health/live — Liveness probe
 
 ---
 
-## Article XVI: Security Policies
+## Article XIII: Testing Standards (Backend)
 
-> **📋 Applies to**: ALL project types
+- **Philosophy**: Coverage-First validated by Mutation Testing
+- **Thresholds**:
+  - Line Coverage: >= 80% (coverlet)
+  - Branch Coverage: >= 75% (coverlet)
+  - Mutation Score: >= 70% (Stryker.NET) — deferred to later sprint
+- **Frameworks**:
+  - Unit Tests: xUnit
+  - Integration Tests: xUnit + Testcontainers
+  - Architecture Tests: NetArchTest
+  - BDD/Gherkin: Reqnroll
+  - E2E Tests: Playwright
+  - Performance Tests: k6
+- **Test Project Structure**:
+  ```
+  tests/
+  ├── {Module}.UnitTests/
+  ├── {Module}.IntegrationTests/
+  ├── Architecture.Tests/
+  ├── E2E.Tests/
+  └── Common.Tests/
+      ├── Fixtures/
+      ├── Fakes/
+      └── Builders/
+  ```
 
-### Section 16.1: Network Security
+---
 
-| Component                | Configuration                     |
-| ------------------------ | --------------------------------- |
-| Virtual Network          | [ ] Azure VNet [ ] None           |
-| Private Endpoints        | [ ] Enabled [ ] Disabled          |
-| Web Application Firewall | [ ] Azure Front Door WAF [ ] None |
+## Article XIV: Code Standards (Backend)
 
-### Section 16.2: Data Protection
+### Naming Conventions (C#/.NET)
 
-| Policy                | Value                                                 |
-| --------------------- | ----------------------------------------------------- |
-| Encryption at Rest    | [ ] Azure-managed keys [ ] Customer-managed keys      |
-| Encryption in Transit | TLS 1.2+ (mandatory)                                  |
-| PII Handling          | [ ] Anonymization [ ] Pseudonymization [ ] Encryption |
+| Element        | Convention     | Example                      |
+|----------------|----------------|------------------------------|
+| Namespaces     | PascalCase     | MyCompany.MyProject.Domain   |
+| Classes        | PascalCase     | OrderService                 |
+| Interfaces     | I + PascalCase | IOrderService                |
+| Methods        | PascalCase     | GetOrderByIdAsync            |
+| Properties     | PascalCase     | OrderId                      |
+| Private fields | _camelCase     | _orderRepository             |
+| Async methods  | Suffix Async   | GetOrderByIdAsync            |
 
-### Section 16.3: Compliance Requirements
+### Code Formatting
 
-| Standard | Required       |
-| -------- | -------------- |
-| GDPR     | [ ] Yes [ ] No |
-| HIPAA    | [ ] Yes [ ] No |
-| SOC 2    | [ ] Yes [ ] No |
-| PCI-DSS  | [ ] Yes [ ] No |
+| Setting                  | Value                         |
+|--------------------------|-------------------------------|
+| Indentation              | 4 spaces                      |
+| Line Length              | 120 characters                |
+| File-scoped namespaces   | Yes                           |
+| Nullable reference types | Enabled                       |
+| Tooling                  | .editorconfig + dotnet format |
+
+---
+
+## Article XVI: Security Policies (Backend)
+
+- **Network Security**: No VNet, no Private Endpoints, no WAF (can be added later)
+- **Encryption at Rest**: Azure-managed keys
+- **Encryption in Transit**: TLS 1.2+ (mandatory)
+- **PII Handling**: Encryption
+- **Compliance**: GDPR required
+
+---
+
+## Article XVII: Legacy & Migration
+
+- **Context**: Greenfield — new project, no legacy code
 
 ---
 
 ## Article XIX: Governance
 
-> **📋 Applies to**: ALL project types
-
-### Section 19.1: Constitution Amendments
-
+### Constitution Amendments
 1. **Proposal**: Any team member may propose amendments
 2. **Review**: Tech Lead + Architect review required
 3. **Approval**: Majority approval from signatories
 4. **Implementation**: Update constitution + notify AI agents
 5. **Versioning**: Semantic versioning (MAJOR.MINOR.PATCH)
 
-### Section 19.2: AI Agent Compliance
-
-All AI agents operating in this project MUST:
-
-1. **Read** this constitution before any operation
-2. **Validate** all decisions against constitution principles
-3. **FAIL** operations that violate constitution
-4. **Request** amendment for justified exceptions
-5. **Log** all constitution checks for audit
-
-### Agent Checklist
-
-Before generating code or making changes:
-
-#### Base Constitution (always apply)
-
-- [ ] Project scope and selected scopes match Article I / Section 1.1
-- [ ] Environment config per Article X
-- [ ] CI/CD per Article XI
-- [ ] Observability per Article XII
-- [ ] Security policies per Article XVI
-- [ ] Governance compliance per Article XIX
-
-#### Scope-Specific (apply per selected scopes)
-
-> Load the relevant scope constitution(s) from `.boltf/scopes/<scope>/memory/constitution.md`
-
-| Scope               | Key Checks                                                                                                                                                                                                                                                                                                                 |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **backend**         | Language/Runtime (Art. II), Architecture (Art. III), CQRS (§3.3), Communication (Art. IV), Data Storage (Art. V), Caching (Art. VI), Identity (Art. VII), Containers (Art. VIII), Testing (Art. XIII), Code Standards (Art. XIV), Project Structure (Art. XV), Legacy & Migration (Art. XVII), API Management (Art. XVIII) |
-| **frontend**        | Framework (§2.2), Mobile (§2.3), Architecture (§3.2), Auth Flows (§7.3), Authorization (§7.4), Testing (Art. XIII), Code Standards (Art. XIV), Legacy & Migration (Art. XVII)                                                                                                                                              |
-| **cloud-platform**  | Containers & Orchestration (Art. VIII), IaC (Art. IX), Infra Monitoring (§12.3), Infra Testing (§13.4), Project Structure Templates (Art. XV)                                                                                                                                                                              |
-| **data**            | Data Storage (Art. V), Caching (Art. VI)                                                                                                                                                                                                                                                                                   |
-| **integration**     | Communication (Art. IV), Containers/Dapr (Art. VIII), Legacy & Migration (Art. XVII), API Management (Art. XVIII)                                                                                                                                                                                                          |
-| **ai**              | Scope-specific AI/ML decisions                                                                                                                                                                                                                                                                                             |
-| **crm**             | Identity & Access (Art. VII), CRM-specific integrations                                                                                                                                                                                                                                                                    |
-| **work-management** | Artefact mapping, sync strategy, traceability                                                                                                                                                                                                                                                                              |
+### AI Agent Compliance
+All AI agents MUST:
+1. Read this constitution before any operation
+2. Validate all decisions against constitution principles
+3. FAIL operations that violate constitution
+4. Request amendment for justified exceptions
+5. Log all constitution checks for audit
 
 ---
 
-## Signatories
+# Scope: frontend
 
-| Role         | Name   | Date   | Signature |
-| ------------ | ------ | ------ | --------- |
-| Project Lead | [NAME] | [DATE] |           |
-| Tech Lead    | [NAME] | [DATE] |           |
-| Architect    | [NAME] | [DATE] |           |
+## Article II §2.2: Frontend Framework
+
+- **Framework**: Vue.js 3.x
+- **Language**: TypeScript
+- **Build Tool**: Vite
 
 ---
 
-## Revision History
+## Article II §2.3: Mobile Application
 
-| Version | Date   | Author   | Changes                                                                                    |
-| ------- | ------ | -------- | ------------------------------------------------------------------------------------------ |
-| 2.1.0   | [DATE] | [AUTHOR] | Added Project Scope (App/Infra/Full Stack), Landing Zone templates, Infrastructure testing |
-| 2.0.0   | [DATE] | [AUTHOR] | Complete rewrite with C#/Node.js options                                                   |
-| 1.0.0   | [DATE] | [AUTHOR] | Initial constitution                                                                       |
+- **Mobile**: None — no mobile app
+
+---
+
+## Article II §2.4: Design Tooling
+
+- **Design Tool**: None — HTML mockups only (bolt-mockup / bolt-ux-design)
+- **Design Gate**: Inactive (no Penpot integration)
+- **Token Pipeline**: Not applicable
+
+---
+
+## Article III §3.2: Frontend Architecture Style
+
+- **Style**: Monolith SPA (Single Page Application)
+- **Hosting**: Azure Static Web Apps
+- **Routing**: Vue Router
+- **State Management**: Pinia
+
+---
+
+## Article VII: Identity & Access Management (Frontend)
+
+- **Authentication Flow (SPA)**: Authorization Code + PKCE (Entra ID)
+- **Library**: MSAL.js v3 (@azure/msal-browser + @azure/msal-vue)
+- **Authorization**: Claims-based routing guards (Vue Router)
+- **Mobile App Auth**: Not applicable
+
+---
+
+## Article X: Environments & Configuration (Frontend)
+
+- **Environments**: dev, prod
+- **Configuration**: .env files (Vite VITE_* variables, gitignored for secrets)
+- **Secrets (local)**: .env.local (gitignored)
+- **Feature Flags**: None
+
+---
+
+## Article XI: CI/CD Pipeline (Frontend)
+
+- **Platform**: Azure DevOps Pipelines
+- **Branch Strategy**: GitFlow (feature/, develop, release/, main)
+- **Deployment Strategy**: Rolling Update
+- **Pipeline Stages**:
+  - Build (Vite)
+  - Lint/Format (ESLint + Prettier)
+  - Unit Tests (coverage >= 80%)
+  - E2E Tests (Playwright)
+  - Security Scan (0 Critical)
+  - Deploy to Azure Static Web Apps
+- **Deployment**:
+  - Deploy Dev — Auto on commit to develop
+  - Deploy Prod — Manual approval
+
+---
+
+## Article XII: Observability (Frontend)
+
+- **Strategy**: Azure Application Insights JavaScript SDK
+- **Tracking**: Automatic exception tracking, dependency tracking, RUM
+- **Core Web Vitals**: Monitored via Application Insights
+
+---
+
+## Article XIII: Testing Standards (Frontend)
+
+- **Philosophy**: Coverage-First validated by Mutation Testing
+- **Thresholds**:
+  - Line Coverage: >= 80% (istanbul/v8)
+  - Branch Coverage: >= 75% (istanbul/v8)
+  - Mutation Score: >= 70% (Stryker Mutator) — deferred
+- **Frameworks**:
+  - Unit Tests: Vitest
+  - Component Tests: Vue Testing Library (@testing-library/vue)
+  - E2E Tests: Playwright
+  - Visual Regression: Playwright screenshots
+  - Performance: Lighthouse CI (Core Web Vitals)
+
+---
+
+## Article XIV: Code Standards (Frontend)
+
+### Naming Conventions (TypeScript/Vue)
+
+| Element     | Convention       | Example            |
+|-------------|------------------|--------------------|
+| Files       | kebab-case       | order-detail.vue   |
+| Components  | PascalCase       | OrderDetail.vue    |
+| Composables | use + camelCase  | useOrderStore.ts   |
+| Interfaces  | I + PascalCase   | IOrderService      |
+| Functions   | camelCase        | getOrderById       |
+| Variables   | camelCase        | orderId            |
+| Constants   | UPPER_SNAKE_CASE | MAX_RETRIES        |
+
+### Code Formatting
+
+| Setting     | Value             |
+|-------------|-------------------|
+| Indentation | 2 spaces          |
+| Line Length | 100 characters    |
+| Semicolons  | No                |
+| Quotes      | Single            |
+| Tooling     | ESLint + Prettier |
+
+---
+
+## Article XVI: Security Policies (Frontend)
+
+- **Encryption in Transit**: TLS 1.2+ (mandatory, Azure Static Web Apps enforced)
+- **WAF**: None (can add Azure Front Door WAF later)
+- **PII Handling**: No PII stored client-side; encryption server-side
+- **Compliance**: GDPR — no analytics cookies without consent
+
+---
+
+# Scope: cloud-platform
+
+## Article VIII §8.1: Container Strategy
+
+- **Strategy**: Docker (standard containers)
+- **Runtime**: Docker (local dev) / Azure Container Apps (production)
+
+---
+
+## Article VIII §8.2: Orchestration Platform
+
+- **Platform**: Azure Container Apps (serverless containers)
+- **Benefits**: No K8s cluster management, auto-scaling, native Azure integration
+- **Local Dev**: Docker
+
+---
+
+## Article VIII-B §8B.1: Infrastructure Scope
+
+- **Scope**: Workload Infrastructure only
+- **Workload Components**:
+  - Compute: Azure Container Apps
+  - Data: Azure SQL Database + Azure Cache for Redis
+  - Integration: Azure Service Bus
+  - Frontend Hosting: Azure Static Web Apps
+  - Secrets: Azure Key Vault
+  - Identity: Microsoft Entra ID
+  - Monitoring: Azure Monitor + Application Insights
+- **Assumption**: Platform/networking provided by existing subscription
+
+---
+
+## Article VIII-C: .NET Aspire Orchestration
+
+- **Aspire**: Enabled (local development orchestration)
+- **AppHost**: src/AppHost/ — defines service topology
+- **ServiceDefaults**: src/ServiceDefaults/ — shared OTel, health checks, resilience
+- **Service Discovery**: Aspire automatic (WithReference() API)
+- **Dashboard**: http://localhost:15888 (local OTel observability)
+- **Production**: Deploy via azd up or Azure DevOps pipeline (Container Apps)
+- **Note**: Aspire is for local dev only; production uses Azure Container Apps directly
+
+---
+
+## Article IX §9.1: Infrastructure as Code
+
+- **IaC Tool**: Terraform (HCL)
+- **State Backend**: Azure Storage Account (remote state)
+- **Modules**: container-apps, sql, redis, service-bus, static-web-apps, key-vault
+- **Environments**: dev.tfvars, prod.tfvars
+
+---
+
+## Article X: Environments & Configuration (Cloud Platform)
+
+- **Environments**: dev, prod
+- **Terraform Workspaces**: one per environment (dev, prod)
+- **Secrets**: Azure Key Vault (one vault per environment)
+- **Feature Flags**: None
+
+---
+
+## Article XI: CI/CD Pipeline (Infrastructure)
+
+- **Platform**: Azure DevOps Pipelines
+- **Branch Strategy**: GitFlow
+- **IaC Pipeline Stages**:
+  - IaC Lint (tflint)
+  - IaC Validation (terraform plan)
+  - Security Scan (Checkov / tfsec — 0 Critical)
+  - Cost Estimation (Infracost)
+  - Deploy Dev — Auto on commit to develop
+  - Deploy Prod — Manual approval
+
+---
+
+## Article XII: Observability & Infrastructure Monitoring
+
+- **Strategy**: OpenTelemetry → Azure Monitor Exporter
+- **Infrastructure Monitoring** (all enabled):
+  - Activity Logs — Azure Monitor
+  - Diagnostics — Log Analytics Workspace
+  - Alerts — Azure Monitor Alerts
+  - Dashboards — Azure Workbooks
+  - Resource Health — Azure Resource Health
+
+---
+
+## Article XIII §13.4: Infrastructure Testing
+
+| Test Type       | Tool            | Purpose                    |
+|-----------------|-----------------|----------------------------|
+| IaC Lint        | tflint          | Syntax and best practices  |
+| Security Scan   | Checkov / tfsec | Security misconfigurations |
+| Cost Estimation | Infracost       | Budget validation          |
+| Integration     | Terratest (Go)  | Post-deployment validation |
+
+---
+
+## Article XVI: Security Policies (Cloud Platform)
+
+- **Network**: No VNet / No Private Endpoints (simplicity for greenfield)
+- **Encryption at Rest**: Azure-managed keys
+- **Encryption in Transit**: TLS 1.2+ (mandatory)
+- **Compliance**: GDPR required
+- **Container Security**: Managed identity for Container Apps (no secrets in env vars)
+
+---
+
+## Constitution Metadata
+
+- **Generated**: 2026-08-05 13:35:00
+- **Source**: Merged refinement from 3 scopes (backend, frontend, cloud-platform)
+- **Articles Included**: 37
+- **Articles Excluded/Skipped**: 2
+- **Total Reviewed**: 39
+
+*Only articles with decision='include' or decision='modified' are present in this constitution.*

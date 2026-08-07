@@ -1,0 +1,16 @@
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\bin\Debug\net10.0\ReportingAdmin.Domain.deps.json
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\bin\Debug\net10.0\ReportingAdmin.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\bin\Debug\net10.0\ReportingAdmin.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\bin\Debug\net10.0\VacationManagement.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\bin\Debug\net10.0\VacationManagement.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\ReportingAdmin.Domain.csproj.AssemblyReference.cache
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\ReportingAdmin.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\ReportingAdmin.Domain.AssemblyInfoInputs.cache
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\ReportingAdmin.Domain.AssemblyInfo.cs
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\ReportingAdmin.Domain.csproj.CoreCompileInputs.cache
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\ReportingAdmin.Domain.sourcelink.json
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\Reportin.9240A71A.Up2Date
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\ReportingAdmin.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\refint\ReportingAdmin.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\ReportingAdmin.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\ReportingAdmin\Domain\obj\Debug\net10.0\ref\ReportingAdmin.Domain.dll

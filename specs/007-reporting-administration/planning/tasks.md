@@ -65,9 +65,9 @@
 
 ### Domain
 
-- [ ] T001 [S] Create `src/Modules/ReportingAdmin/` folder structure
-- [ ] T002 [M] [US-026] Implement `AuditEntry` aggregate root: immutable constructor; `INV-601–604`; `[AuditRedact]` attribute for PII field redaction
-- [ ] T003 [M] [US-027] Implement `SystemConfiguration` aggregate root: `Update(newValue, updatedBy)` captures `PreviousValue`; `GetValue<T>()` deserialization; `INV-610–614`
+- [x] T001 [S] Create `src/Modules/ReportingAdmin/` folder structure
+- [x] T002 [M] [US-026] Implement `AuditEntry` aggregate root: immutable constructor; `INV-601–604`; `[AuditRedact]` attribute for PII field redaction
+- [x] T003 [M] [US-027] Implement `SystemConfiguration` aggregate root: `Update(newValue, updatedBy)` captures `PreviousValue`; `GetValue<T>()` deserialization; `INV-610–614`
 
 ### Infrastructure — Audit Interceptor
 
@@ -83,18 +83,18 @@
 
 ### Application — Commands
 
-- [ ] T010 [M] [US-027] `UpdateSystemConfigurationCommand` + handler: validates 1–100 range (BR-125); validates critical > warning; captures `PreviousValue`; emits audit entry; takes effect immediately (BR-122)
+- [x] T010 [M] [US-027] `UpdateSystemConfigurationCommand` + handler: validates 1–100 range (BR-125); validates critical > warning; captures `PreviousValue`; emits audit entry; takes effect immediately (BR-122)
 
 ### Tests
 
-- [ ] T011 [M] [US-026] xUnit: `AuditInterceptor` — saving `VacationRequest` produces `AuditEntry(ActionType=Created)`; updating status produces `ActionType=StatusChanged` with old/new JSON; `AuditEntry` EF config rejects Update/Delete (INV-601)
-- [ ] T012 [M] [US-027] xUnit: `UpdateSystemConfigurationCommand` — validation (0%→rejected; 1%→accepted; critical ≤ warning→rejected); dept override created and retrieved; `PreviousValue` captured; audit entry generated
+- [x] T011 [M] [US-026] xUnit: `AuditInterceptor` — saving `VacationRequest` produces `AuditEntry(ActionType=Created)`; updating status produces `ActionType=StatusChanged` with old/new JSON; `AuditEntry` EF config rejects Update/Delete (INV-601)
+- [x] T012 [M] [US-027] xUnit: `UpdateSystemConfigurationCommand` — validation (0%→rejected; 1%→accepted; critical ≤ warning→rejected); dept override created and retrieved; `PreviousValue` captured; audit entry generated
 
 ### Quality Gates — Bolt 7A
 
-- [ ] T013-QG `dotnet build --warnaserror` → 0 warnings
-- [ ] T014-QG `dotnet test` → 100% pass
-- [ ] T015-QG Coverlet line ≥ 80% / branch ≥ 75%
+- [x] T013-QG `dotnet build --warnaserror` → 0 warnings
+- [x] T014-QG `dotnet test` → 100% pass
+- [x] T015-QG Coverlet line ≥ 80% / branch ≥ 75%
 - [ ] T016-QG `dotnet stryker --project ReportingAdmin.Infrastructure.csproj` → ≥ 70%
 - [ ] T017-QG Report query P95: 1 year data → < 5s (k6 load test with 500-employee dataset)
 

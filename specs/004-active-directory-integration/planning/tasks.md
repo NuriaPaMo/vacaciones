@@ -60,18 +60,18 @@
 
 ### Domain
 
-- [ ] T001 [S] Create `src/Modules/IdentitySync/` folder structure
-- [ ] T002 [M] [US-012] Implement `SyncJob` aggregate root: `RecordError()`, `Complete(counts)`, `Fail(reason)`, `Duration()`, `INV-301–304`
-- [ ] T003 [M] [US-012] Implement `SyncError` child entity (`RetryCount`, `IsResolved`); `SyncJobType` + `SyncJobStatus` enums
+- [x] T001 [S] Create `src/Modules/IdentitySync/` folder structure
+- [x] T002 [M] [US-012] Implement `SyncJob` aggregate root: `RecordError()`, `Complete(counts)`, `Fail(reason)`, `Duration()`, `INV-301–304`
+- [x] T003 [M] [US-012] Implement `SyncError` child entity (`RetryCount`, `IsResolved`); `SyncJobType` + `SyncJobStatus` enums
 
 ### Infrastructure — Graph API
 
-- [ ] T004 [L] [US-012] Implement `GraphApiClient`: `GetAllUsersAsync()` (cursor-based paging, 100 users/page; handles `@odata.nextLink`), `GetUserManagerAsync(userId)`, `GetGroupMembersAsync(groupId)` — uses `DefaultAzureCredential` (Managed Identity; no stored secrets)
-- [ ] T005 [M] [US-012][US-013] Implement `AdUserMapper.MapToCommand()` per field-mapping specification in data model; role assignment from AD group membership (BR-058)
+- [x] T004 [L] [US-012] Implement `GraphApiClient`: `GetAllUsersAsync()` (cursor-based paging, 100 users/page; handles `@odata.nextLink`), `GetUserManagerAsync(userId)`, `GetGroupMembersAsync(groupId)` — uses `DefaultAzureCredential` (Managed Identity; no stored secrets)
+- [x] T005 [M] [US-012][US-013] Implement `AdUserMapper.MapToCommand()` per field-mapping specification in data model; role assignment from AD group membership (BR-058)
 
 ### Application — Commands
 
-- [ ] T006 [L] [US-012][US-013] Implement `UpsertEmployeeFromAdHandler`: two-pass strategy (pass 1: upsert all users; pass 2: resolve `ManagerId` from `ExternalAdId`); upsert `Department` by name; `accountEnabled=false` → `IsActive=false` (BR-056); parallel processing max 10 concurrent with `SemaphoreSlim`
+- [x] T006 [L] [US-012][US-013] Implement `UpsertEmployeeFromAdHandler`: two-pass strategy (pass 1: upsert all users; pass 2: resolve `ManagerId` from `ExternalAdId`); upsert `Department` by name; `accountEnabled=false` → `IsActive=false` (BR-056); parallel processing max 10 concurrent with `SemaphoreSlim`
 - [ ] T007 [M] [US-012] `TriggerScheduledAdSyncCommand` + handler: acquire Redis lock `adsync-running`; create `SyncJob`; call `GraphApiClient.GetAllUsersAsync()`; for each user dispatch `UpsertEmployeeFromAdCommand` with Polly retry (3× exp backoff: 1s→5s→30s); `SyncJob.Complete()`; publish `SyncJobCompleted`; alert if errorRate > 5% (BR-069)
 
 ### Persistence
@@ -80,15 +80,15 @@
 
 ### Tests
 
-- [ ] T009 [M] [US-012] xUnit: `SyncJob` status transitions; `RecordError()` increments count; `Complete()` sets terminal state
-- [ ] T010 [M] [US-012] xUnit + WireMock.NET: `GraphApiClient` paged response (3 pages × 100 users); simulated 503 → Polly retry; `AdUserMapper` field mapping correctness
-- [ ] T011 [M] [US-012][US-013] xUnit: `UpsertEmployeeFromAdHandler` — new employee created with `Employee` role default; `accountEnabled=false` → `IsActive=false` (soft-delete only); department change updates `DepartmentId`; manager resolution second pass
+- [x] T009 [M] [US-012] xUnit: `SyncJob` status transitions; `RecordError()` increments count; `Complete()` sets terminal state
+- [x] T010 [M] [US-012] xUnit + WireMock.NET: `GraphApiClient` paged response (3 pages × 100 users); simulated 503 → Polly retry; `AdUserMapper` field mapping correctness
+- [x] T011 [M] [US-012][US-013] xUnit: `UpsertEmployeeFromAdHandler` — new employee created with `Employee` role default; `accountEnabled=false` → `IsActive=false` (soft-delete only); department change updates `DepartmentId`; manager resolution second pass
 
 ### Quality Gates — Bolt 4A
 
-- [ ] T012-QG `dotnet build --warnaserror` → 0 warnings
-- [ ] T013-QG `dotnet test` → 100% pass
-- [ ] T014-QG Coverlet line ≥ 80% / branch ≥ 75%
+- [x] T012-QG `dotnet build --warnaserror` → 0 warnings
+- [x] T013-QG `dotnet test` → 100% pass
+- [x] T014-QG Coverlet line ≥ 80% / branch ≥ 75%
 - [ ] T015-QG `dotnet stryker --project IdentitySync.Application.csproj` → ≥ 70%
 
 ---

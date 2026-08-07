@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ApprovalWorkflow.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8e51d4721c3f136229588414b42eaf95c1828334")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e48436e5b9ebdac80d41f12d0880f3189dc6b228")]
 [assembly: System.Reflection.AssemblyProductAttribute("ApprovalWorkflow.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ApprovalWorkflow.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -9,6 +9,10 @@
   <Folder Name="/src/Modules/CapacityManagement/Domain/">
     <Project Path="src/Modules/CapacityManagement/Domain/CapacityManagement.Domain.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/IdentitySync/" />
+  <Folder Name="/src/Modules/IdentitySync/Domain/">
+    <Project Path="src/Modules/IdentitySync/Domain/IdentitySync.Domain.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/VacationManagement/" />
   <Folder Name="/src/Modules/VacationManagement/Domain/">
     <Project Path="src/Modules/VacationManagement/Domain/VacationManagement.Domain.csproj" />
@@ -16,6 +20,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/ApprovalWorkflow.Domain.Tests/ApprovalWorkflow.Domain.Tests.csproj" />
     <Project Path="tests/CapacityManagement.Domain.Tests/CapacityManagement.Domain.Tests.csproj" />
+    <Project Path="tests/IdentitySync.Domain.Tests/IdentitySync.Domain.Tests.csproj" />
     <Project Path="tests/VacationManagement.Domain.Tests/VacationManagement.Domain.Tests.csproj" />
   </Folder>
 </Solution>

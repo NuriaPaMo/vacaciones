@@ -60,25 +60,25 @@
 
 ### Domain
 
-- [ ] T001 [S] Create `src/Modules/ApprovalWorkflow/` folder structure
-- [ ] T002 [M] [US-004][US-005] Implement `ApprovalWorkflowId`, `DelegationId`, `ApprovalLevel`, `ApprovalDecision`, `DelegationScope`, `EscalationType` value objects
-- [ ] T003 [L] [US-004][US-005] Implement `ApprovalWorkflow` aggregate root: `ApproveAtProjectLevel()`, `RejectAtProjectLevel()`, `ApproveAtDepartmentLevel()`, `RejectAtDepartmentLevel()`, `EscalateToDepartment()`, `IsCompleted()` — all 6 invariants (INV-101–106) including self-approval (BR-019a)
-- [ ] T004 [M] [US-004][US-005] Implement `ApprovalStep` child entity (`IsDelegate` flag; `OriginalApproverId` when acting as delegate)
-- [ ] T005 [M] [US-006] Implement `Delegation` aggregate root: `IsEffectiveOn(date)`, `Revoke()` — invariants INV-110–113 (circular check, one-active-per-scope)
-- [ ] T006 [S] [US-007] Implement `EscalationEvent` entity + `EscalationThreshold` value object (default: reminder=3d, escalation=5d)
-- [ ] T007 [S] Implement domain events: `VacationRequestApprovedAtProjectLevel`, `VacationRequestApprovedFinal`, `VacationRequestRejectedAtProjectLevel`, `VacationRequestRejectedFinal`, `ApprovalEscalationTriggered`
+- [x] T001 [S] Create `src/Modules/ApprovalWorkflow/` folder structure
+- [x] T002 [M] [US-004][US-005] Implement `ApprovalWorkflowId`, `DelegationId`, `ApprovalLevel`, `ApprovalDecision`, `DelegationScope`, `EscalationType` value objects
+- [x] T003 [L] [US-004][US-005] Implement `ApprovalWorkflow` aggregate root: `ApproveAtProjectLevel()`, `RejectAtProjectLevel()`, `ApproveAtDepartmentLevel()`, `RejectAtDepartmentLevel()`, `EscalateToDepartment()`, `IsCompleted()` — all 6 invariants (INV-101–106) including self-approval (BR-019a)
+- [x] T004 [M] [US-004][US-005] Implement `ApprovalStep` child entity (`IsDelegate` flag; `OriginalApproverId` when acting as delegate)
+- [x] T005 [M] [US-006] Implement `Delegation` aggregate root: `IsEffectiveOn(date)`, `Revoke()` — invariants INV-110–113 (circular check, one-active-per-scope)
+- [x] T006 [S] [US-007] Implement `EscalationEvent` entity + `EscalationThreshold` value object (default: reminder=3d, escalation=5d)
+- [x] T007 [S] Implement domain events: `VacationRequestApprovedAtProjectLevel`, `VacationRequestApprovedFinal`, `VacationRequestRejectedAtProjectLevel`, `VacationRequestRejectedFinal`, `ApprovalEscalationTriggered`
 
 ### Tests
 
-- [ ] T008 [M] [US-004][US-005] xUnit: `ApprovalWorkflow` state machine — all 11 allowed transitions; all forbidden transitions throw `DomainException`; self-approval PM-who-is-DM (BR-019a)
-- [ ] T009 [M] [US-006] xUnit: `Delegation` invariants — circular delegation check; max-one-active enforcement; `IsEffectiveOn` boundary values (start, end, null = permanent)
+- [x] T008 [M] [US-004][US-005] xUnit: `ApprovalWorkflow` state machine — all 11 allowed transitions; all forbidden transitions throw `DomainException`; self-approval PM-who-is-DM (BR-019a)
+- [x] T009 [M] [US-006] xUnit: `Delegation` invariants — circular delegation check; max-one-active enforcement; `IsEffectiveOn` boundary values (start, end, null = permanent)
 
 ### Quality Gates — Bolt 2A
 
-- [ ] T010-QG `dotnet build --warnaserror` → 0 warnings
-- [ ] T011-QG `dotnet test --filter Category=Unit` → 100% pass
-- [ ] T012-QG Coverlet line coverage (Domain project) → ≥ 80%
-- [ ] T013-QG Coverlet branch coverage → ≥ 75%
+- [x] T010-QG `dotnet build --warnaserror` → 0 warnings
+- [x] T011-QG `dotnet test --filter Category=Unit` → 100% pass
+- [x] T012-QG Coverlet line coverage (Domain project) → ≥ 80%
+- [x] T013-QG Coverlet branch coverage → ≥ 75%
 - [ ] T014-QG `dotnet stryker --project ApprovalWorkflow.Domain.csproj` → ≥ 70%
 
 ---

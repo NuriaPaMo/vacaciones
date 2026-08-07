@@ -1,11 +1,16 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/ApprovalWorkflow/" />
+  <Folder Name="/src/Modules/ApprovalWorkflow/Domain/">
+    <Project Path="src/Modules/ApprovalWorkflow/Domain/ApprovalWorkflow.Domain.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/VacationManagement/" />
   <Folder Name="/src/Modules/VacationManagement/Domain/">
     <Project Path="src/Modules/VacationManagement/Domain/VacationManagement.Domain.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/ApprovalWorkflow.Domain.Tests/ApprovalWorkflow.Domain.Tests.csproj" />
     <Project Path="tests/VacationManagement.Domain.Tests/VacationManagement.Domain.Tests.csproj" />
   </Folder>
 </Solution>

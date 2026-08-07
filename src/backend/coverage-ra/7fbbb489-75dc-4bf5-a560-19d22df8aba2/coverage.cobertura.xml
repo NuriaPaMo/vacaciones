@@ -1,0 +1,906 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coverage line-rate="0.9131999999999999" branch-rate="0.9285" version="1.9" timestamp="1786107569" lines-covered="179" lines-valid="196" branches-covered="52" branches-valid="56">
+  <sources>
+    <source>C:\src\test\vacaciones\src\backend\src\Modules\VacationManagement\Domain\</source>
+  </sources>
+  <packages>
+    <package name="VacationManagement.Domain" line-rate="0.9131999999999999" branch-rate="0.9285" complexity="110">
+      <classes>
+        <class name="VacationManagement.Domain.VacationRequests.StatusTransition" filename="VacationRequests\StatusTransition.cs" line-rate="1" branch-rate="1" complexity="19">
+          <methods>
+            <method name="get_Id" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="9" hits="61" branch="False" />
+              </lines>
+            </method>
+            <method name="get_RequestId" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="10" hits="61" branch="False" />
+              </lines>
+            </method>
+            <method name="get_FromStatus" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="11" hits="62" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ToStatus" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="12" hits="66" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ChangedByEmployeeId" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="13" hits="61" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ActorName" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="14" hits="122" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ChangedAt" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="15" hits="61" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Reason" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="16" hits="62" branch="False" />
+              </lines>
+            </method>
+            <method name="Create" signature="(VacationManagement.Domain.VacationRequests.ValueObjects.VacationRequestId,System.Nullable`1&lt;VacationManagement.Domain.VacationRequests.ValueObjects.VacationStatus&gt;,VacationManagement.Domain.VacationRequests.ValueObjects.VacationStatus,VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeId,System.String,System.String)" line-rate="1" branch-rate="1" complexity="10">
+              <lines>
+                <line number="27" hits="63" branch="False" />
+                <line number="28" hits="63" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="3" type="jump" coverage="100%" />
+                    <condition number="17" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="29" hits="1" branch="False" />
+                <line number="31" hits="62" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="37" type="jump" coverage="100%" />
+                    <condition number="60" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="32" hits="1" branch="False" />
+                <line number="34" hits="61" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="156" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="35" hits="61" branch="False" />
+                <line number="36" hits="61" branch="False" />
+                <line number="37" hits="61" branch="False" />
+                <line number="38" hits="61" branch="False" />
+                <line number="39" hits="61" branch="False" />
+                <line number="40" hits="61" branch="False" />
+                <line number="41" hits="61" branch="False" />
+                <line number="42" hits="61" branch="False" />
+                <line number="43" hits="61" branch="False" />
+                <line number="44" hits="61" branch="False" />
+                <line number="45" hits="61" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="18" hits="244" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="9" hits="61" branch="False" />
+            <line number="10" hits="61" branch="False" />
+            <line number="11" hits="62" branch="False" />
+            <line number="12" hits="66" branch="False" />
+            <line number="13" hits="61" branch="False" />
+            <line number="14" hits="122" branch="False" />
+            <line number="15" hits="61" branch="False" />
+            <line number="16" hits="62" branch="False" />
+            <line number="27" hits="63" branch="False" />
+            <line number="28" hits="63" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="3" type="jump" coverage="100%" />
+                <condition number="17" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="29" hits="1" branch="False" />
+            <line number="31" hits="62" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="37" type="jump" coverage="100%" />
+                <condition number="60" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="32" hits="1" branch="False" />
+            <line number="34" hits="61" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="156" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="35" hits="61" branch="False" />
+            <line number="36" hits="61" branch="False" />
+            <line number="37" hits="61" branch="False" />
+            <line number="38" hits="61" branch="False" />
+            <line number="39" hits="61" branch="False" />
+            <line number="40" hits="61" branch="False" />
+            <line number="41" hits="61" branch="False" />
+            <line number="42" hits="61" branch="False" />
+            <line number="43" hits="61" branch="False" />
+            <line number="44" hits="61" branch="False" />
+            <line number="45" hits="61" branch="False" />
+            <line number="18" hits="244" branch="False" />
+          </lines>
+        </class>
+        <class name="VacationManagement.Domain.VacationRequests.VacationRequest" filename="VacationRequests\VacationRequest.cs" line-rate="1" branch-rate="0.9545" complexity="34">
+          <methods>
+            <method name="get_Id" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="35" hits="124" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EmployeeId" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="36" hits="33" branch="False" />
+              </lines>
+            </method>
+            <method name="get_DateRange" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="37" hits="65" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Status" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="38" hits="176" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Notes" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="39" hits="56" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CreatedAt" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="40" hits="28" branch="False" />
+              </lines>
+            </method>
+            <method name="get_LastModifiedAt" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="41" hits="61" branch="False" />
+              </lines>
+            </method>
+            <method name="get_History" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="42" hits="8" branch="False" />
+              </lines>
+            </method>
+            <method name="get_DomainEvents" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="43" hits="6" branch="False" />
+              </lines>
+            </method>
+            <method name="Submit" signature="(VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeId,VacationManagement.Domain.VacationRequests.ValueObjects.DateRange,VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeNotes,System.DateOnly)" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="58" hits="29" branch="False" />
+                <line number="60" hits="29" branch="False" />
+                <line number="61" hits="29" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="22" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="62" hits="1" branch="False" />
+                <line number="64" hits="28" branch="False" />
+                <line number="65" hits="28" branch="False" />
+                <line number="66" hits="28" branch="False" />
+                <line number="67" hits="28" branch="False" />
+                <line number="68" hits="28" branch="False" />
+                <line number="69" hits="28" branch="False" />
+                <line number="70" hits="28" branch="False" />
+                <line number="71" hits="28" branch="False" />
+                <line number="72" hits="28" branch="False" />
+                <line number="73" hits="28" branch="False" />
+                <line number="76" hits="28" branch="False" />
+                <line number="77" hits="28" branch="False" />
+                <line number="78" hits="28" branch="False" />
+                <line number="79" hits="28" branch="False" />
+                <line number="80" hits="28" branch="False" />
+                <line number="81" hits="28" branch="False" />
+                <line number="82" hits="28" branch="False" />
+                <line number="84" hits="28" branch="False" />
+                <line number="86" hits="28" branch="False" />
+                <line number="87" hits="28" branch="False" />
+                <line number="88" hits="28" branch="False" />
+                <line number="89" hits="28" branch="False" />
+                <line number="90" hits="28" branch="False" />
+                <line number="91" hits="28" branch="False" />
+                <line number="92" hits="28" branch="False" />
+                <line number="94" hits="28" branch="False" />
+                <line number="95" hits="28" branch="False" />
+              </lines>
+            </method>
+            <method name="Cancel" signature="(VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeId)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="99" hits="7" branch="False" />
+                <line number="101" hits="7" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="102" hits="1" branch="False" />
+                <line number="104" hits="6" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="36" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="105" hits="1" branch="False" />
+                <line number="107" hits="5" branch="False" />
+                <line number="108" hits="5" branch="False" />
+                <line number="110" hits="5" branch="False" />
+                <line number="111" hits="5" branch="False" />
+                <line number="112" hits="5" branch="False" />
+                <line number="113" hits="5" branch="False" />
+                <line number="114" hits="5" branch="False" />
+                <line number="115" hits="5" branch="False" />
+                <line number="116" hits="5" branch="False" />
+                <line number="117" hits="5" branch="False" />
+                <line number="118" hits="5" branch="False" />
+                <line number="119" hits="5" branch="False" />
+              </lines>
+            </method>
+            <method name="TransitionTo" signature="(VacationManagement.Domain.VacationRequests.ValueObjects.VacationStatus,VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeId,System.String,System.String)" line-rate="1" branch-rate="0.75" complexity="4">
+              <lines>
+                <line number="127" hits="39" branch="False" />
+                <line number="128" hits="39" branch="True" condition-coverage="75% (3/4)">
+                  <conditions>
+                    <condition number="19" type="jump" coverage="50%" />
+                    <condition number="36" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="129" hits="4" branch="False" />
+                <line number="131" hits="35" branch="False" />
+                <line number="132" hits="33" branch="False" />
+                <line number="133" hits="33" branch="False" />
+                <line number="134" hits="33" branch="False" />
+              </lines>
+            </method>
+            <method name="HasOverlapWith" signature="(VacationManagement.Domain.VacationRequests.ValueObjects.DateRange)" line-rate="1" branch-rate="1" complexity="6">
+              <lines>
+                <line number="138" hits="6" branch="True" condition-coverage="100% (6/6)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="100%" />
+                    <condition number="15" type="jump" coverage="100%" />
+                    <condition number="26" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="139" hits="6" branch="False" />
+              </lines>
+            </method>
+            <method name="ClearDomainEvents" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="141" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="NextBusinessDay" signature="(System.DateOnly)" line-rate="1" branch-rate="1" complexity="6">
+              <lines>
+                <line number="144" hits="29" branch="False" />
+                <line number="145" hits="29" branch="False" />
+                <line number="146" hits="87" branch="True" condition-coverage="100% (6/6)">
+                  <conditions>
+                    <condition number="49" type="jump" coverage="100%" />
+                    <condition number="30" type="jump" coverage="100%" />
+                    <condition number="36" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="147" hits="58" branch="False" />
+                <line number="148" hits="29" branch="False" />
+                <line number="149" hits="29" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="32" hits="28" branch="False" />
+                <line number="33" hits="28" branch="False" />
+                <line number="46" hits="28" branch="False" />
+                <line number="47" hits="28" branch="False" />
+                <line number="48" hits="28" branch="False" />
+                <line number="49" hits="28" branch="False" />
+                <line number="50" hits="28" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="10" hits="1" branch="False" />
+                <line number="11" hits="1" branch="False" />
+                <line number="12" hits="1" branch="False" />
+                <line number="13" hits="1" branch="False" />
+                <line number="14" hits="1" branch="False" />
+                <line number="15" hits="1" branch="False" />
+                <line number="16" hits="1" branch="False" />
+                <line number="17" hits="1" branch="False" />
+                <line number="18" hits="1" branch="False" />
+                <line number="19" hits="1" branch="False" />
+                <line number="20" hits="1" branch="False" />
+                <line number="21" hits="1" branch="False" />
+                <line number="22" hits="1" branch="False" />
+                <line number="23" hits="1" branch="False" />
+                <line number="24" hits="1" branch="False" />
+                <line number="25" hits="1" branch="False" />
+                <line number="26" hits="1" branch="False" />
+                <line number="27" hits="1" branch="False" />
+                <line number="28" hits="1" branch="False" />
+                <line number="29" hits="1" branch="False" />
+                <line number="30" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="35" hits="124" branch="False" />
+            <line number="36" hits="33" branch="False" />
+            <line number="37" hits="65" branch="False" />
+            <line number="38" hits="176" branch="False" />
+            <line number="39" hits="56" branch="False" />
+            <line number="40" hits="28" branch="False" />
+            <line number="41" hits="61" branch="False" />
+            <line number="42" hits="8" branch="False" />
+            <line number="43" hits="6" branch="False" />
+            <line number="58" hits="29" branch="False" />
+            <line number="60" hits="29" branch="False" />
+            <line number="61" hits="29" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="22" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="62" hits="1" branch="False" />
+            <line number="64" hits="28" branch="False" />
+            <line number="65" hits="28" branch="False" />
+            <line number="66" hits="28" branch="False" />
+            <line number="67" hits="28" branch="False" />
+            <line number="68" hits="28" branch="False" />
+            <line number="69" hits="28" branch="False" />
+            <line number="70" hits="28" branch="False" />
+            <line number="71" hits="28" branch="False" />
+            <line number="72" hits="28" branch="False" />
+            <line number="73" hits="28" branch="False" />
+            <line number="76" hits="28" branch="False" />
+            <line number="77" hits="28" branch="False" />
+            <line number="78" hits="28" branch="False" />
+            <line number="79" hits="28" branch="False" />
+            <line number="80" hits="28" branch="False" />
+            <line number="81" hits="28" branch="False" />
+            <line number="82" hits="28" branch="False" />
+            <line number="84" hits="28" branch="False" />
+            <line number="86" hits="28" branch="False" />
+            <line number="87" hits="28" branch="False" />
+            <line number="88" hits="28" branch="False" />
+            <line number="89" hits="28" branch="False" />
+            <line number="90" hits="28" branch="False" />
+            <line number="91" hits="28" branch="False" />
+            <line number="92" hits="28" branch="False" />
+            <line number="94" hits="28" branch="False" />
+            <line number="95" hits="28" branch="False" />
+            <line number="99" hits="7" branch="False" />
+            <line number="101" hits="7" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="102" hits="1" branch="False" />
+            <line number="104" hits="6" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="36" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="105" hits="1" branch="False" />
+            <line number="107" hits="5" branch="False" />
+            <line number="108" hits="5" branch="False" />
+            <line number="110" hits="5" branch="False" />
+            <line number="111" hits="5" branch="False" />
+            <line number="112" hits="5" branch="False" />
+            <line number="113" hits="5" branch="False" />
+            <line number="114" hits="5" branch="False" />
+            <line number="115" hits="5" branch="False" />
+            <line number="116" hits="5" branch="False" />
+            <line number="117" hits="5" branch="False" />
+            <line number="118" hits="5" branch="False" />
+            <line number="119" hits="5" branch="False" />
+            <line number="127" hits="39" branch="False" />
+            <line number="128" hits="39" branch="True" condition-coverage="75% (3/4)">
+              <conditions>
+                <condition number="19" type="jump" coverage="50%" />
+                <condition number="36" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="129" hits="4" branch="False" />
+            <line number="131" hits="35" branch="False" />
+            <line number="132" hits="33" branch="False" />
+            <line number="133" hits="33" branch="False" />
+            <line number="134" hits="33" branch="False" />
+            <line number="138" hits="6" branch="True" condition-coverage="100% (6/6)">
+              <conditions>
+                <condition number="9" type="jump" coverage="100%" />
+                <condition number="15" type="jump" coverage="100%" />
+                <condition number="26" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="139" hits="6" branch="False" />
+            <line number="141" hits="1" branch="False" />
+            <line number="144" hits="29" branch="False" />
+            <line number="145" hits="29" branch="False" />
+            <line number="146" hits="87" branch="True" condition-coverage="100% (6/6)">
+              <conditions>
+                <condition number="49" type="jump" coverage="100%" />
+                <condition number="30" type="jump" coverage="100%" />
+                <condition number="36" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="147" hits="58" branch="False" />
+            <line number="148" hits="29" branch="False" />
+            <line number="149" hits="29" branch="False" />
+            <line number="32" hits="28" branch="False" />
+            <line number="33" hits="28" branch="False" />
+            <line number="46" hits="28" branch="False" />
+            <line number="47" hits="28" branch="False" />
+            <line number="48" hits="28" branch="False" />
+            <line number="49" hits="28" branch="False" />
+            <line number="50" hits="28" branch="False" />
+            <line number="10" hits="1" branch="False" />
+            <line number="11" hits="1" branch="False" />
+            <line number="12" hits="1" branch="False" />
+            <line number="13" hits="1" branch="False" />
+            <line number="14" hits="1" branch="False" />
+            <line number="15" hits="1" branch="False" />
+            <line number="16" hits="1" branch="False" />
+            <line number="17" hits="1" branch="False" />
+            <line number="18" hits="1" branch="False" />
+            <line number="19" hits="1" branch="False" />
+            <line number="20" hits="1" branch="False" />
+            <line number="21" hits="1" branch="False" />
+            <line number="22" hits="1" branch="False" />
+            <line number="23" hits="1" branch="False" />
+            <line number="24" hits="1" branch="False" />
+            <line number="25" hits="1" branch="False" />
+            <line number="26" hits="1" branch="False" />
+            <line number="27" hits="1" branch="False" />
+            <line number="28" hits="1" branch="False" />
+            <line number="29" hits="1" branch="False" />
+            <line number="30" hits="1" branch="False" />
+          </lines>
+        </class>
+        <class name="VacationManagement.Domain.VacationRequests.ValueObjects.DateRange" filename="VacationRequests\ValueObjects\DateRange.cs" line-rate="1" branch-rate="1" complexity="14">
+          <methods>
+            <method name="get_StartDate" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="8" hits="55" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EndDate" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="9" hits="26" branch="False" />
+              </lines>
+            </method>
+            <method name="get_TotalBusinessDays" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="10" hits="49" branch="False" />
+              </lines>
+            </method>
+            <method name="Create" signature="(System.DateOnly,System.DateOnly)" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="20" hits="67" branch="False" />
+                <line number="21" hits="67" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="10" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="22" hits="1" branch="False" />
+                <line number="24" hits="66" branch="False" />
+                <line number="25" hits="66" branch="False" />
+              </lines>
+            </method>
+            <method name="OverlapsWith" signature="(VacationManagement.Domain.VacationRequests.ValueObjects.DateRange)" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="29" hits="14" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="17" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+            <method name="CalculateBusinessDays" signature="(System.DateOnly,System.DateOnly)" line-rate="1" branch-rate="1" complexity="6">
+              <lines>
+                <line number="32" hits="66" branch="False" />
+                <line number="33" hits="66" branch="False" />
+                <line number="34" hits="66" branch="False" />
+                <line number="35" hits="399" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="56" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="36" hits="333" branch="False" />
+                <line number="37" hits="333" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="18" type="jump" coverage="100%" />
+                    <condition number="29" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="38" hits="289" branch="False" />
+                <line number="39" hits="333" branch="False" />
+                <line number="40" hits="333" branch="False" />
+                <line number="41" hits="66" branch="False" />
+                <line number="42" hits="66" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.DateOnly,System.DateOnly)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="12" hits="66" branch="False" />
+                <line number="13" hits="66" branch="False" />
+                <line number="14" hits="66" branch="False" />
+                <line number="15" hits="66" branch="False" />
+                <line number="16" hits="66" branch="False" />
+                <line number="17" hits="66" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="8" hits="55" branch="False" />
+            <line number="9" hits="26" branch="False" />
+            <line number="10" hits="49" branch="False" />
+            <line number="20" hits="67" branch="False" />
+            <line number="21" hits="67" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="10" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="22" hits="1" branch="False" />
+            <line number="24" hits="66" branch="False" />
+            <line number="25" hits="66" branch="False" />
+            <line number="29" hits="14" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="17" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="32" hits="66" branch="False" />
+            <line number="33" hits="66" branch="False" />
+            <line number="34" hits="66" branch="False" />
+            <line number="35" hits="399" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="56" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="36" hits="333" branch="False" />
+            <line number="37" hits="333" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="18" type="jump" coverage="100%" />
+                <condition number="29" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="38" hits="289" branch="False" />
+            <line number="39" hits="333" branch="False" />
+            <line number="40" hits="333" branch="False" />
+            <line number="41" hits="66" branch="False" />
+            <line number="42" hits="66" branch="False" />
+            <line number="12" hits="66" branch="False" />
+            <line number="13" hits="66" branch="False" />
+            <line number="14" hits="66" branch="False" />
+            <line number="15" hits="66" branch="False" />
+            <line number="16" hits="66" branch="False" />
+            <line number="17" hits="66" branch="False" />
+          </lines>
+        </class>
+        <class name="VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeId" filename="VacationRequests\ValueObjects\EmployeeId.cs" line-rate="0.25" branch-rate="1" complexity="4">
+          <methods>
+            <method name="get_Value" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="New" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="From" signature="(System.Guid)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ToString" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="3" hits="0" branch="False" />
+            <line number="5" hits="2" branch="False" />
+            <line number="6" hits="0" branch="False" />
+            <line number="7" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeNotes" filename="VacationRequests\ValueObjects\EmployeeNotes.cs" line-rate="1" branch-rate="0.7857" complexity="18">
+          <methods>
+            <method name="get_Value" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="10" hits="8" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Empty" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="14" hits="63" branch="False" />
+              </lines>
+            </method>
+            <method name="Create" signature="(System.String)" line-rate="1" branch-rate="1" complexity="6">
+              <lines>
+                <line number="17" hits="5" branch="False" />
+                <line number="18" hits="5" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="19" hits="1" branch="False" />
+                <line number="21" hits="4" branch="False" />
+                <line number="22" hits="4" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="35" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="23" hits="1" branch="False" />
+                <line number="25" hits="3" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="62" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="26" hits="1" branch="False" />
+                <line number="28" hits="2" branch="False" />
+                <line number="29" hits="4" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IsEmpty" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="31" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="Equals" signature="(VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeNotes)" line-rate="1" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="33" hits="1" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="1" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+            <method name="Equals" signature="(System.Object)" line-rate="1" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="34" hits="1" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="8" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+            <method name="GetHashCode" signature="()" line-rate="1" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="35" hits="2" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+            <method name="ToString" signature="()" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="36" hits="1" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="12" hits="6" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="10" hits="8" branch="False" />
+            <line number="14" hits="63" branch="False" />
+            <line number="17" hits="5" branch="False" />
+            <line number="18" hits="5" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="19" hits="1" branch="False" />
+            <line number="21" hits="4" branch="False" />
+            <line number="22" hits="4" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="35" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="23" hits="1" branch="False" />
+            <line number="25" hits="3" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="62" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="26" hits="1" branch="False" />
+            <line number="28" hits="2" branch="False" />
+            <line number="29" hits="4" branch="False" />
+            <line number="31" hits="2" branch="False" />
+            <line number="33" hits="1" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="1" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="34" hits="1" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="8" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="35" hits="2" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="36" hits="1" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="12" hits="6" branch="False" />
+          </lines>
+        </class>
+        <class name="VacationManagement.Domain.VacationRequests.ValueObjects.VacationRequestId" filename="VacationRequests\ValueObjects\VacationRequestId.cs" line-rate="0.25" branch-rate="1" complexity="4">
+          <methods>
+            <method name="get_Value" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="New" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="28" branch="False" />
+              </lines>
+            </method>
+            <method name="From" signature="(System.Guid)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ToString" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="3" hits="0" branch="False" />
+            <line number="5" hits="28" branch="False" />
+            <line number="6" hits="0" branch="False" />
+            <line number="7" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="VacationManagement.Domain.VacationRequests.Events.VacationRequestCancelled" filename="VacationRequests\Events\VacationRequestCancelled.cs" line-rate="0.3333" branch-rate="1" complexity="9">
+          <methods>
+            <method name="get_EventId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_OccurredOn" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="8" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_RequestId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="9" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EmployeeId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="10" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CancelledByEmployeeId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="11" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_DateRange" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="12" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_PreviousStatus" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="13" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="get_WasApproved" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="14" hits="7" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Guid,System.DateTime,VacationManagement.Domain.VacationRequests.ValueObjects.VacationRequestId,VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeId,VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeId,VacationManagement.Domain.VacationRequests.ValueObjects.DateRange,VacationManagement.Domain.VacationRequests.ValueObjects.VacationStatus,System.Boolean)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="5" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="7" hits="0" branch="False" />
+            <line number="8" hits="0" branch="False" />
+            <line number="9" hits="0" branch="False" />
+            <line number="10" hits="0" branch="False" />
+            <line number="11" hits="0" branch="False" />
+            <line number="12" hits="0" branch="False" />
+            <line number="13" hits="1" branch="False" />
+            <line number="14" hits="7" branch="False" />
+            <line number="6" hits="5" branch="False" />
+          </lines>
+        </class>
+        <class name="VacationManagement.Domain.VacationRequests.Events.VacationRequestSubmitted" filename="VacationRequests\Events\VacationRequestSubmitted.cs" line-rate="0.2857" branch-rate="1" complexity="7">
+          <methods>
+            <method name="get_EventId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_OccurredOn" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="8" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_RequestId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="9" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EmployeeId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="10" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_DateRange" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="11" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_TotalBusinessDays" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="12" hits="28" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Guid,System.DateTime,VacationManagement.Domain.VacationRequests.ValueObjects.VacationRequestId,VacationManagement.Domain.VacationRequests.ValueObjects.EmployeeId,VacationManagement.Domain.VacationRequests.ValueObjects.DateRange,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="28" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="7" hits="0" branch="False" />
+            <line number="8" hits="0" branch="False" />
+            <line number="9" hits="0" branch="False" />
+            <line number="10" hits="0" branch="False" />
+            <line number="11" hits="0" branch="False" />
+            <line number="12" hits="28" branch="False" />
+            <line number="6" hits="28" branch="False" />
+          </lines>
+        </class>
+        <class name="VacationManagement.Domain.Common.DomainException" filename="Common\DomainException.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name=".ctor" signature="(System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="33" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="5" hits="33" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

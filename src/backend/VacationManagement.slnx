@@ -17,6 +17,10 @@
   <Folder Name="/src/Modules/Notifications/Domain/">
     <Project Path="src/Modules/Notifications/Domain/Notifications.Domain.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/ReportingAdmin/" />
+  <Folder Name="/src/Modules/ReportingAdmin/Domain/">
+    <Project Path="src/Modules/ReportingAdmin/Domain/ReportingAdmin.Domain.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/ServiceNowIntegration/" />
   <Folder Name="/src/Modules/ServiceNowIntegration/Domain/">
     <Project Path="src/Modules/ServiceNowIntegration/Domain/ServiceNowIntegration.Domain.csproj" />
@@ -30,6 +34,7 @@
     <Project Path="tests/CapacityManagement.Domain.Tests/CapacityManagement.Domain.Tests.csproj" />
     <Project Path="tests/IdentitySync.Domain.Tests/IdentitySync.Domain.Tests.csproj" />
     <Project Path="tests/Notifications.Domain.Tests/Notifications.Domain.Tests.csproj" />
+    <Project Path="tests/ReportingAdmin.Domain.Tests/ReportingAdmin.Domain.Tests.csproj" />
     <Project Path="tests/ServiceNowIntegration.Domain.Tests/ServiceNowIntegration.Domain.Tests.csproj" />
     <Project Path="tests/VacationManagement.Domain.Tests/VacationManagement.Domain.Tests.csproj" />
   </Folder>

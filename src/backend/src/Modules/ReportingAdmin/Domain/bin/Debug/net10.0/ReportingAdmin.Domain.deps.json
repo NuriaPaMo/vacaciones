@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "ReportingAdmin.Domain/1.0.0": {
+        "dependencies": {
+          "VacationManagement.Domain": "1.0.0"
+        },
+        "runtime": {
+          "ReportingAdmin.Domain.dll": {}
+        }
+      },
+      "VacationManagement.Domain/1.0.0": {
+        "runtime": {
+          "VacationManagement.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "ReportingAdmin.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "VacationManagement.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

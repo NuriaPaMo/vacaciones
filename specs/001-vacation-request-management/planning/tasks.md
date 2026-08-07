@@ -60,24 +60,24 @@
 
 ### Domain
 
-- [ ] T001 [S] Create `src/Modules/VacationManagement/` folder structure (Domain / Application / Infrastructure / Api sub-trees)
-- [ ] T002 [M] [US-001] Implement `DateRange` value object with `CalculateBusinessDays()` (Mon–Fri, inclusive) — `VacationManagement/Domain/ValueObjects/DateRange.cs`
-- [ ] T003 [S] [US-001] Implement `VacationRequestId`, `EmployeeNotes` (max 500 chars), `VacationStatus` (6-state enum) value objects
-- [ ] T004 [L] [US-001] Implement `VacationRequest` aggregate root: `Submit()` factory, `Cancel()`, `TransitionTo()`, `HasOverlapWith()`, all 6 invariants (INV-001–006) — `Domain/VacationRequest.cs`
-- [ ] T005 [M] [US-002] Implement `StatusTransition` child entity (append-only, INV-010–012) — `Domain/StatusTransition.cs`
-- [ ] T006 [S] [US-001][US-003] Implement `VacationRequestSubmitted` and `VacationRequestCancelled` domain events implementing `IDomainEvent`
+- [x] T001 [S] Create `src/Modules/VacationManagement/` folder structure (Domain / Application / Infrastructure / Api sub-trees)
+- [x] T002 [M] [US-001] Implement `DateRange` value object with `CalculateBusinessDays()` (Mon–Fri, inclusive) — `VacationManagement/Domain/ValueObjects/DateRange.cs`
+- [x] T003 [S] [US-001] Implement `VacationRequestId`, `EmployeeNotes` (max 500 chars), `VacationStatus` (6-state enum) value objects
+- [x] T004 [L] [US-001] Implement `VacationRequest` aggregate root: `Submit()` factory, `Cancel()`, `TransitionTo()`, `HasOverlapWith()`, all 6 invariants (INV-001–006) — `Domain/VacationRequest.cs`
+- [x] T005 [M] [US-002] Implement `StatusTransition` child entity (append-only, INV-010–012) — `Domain/StatusTransition.cs`
+- [x] T006 [S] [US-001][US-003] Implement `VacationRequestSubmitted` and `VacationRequestCancelled` domain events implementing `IDomainEvent`
 
 ### Tests
 
-- [ ] T007 [M] [P] [US-001] xUnit: `DateRange.CalculateBusinessDays` — 20+ parameterized cases (Mon start, Fri end, cross-month, single day, weekend boundaries)
-- [ ] T008 [M] [US-001][US-003] xUnit: `VacationRequest` invariants (each INV throws `DomainException`), state machine (all allowed + all forbidden transitions), `HasOverlapWith` edge cases
+- [x] T007 [M] [P] [US-001] xUnit: `DateRange.CalculateBusinessDays` — 20+ parameterized cases (Mon start, Fri end, cross-month, single day, weekend boundaries)
+- [x] T008 [M] [US-001][US-003] xUnit: `VacationRequest` invariants (each INV throws `DomainException`), state machine (all allowed + all forbidden transitions), `HasOverlapWith` edge cases
 
 ### Quality Gates — Bolt 1A
 
-- [ ] T009-QG `dotnet build --warnaserror` → 0 warnings
-- [ ] T010-QG `dotnet test --filter Category=Unit` → 100% pass
-- [ ] T011-QG Coverlet line coverage on Domain project → ≥ 80%
-- [ ] T012-QG Coverlet branch coverage → ≥ 75%
+- [x] T009-QG `dotnet build --warnaserror` → 0 warnings
+- [x] T010-QG `dotnet test --filter Category=Unit` → 100% pass
+- [x] T011-QG Coverlet line coverage on Domain project → ≥ 80%
+- [x] T012-QG Coverlet branch coverage → ≥ 75%
 - [ ] T013-QG `dotnet stryker --project VacationManagement.Domain.csproj` → mutation score ≥ 70%
 
 ---

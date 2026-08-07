@@ -1,0 +1,16 @@
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\bin\Debug\net10.0\IdentitySync.Domain.deps.json
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\bin\Debug\net10.0\IdentitySync.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\bin\Debug\net10.0\IdentitySync.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\bin\Debug\net10.0\VacationManagement.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\bin\Debug\net10.0\VacationManagement.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\IdentitySync.Domain.csproj.AssemblyReference.cache
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\IdentitySync.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\IdentitySync.Domain.AssemblyInfoInputs.cache
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\IdentitySync.Domain.AssemblyInfo.cs
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\IdentitySync.Domain.csproj.CoreCompileInputs.cache
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\IdentitySync.Domain.sourcelink.json
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\Identity.05100F23.Up2Date
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\IdentitySync.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\refint\IdentitySync.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\IdentitySync.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\IdentitySync\Domain\obj\Debug\net10.0\ref\IdentitySync.Domain.dll

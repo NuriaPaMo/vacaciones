@@ -169,7 +169,6 @@ public class CoverageGapTests
             .ToArray();
 
         // Client fails for 2 specific requests, succeeds for rest
-        var callIdx = 0;
         var failAt = new HashSet<int> { 0, 1 };
 
         var errClient = new ConditionalFailClient(failAt);

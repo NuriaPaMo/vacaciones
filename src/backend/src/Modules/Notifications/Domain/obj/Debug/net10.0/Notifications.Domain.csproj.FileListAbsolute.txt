@@ -1,0 +1,16 @@
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\bin\Debug\net10.0\Notifications.Domain.deps.json
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\bin\Debug\net10.0\Notifications.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\bin\Debug\net10.0\Notifications.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\bin\Debug\net10.0\VacationManagement.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\bin\Debug\net10.0\VacationManagement.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\Notifications.Domain.csproj.AssemblyReference.cache
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\Notifications.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\Notifications.Domain.AssemblyInfoInputs.cache
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\Notifications.Domain.AssemblyInfo.cs
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\Notifications.Domain.csproj.CoreCompileInputs.cache
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\Notifications.Domain.sourcelink.json
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\Notifica.7D540F9F.Up2Date
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\Notifications.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\refint\Notifications.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\Notifications.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\Notifications\Domain\obj\Debug\net10.0\ref\Notifications.Domain.dll

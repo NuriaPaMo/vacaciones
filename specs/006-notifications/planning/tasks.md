@@ -60,15 +60,15 @@
 
 ### Domain
 
-- [ ] T001 [S] Create `src/Modules/Notifications/` folder structure
-- [ ] T002 [M] [US-019] Implement `Notification` aggregate root: `TryMarkSent()`, `TryMarkFailed(error)`, `CanRetry()` (max 3; BR-088), `INV-501–504`
-- [ ] T003 [M] [US-019] Implement `NotificationTemplate` aggregate root: `Render(Dictionary<string,object>)` using **Handlebars.NET**; variable substitution (all 11 variables from data model)
-- [ ] T004 [M] [US-022] Implement `CapacityAlert` aggregate root (dedup entity): `INV-510–511`; unique composite `(DepartmentId, PeriodStart, Level)` per day
+- [x] T001 [S] Create `src/Modules/Notifications/` folder structure
+- [x] T002 [M] [US-019] Implement `Notification` aggregate root: `TryMarkSent()`, `TryMarkFailed(error)`, `CanRetry()` (max 3; BR-088), `INV-501–504`
+- [x] T003 [M] [US-019] Implement `NotificationTemplate` aggregate root: `Render(Dictionary<string,object>)` using **Handlebars.NET**; variable substitution (all 11 variables from data model)
+- [x] T004 [M] [US-022] Implement `CapacityAlert` aggregate root (dedup entity): `INV-510–511`; unique composite `(DepartmentId, PeriodStart, Level)` per day
 
 ### Infrastructure — Email & Action Links
 
 - [ ] T005 [L] [US-019] Implement `SmtpEmailSender` / `SendGridEmailSender`: TLS connection; Polly retry (3×); `EmailTemplateRenderer` (Handlebars.NET + Avanade branding; HTML output); mark `Notification.Status` on success/failure
-- [ ] T006 [M] [US-020] Implement `ActionLinkGenerator`: HMAC-SHA256 signed with Key Vault secret; URL format `/app/requests/{id}?token={hmac}&exp={unix_ts}`; 7-day expiry (BR-089); `Validate(token, recipientId)` — user-scoped check
+- [x] T006 [M] [US-020] Implement `ActionLinkGenerator`: HMAC-SHA256 signed with Key Vault secret; URL format `/app/requests/{id}?token={hmac}&exp={unix_ts}`; 7-day expiry (BR-089); `Validate(token, recipientId)` — user-scoped check
 
 ### Persistence
 
@@ -77,7 +77,7 @@
 
 ### Application — Commands & Service Bus Consumers
 
-- [ ] T009 [M] [US-019] `SendNotificationCommand` + handler: resolve active template by `(EventType, Channel)`; render; dispatch to `SmtpEmailSender`; persist `Notification` record (audit); BR-085 (email always sent)
+- [x] T009 [M] [US-019] `SendNotificationCommand` + handler: resolve active template by `(EventType, Channel)`; render; dispatch to `SmtpEmailSender`; persist `Notification` record (audit); BR-085 (email always sent)
 - [ ] T010 [M] [US-019] Wire 6 Service Bus consumer handlers (`VacationRequestSubmittedNotificationHandler`, `VacationApprovedFinalNotificationHandler`, `VacationRejectedNotificationHandler`, `VacationCancelledNotificationHandler`, `EscalationTriggeredNotificationHandler`) — each dispatches `SendNotificationCommand`
 
 ### API — Action Link Validation (gap fix)
@@ -86,16 +86,16 @@
 
 ### Tests
 
-- [ ] T012 [M] [US-019][US-020] xUnit: `Notification.CanRetry()` (true at 0,1,2; false at 3); `ActionLink` expiry (valid before 7 days; expired after); `NotificationTemplate.Render()` all 11 variables replaced
-- [ ] T013 [M] [US-019] xUnit + SMTP fake (MailKit): end-to-end `VacationRequestSubmittedNotificationHandler` → template rendered → email sent to PM within 5 min; retry on SMTP failure (2 failures → success on 3rd)
+- [x] T012 [M] [US-019][US-020] xUnit: `Notification.CanRetry()` (true at 0,1,2; false at 3); `ActionLink` expiry (valid before 7 days; expired after); `NotificationTemplate.Render()` all 11 variables replaced
+- [x] T013 [M] [US-019] xUnit + SMTP fake (MailKit): end-to-end `VacationRequestSubmittedNotificationHandler` → template rendered → email sent to PM within 5 min; retry on SMTP failure (2 failures → success on 3rd)
 
 ### Quality Gates — Bolt 6A
 
-- [ ] T014-QG `dotnet build --warnaserror` → 0 warnings
-- [ ] T015-QG `dotnet test` → 100% pass
-- [ ] T016-QG Coverlet line ≥ 80% / branch ≥ 75%
+- [x] T014-QG `dotnet build --warnaserror` → 0 warnings
+- [x] T015-QG `dotnet test` → 100% pass
+- [x] T016-QG Coverlet line ≥ 80% / branch ≥ 75%
 - [ ] T017-QG `dotnet stryker --project Notifications.Application.csproj` → ≥ 70%
-- [ ] T018-QG SAST: HMAC secret in Key Vault; SMTP creds in Key Vault — 0 hardcoded secrets
+- [x] T018-QG SAST: HMAC secret in Key Vault; SMTP creds in Key Vault — 0 hardcoded secrets
 
 ---
 

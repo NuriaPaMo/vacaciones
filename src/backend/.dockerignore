@@ -1,0 +1,24 @@
+## Build artifacts
+bin/
+obj/
+
+## Aspire local-only artifacts
+.aspirecache/
+
+## Test output
+TestResults/
+coverage/
+
+## NuGet
+*.nupkg
+*.snupkg
+
+## Secrets — never include in image
+appsettings.Development.json
+appsettings.*.local.json
+.env
+.env.*
+
+## OS
+.DS_Store
+Thumbs.db

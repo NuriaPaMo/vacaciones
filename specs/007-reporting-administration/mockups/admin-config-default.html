@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-007 · Admin Panel · Default</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-007 ·
+    <strong>Flow:</strong> admin-config ·
+    <strong>Step:</strong> panel ·
+    <strong>State:</strong> default ·
+    <strong>Assumptions:</strong> Admin role only; inline edit per config key; dept overrides via sub-row; changes audited immediately; no restart needed
+  </div>
+
+  <nav class="bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between" aria-label="Main navigation">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-zinc-300 rounded" aria-hidden="true">[logo]</div>
+      <span class="font-semibold text-zinc-700 text-sm">Vacation System</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#" class="text-zinc-500">Reports</a>
+      <a href="#" class="text-zinc-800 font-medium border-b-2 border-zinc-800 pb-1">Admin</a>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-zinc-300 rounded-full"></div>
+        <span class="text-zinc-600 text-xs">Admin (admin@company.com)</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Admin tabs -->
+    <div class="flex gap-1 mb-6 border-b border-zinc-200">
+      <button class="px-4 py-2 text-sm font-medium text-zinc-800 border-b-2 border-zinc-800">Configuration</button>
+      <button class="px-4 py-2 text-sm text-zinc-500 hover:text-zinc-700">Users & Roles</button>
+      <button class="px-4 py-2 text-sm text-zinc-500 hover:text-zinc-700">Delegations</button>
+      <button class="px-4 py-2 text-sm text-zinc-500 hover:text-zinc-700">Audit Trail</button>
+      <button class="px-4 py-2 text-sm text-zinc-500 hover:text-zinc-700">Integrations</button>
+    </div>
+
+    <h1 class="text-xl font-semibold text-zinc-800 mb-6">System Configuration</h1>
+
+    <!-- Config Table -->
+    <div class="bg-white border border-zinc-200 rounded-lg overflow-hidden">
+      <table class="w-full text-sm" aria-label="System configuration">
+        <thead class="bg-zinc-50 border-b border-zinc-200">
+          <tr>
+            <th class="text-left px-4 py-3 text-xs font-medium text-zinc-500">Setting</th>
+            <th class="text-left px-4 py-3 text-xs font-medium text-zinc-500">Scope</th>
+            <th class="text-center px-4 py-3 text-xs font-medium text-zinc-500">Value</th>
+            <th class="text-right px-4 py-3 text-xs font-medium text-zinc-500">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-zinc-100">
+          <tr class="hover:bg-zinc-50">
+            <td class="px-4 py-3">
+              <p class="text-zinc-700 font-medium">Warning Capacity Threshold</p>
+              <p class="text-xs text-zinc-400">Heat-map turns orange at this level</p>
+            </td>
+            <td class="px-4 py-3 text-zinc-500">Global</td>
+            <td class="px-4 py-3 text-center">
+              <input type="number" value="65" min="1" max="100" class="w-16 border border-zinc-300 rounded px-2 py-1 text-sm text-center text-zinc-700"> %
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button class="text-xs bg-zinc-800 text-white px-3 py-1 rounded hover:bg-zinc-700">Save</button>
+            </td>
+          </tr>
+          <tr class="hover:bg-zinc-50">
+            <td class="px-4 py-3">
+              <p class="text-zinc-700 font-medium">Critical Capacity Threshold</p>
+              <p class="text-xs text-zinc-400">Heat-map turns red; triggers DM alert</p>
+            </td>
+            <td class="px-4 py-3 text-zinc-500">Global</td>
+            <td class="px-4 py-3 text-center">
+              <input type="number" value="70" min="1" max="100" class="w-16 border border-zinc-300 rounded px-2 py-1 text-sm text-center text-zinc-700"> %
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button class="text-xs bg-zinc-800 text-white px-3 py-1 rounded hover:bg-zinc-700">Save</button>
+            </td>
+          </tr>
+          <tr class="hover:bg-zinc-50">
+            <td class="px-4 py-3">
+              <p class="text-zinc-700 font-medium">Escalation Reminder</p>
+              <p class="text-xs text-zinc-400">Reminder sent to PM after this many business days</p>
+            </td>
+            <td class="px-4 py-3 text-zinc-500">Global</td>
+            <td class="px-4 py-3 text-center">
+              <input type="number" value="3" min="1" max="30" class="w-16 border border-zinc-300 rounded px-2 py-1 text-sm text-center text-zinc-700"> days
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button class="text-xs bg-zinc-800 text-white px-3 py-1 rounded hover:bg-zinc-700">Save</button>
+            </td>
+          </tr>
+          <tr class="hover:bg-zinc-50">
+            <td class="px-4 py-3">
+              <p class="text-zinc-700 font-medium">Escalation to DM</p>
+              <p class="text-xs text-zinc-400">DM alert sent after this many business days</p>
+            </td>
+            <td class="px-4 py-3 text-zinc-500">Global</td>
+            <td class="px-4 py-3 text-center">
+              <input type="number" value="5" min="1" max="30" class="w-16 border border-zinc-300 rounded px-2 py-1 text-sm text-center text-zinc-700"> days
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button class="text-xs bg-zinc-800 text-white px-3 py-1 rounded hover:bg-zinc-700">Save</button>
+            </td>
+          </tr>
+          <tr class="hover:bg-zinc-50 bg-zinc-50/50">
+            <td class="px-4 py-3">
+              <p class="text-zinc-700 font-medium">Critical Threshold (Engineering)</p>
+              <p class="text-xs text-zinc-400">Department-specific override</p>
+            </td>
+            <td class="px-4 py-3"><span class="text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">Engineering</span></td>
+            <td class="px-4 py-3 text-center">
+              <input type="number" value="75" min="1" max="100" class="w-16 border border-zinc-300 rounded px-2 py-1 text-sm text-center text-zinc-700"> %
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button class="text-xs bg-zinc-800 text-white px-3 py-1 rounded hover:bg-zinc-700">Save</button>
+              <button class="text-xs text-red-500 ml-2">Remove</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-4">
+      <button class="text-xs border border-dashed border-zinc-300 rounded px-3 py-2 text-zinc-500 hover:border-zinc-400 hover:text-zinc-700">
+        + Add Department Override
+      </button>
+    </div>
+  </main>
+</body>
+</html>

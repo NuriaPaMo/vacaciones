@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-002 · PM Approval Queue · Default</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-002 Approval Workflow ·
+    <strong>Flow:</strong> pm-approval ·
+    <strong>Step:</strong> queue ·
+    <strong>State:</strong> default ·
+    <strong>Assumptions:</strong> PM sees 3 pending requests from their project; capacity impact badge shown per row; Approve/Reject inline actions
+  </div>
+
+  <nav class="bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between" aria-label="Main navigation">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-zinc-300 rounded" aria-hidden="true">[logo]</div>
+      <span class="font-semibold text-zinc-700 text-sm">Vacation System</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#" class="text-zinc-500">My Requests</a>
+      <a href="#" class="text-zinc-800 font-medium border-b-2 border-zinc-800 pb-1">Approvals</a>
+      <a href="#" class="text-zinc-500">Team Calendar</a>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-zinc-300 rounded-full"></div>
+        <span class="text-zinc-600 text-xs">Carlos Ruiz (PM)</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-xl font-semibold text-zinc-800">Approval Queue</h1>
+        <p class="text-xs text-zinc-400">Project Phoenix · 3 pending requests</p>
+      </div>
+      <a href="#" class="text-sm text-zinc-500 hover:text-zinc-700">Manage Delegation →</a>
+    </div>
+
+    <!-- Queue Table -->
+    <div class="bg-white border border-zinc-200 rounded-lg overflow-hidden">
+      <table class="w-full text-sm" aria-label="Pending approval requests">
+        <thead class="bg-zinc-50 border-b border-zinc-200">
+          <tr>
+            <th class="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase">Employee</th>
+            <th class="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase">Dates</th>
+            <th class="text-center px-4 py-3 text-xs font-medium text-zinc-500 uppercase">Days</th>
+            <th class="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase">Submitted</th>
+            <th class="text-center px-4 py-3 text-xs font-medium text-zinc-500 uppercase">Capacity</th>
+            <th class="text-right px-4 py-3 text-xs font-medium text-zinc-500 uppercase">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-zinc-100">
+          <!-- Row 1 — normal capacity -->
+          <tr class="hover:bg-zinc-50">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 bg-zinc-200 rounded-full" aria-hidden="true"></div>
+                <span class="text-zinc-700 font-medium">Ana García</span>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-zinc-600">Aug 10 – Aug 14</td>
+            <td class="px-4 py-3 text-center text-zinc-700 font-medium">5</td>
+            <td class="px-4 py-3 text-zinc-400 text-xs">Aug 7, 09:15</td>
+            <td class="px-4 py-3 text-center">
+              <span class="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded">45%</span>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button class="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mr-1" aria-label="Approve request from Ana García">Approve</button>
+              <button class="text-xs bg-white text-red-600 border border-red-200 px-3 py-1 rounded hover:bg-red-50" aria-label="Reject request from Ana García">Reject</button>
+            </td>
+          </tr>
+          <!-- Row 2 — warning capacity -->
+          <tr class="hover:bg-zinc-50">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 bg-zinc-200 rounded-full" aria-hidden="true"></div>
+                <span class="text-zinc-700 font-medium">Pedro López</span>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-zinc-600">Aug 18 – Aug 22</td>
+            <td class="px-4 py-3 text-center text-zinc-700 font-medium">5</td>
+            <td class="px-4 py-3 text-zinc-400 text-xs">Aug 6, 16:42</td>
+            <td class="px-4 py-3 text-center">
+              <span class="text-xs bg-orange-50 text-orange-700 px-2 py-0.5 rounded">68%</span>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button class="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mr-1">Approve</button>
+              <button class="text-xs bg-white text-red-600 border border-red-200 px-3 py-1 rounded hover:bg-red-50">Reject</button>
+            </td>
+          </tr>
+          <!-- Row 3 — critical capacity + escalated -->
+          <tr class="hover:bg-zinc-50 bg-red-50/30">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 bg-zinc-200 rounded-full" aria-hidden="true"></div>
+                <div>
+                  <span class="text-zinc-700 font-medium">María Fernández</span>
+                  <span class="text-xs text-red-500 ml-1" title="Escalated — pending 5+ days">⏰ Escalated</span>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-zinc-600">Sep 1 – Sep 5</td>
+            <td class="px-4 py-3 text-center text-zinc-700 font-medium">5</td>
+            <td class="px-4 py-3 text-zinc-400 text-xs">Jul 30, 11:00</td>
+            <td class="px-4 py-3 text-center">
+              <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded font-medium">78% ⚠</span>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button class="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mr-1">Approve</button>
+              <button class="text-xs bg-white text-red-600 border border-red-200 px-3 py-1 rounded hover:bg-red-50">Reject</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

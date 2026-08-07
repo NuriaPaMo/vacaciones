@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-001 · Submit Vacation Request · Success</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-001 ·
+    <strong>Flow:</strong> submit ·
+    <strong>Step:</strong> confirmation ·
+    <strong>State:</strong> success ·
+    <strong>Assumptions:</strong> Shown inline after successful submission; redirects to My Requests after 3 seconds or on "View My Requests" click
+  </div>
+
+  <nav class="bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between" aria-label="Main navigation">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-zinc-300 rounded" aria-hidden="true">[logo]</div>
+      <span class="font-semibold text-zinc-700 text-sm">Vacation System</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#" class="text-zinc-500">My Requests</a>
+      <a href="#" class="text-zinc-500">Team Calendar</a>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-zinc-300 rounded-full"></div>
+        <span class="text-zinc-600 text-xs">Ana García</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-md mx-auto px-4 py-16 text-center">
+    <div class="bg-white border border-zinc-200 rounded-lg p-8">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+        <span class="text-green-600 text-2xl">✓</span>
+      </div>
+      <h1 class="text-lg font-semibold text-zinc-800 mb-2">Request Submitted!</h1>
+      <p class="text-sm text-zinc-500 mb-4">Your vacation request has been submitted and is pending approval.</p>
+
+      <div class="bg-zinc-50 border border-zinc-200 rounded px-4 py-3 text-left text-sm space-y-1 mb-6">
+        <div class="flex justify-between">
+          <span class="text-zinc-400">Dates</span>
+          <span class="text-zinc-700">Aug 10 – Aug 14, 2026</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-zinc-400">Business days</span>
+          <span class="text-zinc-700 font-medium">5 days</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-zinc-400">Status</span>
+          <span class="text-amber-600 font-medium">Pending</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-zinc-400">Request ID</span>
+          <span class="text-zinc-500 text-xs font-mono">REQ-2026-0042</span>
+        </div>
+      </div>
+
+      <p class="text-xs text-zinc-400 mb-4">Your project manager will be notified via email.</p>
+
+      <a href="#" class="inline-block bg-zinc-800 text-white text-sm px-5 py-2 rounded hover:bg-zinc-700">
+        View My Requests
+      </a>
+    </div>
+  </main>
+</body>
+</html>

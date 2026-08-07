@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-001 · My Requests · Empty</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-001 ·
+    <strong>Flow:</strong> my-requests ·
+    <strong>Step:</strong> list ·
+    <strong>State:</strong> empty ·
+    <strong>Assumptions:</strong> New employee with no vacation history; CTA links to submit form
+  </div>
+
+  <nav class="bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between" aria-label="Main navigation">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-zinc-300 rounded" aria-hidden="true">[logo]</div>
+      <span class="font-semibold text-zinc-700 text-sm">Vacation System</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#" class="text-zinc-800 font-medium border-b-2 border-zinc-800 pb-1">My Requests</a>
+      <a href="#" class="text-zinc-500">Team Calendar</a>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-zinc-300 rounded-full"></div>
+        <span class="text-zinc-600 text-xs">New Employee</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-xl font-semibold text-zinc-800">My Requests</h1>
+      <a href="#" class="bg-zinc-800 text-white text-sm px-4 py-2 rounded hover:bg-zinc-700">+ New Request</a>
+    </div>
+
+    <div class="bg-white border border-dashed border-zinc-300 rounded-lg p-12 text-center">
+      <div class="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+        <span class="text-zinc-400 text-2xl">📋</span>
+      </div>
+      <p class="text-sm text-zinc-600 font-medium mb-1">No vacation requests yet</p>
+      <p class="text-xs text-zinc-400 mb-4">Submit your first request to get started.</p>
+      <a href="#" class="inline-block bg-zinc-800 text-white text-sm px-4 py-2 rounded hover:bg-zinc-700">
+        Submit Your First Request
+      </a>
+    </div>
+  </main>
+</body>
+</html>

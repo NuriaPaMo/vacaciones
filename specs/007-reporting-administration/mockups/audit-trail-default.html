@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-007 · Audit Trail · Default</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-007 ·
+    <strong>Flow:</strong> audit-trail ·
+    <strong>Step:</strong> table ·
+    <strong>State:</strong> default ·
+    <strong>Assumptions:</strong> Admin/auditor role; searchable by user, date, action type; includes system events (sync, export, escalation); exported to CSV/PDF; 7-year retention
+  </div>
+
+  <nav class="bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between" aria-label="Main navigation">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-zinc-300 rounded" aria-hidden="true">[logo]</div>
+      <span class="font-semibold text-zinc-700 text-sm">Vacation System</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#" class="text-zinc-500">Reports</a>
+      <a href="#" class="text-zinc-800 font-medium border-b-2 border-zinc-800 pb-1">Admin</a>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-zinc-300 rounded-full"></div>
+        <span class="text-zinc-600 text-xs">Admin</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    <div class="flex gap-1 mb-6 border-b border-zinc-200">
+      <button class="px-4 py-2 text-sm text-zinc-500">Configuration</button>
+      <button class="px-4 py-2 text-sm text-zinc-500">Users & Roles</button>
+      <button class="px-4 py-2 text-sm text-zinc-500">Delegations</button>
+      <button class="px-4 py-2 text-sm font-medium text-zinc-800 border-b-2 border-zinc-800">Audit Trail</button>
+      <button class="px-4 py-2 text-sm text-zinc-500">Integrations</button>
+    </div>
+
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-xl font-semibold text-zinc-800">Audit Trail</h1>
+      <div class="flex gap-2">
+        <button class="text-xs border border-zinc-300 rounded px-3 py-1.5 bg-white text-zinc-600">Export CSV</button>
+        <button class="text-xs border border-zinc-300 rounded px-3 py-1.5 bg-white text-zinc-600">Export PDF</button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white border border-zinc-200 rounded-lg p-3 mb-4 flex flex-wrap gap-3">
+      <input type="text" placeholder="Search by user..." class="border border-zinc-300 rounded px-2 py-1 text-xs text-zinc-700 w-40">
+      <input type="date" class="border border-zinc-300 rounded px-2 py-1 text-xs text-zinc-700">
+      <input type="date" class="border border-zinc-300 rounded px-2 py-1 text-xs text-zinc-700">
+      <select class="border border-zinc-300 rounded px-2 py-1 text-xs text-zinc-700">
+        <option>All actions</option><option>Created</option><option>Approved</option><option>Rejected</option><option>Cancelled</option><option>ConfigChanged</option><option>RoleChanged</option><option>Exported</option><option>Imported</option>
+      </select>
+      <button class="bg-zinc-800 text-white text-xs px-3 py-1 rounded">Filter</button>
+    </div>
+
+    <!-- Audit Table -->
+    <div class="bg-white border border-zinc-200 rounded-lg overflow-hidden">
+      <table class="w-full text-xs" aria-label="Audit trail entries">
+        <thead class="bg-zinc-50 border-b border-zinc-200">
+          <tr>
+            <th class="text-left px-3 py-2 font-medium text-zinc-500">Timestamp (UTC)</th>
+            <th class="text-left px-3 py-2 font-medium text-zinc-500">User</th>
+            <th class="text-left px-3 py-2 font-medium text-zinc-500">Action</th>
+            <th class="text-left px-3 py-2 font-medium text-zinc-500">Entity</th>
+            <th class="text-left px-3 py-2 font-medium text-zinc-500">Details</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-zinc-100">
+          <tr class="hover:bg-zinc-50">
+            <td class="px-3 py-2 text-zinc-500 font-mono">2026-08-07 09:15:42</td>
+            <td class="px-3 py-2 text-zinc-700">Ana García</td>
+            <td class="px-3 py-2"><span class="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">Created</span></td>
+            <td class="px-3 py-2 text-zinc-500">VacationRequest</td>
+            <td class="px-3 py-2 text-zinc-400 truncate max-w-xs">Aug 10–14, 5 days, notes: "Summer trip"</td>
+          </tr>
+          <tr class="hover:bg-zinc-50">
+            <td class="px-3 py-2 text-zinc-500 font-mono">2026-08-07 10:30:15</td>
+            <td class="px-3 py-2 text-zinc-700">Carlos Ruiz</td>
+            <td class="px-3 py-2"><span class="bg-green-50 text-green-700 px-1.5 py-0.5 rounded">Approved</span></td>
+            <td class="px-3 py-2 text-zinc-500">ApprovalStep (L1)</td>
+            <td class="px-3 py-2 text-zinc-400 truncate max-w-xs">Project-level approval for REQ-2026-0042</td>
+          </tr>
+          <tr class="hover:bg-zinc-50">
+            <td class="px-3 py-2 text-zinc-500 font-mono">2026-08-07 02:30:00</td>
+            <td class="px-3 py-2 text-zinc-400 italic">System</td>
+            <td class="px-3 py-2"><span class="bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded">Imported</span></td>
+            <td class="px-3 py-2 text-zinc-500">SyncJob</td>
+            <td class="px-3 py-2 text-zinc-400 truncate max-w-xs">AD sync completed: 487 processed, 2 created, 0 errors</td>
+          </tr>
+          <tr class="hover:bg-zinc-50">
+            <td class="px-3 py-2 text-zinc-500 font-mono">2026-08-06 16:00:00</td>
+            <td class="px-3 py-2 text-zinc-700">Admin</td>
+            <td class="px-3 py-2"><span class="bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded">ConfigChanged</span></td>
+            <td class="px-3 py-2 text-zinc-500">SystemConfig</td>
+            <td class="px-3 py-2 text-zinc-400 truncate max-w-xs">critical_threshold: 70% → 75% (Engineering)</td>
+          </tr>
+          <tr class="hover:bg-zinc-50">
+            <td class="px-3 py-2 text-zinc-500 font-mono">2026-08-06 14:00:00</td>
+            <td class="px-3 py-2 text-zinc-400 italic">System</td>
+            <td class="px-3 py-2"><span class="bg-red-50 text-red-700 px-1.5 py-0.5 rounded">Escalated</span></td>
+            <td class="px-3 py-2 text-zinc-500">EscalationEvent</td>
+            <td class="px-3 py-2 text-zinc-400 truncate max-w-xs">REQ-2026-0038 pending 5 days → DM alert</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="border-t border-zinc-100 px-3 py-2 flex items-center justify-between text-xs text-zinc-400">
+        <span>Showing 1–5 of 1,247 entries · Retention: 7 years</span>
+        <div class="flex gap-1">
+          <button disabled class="px-2 py-1 border border-zinc-200 rounded text-zinc-300">Prev</button>
+          <button class="px-2 py-1 border border-zinc-300 rounded bg-white text-zinc-600 font-medium">1</button>
+          <button class="px-2 py-1 border border-zinc-200 rounded bg-white text-zinc-500">2</button>
+          <button class="px-2 py-1 border border-zinc-200 rounded bg-white text-zinc-500">...</button>
+          <button class="px-2 py-1 border border-zinc-200 rounded bg-white text-zinc-500">Next</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

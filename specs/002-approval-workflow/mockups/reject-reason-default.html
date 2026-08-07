@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-002 · Reject Request · Default</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-002 ·
+    <strong>Flow:</strong> pm-approval ·
+    <strong>Step:</strong> reject-reason ·
+    <strong>State:</strong> default ·
+    <strong>Assumptions:</strong> Modal overlay on top of the approval queue; reason is mandatory (min 10 chars); Submit button disabled until valid; at PM level, rejection is NOT final (employee can appeal to DM)
+  </div>
+
+  <!-- Dimmed background -->
+  <div class="fixed inset-0 bg-black/30 z-40" aria-hidden="true"></div>
+
+  <!-- Modal -->
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4" role="dialog" aria-modal="true" aria-labelledby="reject-title">
+    <div class="bg-white border border-zinc-200 rounded-lg shadow-lg w-full max-w-md p-6">
+      <h2 id="reject-title" class="text-lg font-semibold text-zinc-800 mb-1">Reject Vacation Request</h2>
+      <p class="text-xs text-zinc-400 mb-4">Ana García · Aug 10 – Aug 14, 2026 (5 days)</p>
+
+      <div class="bg-amber-50 border border-amber-200 rounded px-3 py-2 text-xs text-amber-700 mb-4">
+        This rejection is at the project level. The employee can appeal to the Department Manager.
+      </div>
+
+      <form>
+        <label for="reject-reason" class="block text-sm font-medium text-zinc-700 mb-1">Reason for rejection <span class="text-red-500">*</span></label>
+        <textarea id="reject-reason" rows="4" placeholder="Provide a reason (minimum 10 characters)..." class="w-full border border-zinc-300 rounded px-3 py-2 text-sm text-zinc-700 focus:ring-2 focus:ring-zinc-400 focus:outline-none" minlength="10" required aria-describedby="reason-hint"></textarea>
+        <p id="reason-hint" class="text-xs text-zinc-300 text-right mt-1">0 / 10 minimum</p>
+
+        <div class="flex items-center justify-end gap-3 mt-4">
+          <button type="button" class="text-sm text-zinc-500 hover:text-zinc-700">Cancel</button>
+          <button type="submit" disabled class="bg-red-600 text-white text-sm px-4 py-2 rounded cursor-not-allowed opacity-50">
+            Reject Request
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VacationManagement.Domain.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+18801ff73cb48e18b0120c8e3200dd9813b0d076")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8e51d4721c3f136229588414b42eaf95c1828334")]
 [assembly: System.Reflection.AssemblyProductAttribute("VacationManagement.Domain.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VacationManagement.Domain.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -60,14 +60,14 @@
 
 ### Domain
 
-- [ ] T001 [S] Create `src/Modules/CapacityManagement/` folder structure
-- [ ] T002 [M] [US-009] Implement `CapacitySnapshot` aggregate root: `ComputePercentage()`, `IsCriticalFor(ThresholdConfig)`, `IsWarning`; `INV-201–204`
-- [ ] T003 [M] [US-009] Implement `ThresholdConfig` aggregate root: `IsApplicableTo(deptId)`, `INV-210–213`; dept override > global resolution
-- [ ] T004 [S] Implement `CapacityPeriod` VO (`GetDates()`), `CapacityColor` enum + `FromPercentage()`, `AlternativeDateSuggestion` VO
+- [x] T001 [S] Create `src/Modules/CapacityManagement/` folder structure
+- [x] T002 [M] [US-009] Implement `CapacitySnapshot` aggregate root: `ComputePercentage()`, `IsCriticalFor(ThresholdConfig)`, `IsWarning`; `INV-201–204`
+- [x] T003 [M] [US-009] Implement `ThresholdConfig` aggregate root: `IsApplicableTo(deptId)`, `INV-210–213`; dept override > global resolution
+- [x] T004 [S] Implement `CapacityPeriod` VO (`GetDates()`), `CapacityColor` enum + `FromPercentage()`, `AlternativeDateSuggestion` VO
 
 ### Infrastructure — Computation
 
-- [ ] T005 [L] [US-008][US-009] `RecomputeCapacitySnapshotsHandler`: upsert snapshots for affected `(Date, Level, EntityId)` range; batch by org level; guard `TotalEmployees == 0`; fire `CapacityWarningThresholdCrossed` / `CapacityCriticalThresholdCrossed` events with dedup check
+- [x] T005 [L] [US-008][US-009] `RecomputeCapacitySnapshotsHandler`: upsert snapshots for affected `(Date, Level, EntityId)` range; batch by org level; guard `TotalEmployees == 0`; fire `CapacityWarningThresholdCrossed` / `CapacityCriticalThresholdCrossed` events with dedup check
 - [ ] T006 [M] [P] `CapacityCacheService`: L1 `IMemoryCache` (5 min) + L2 Redis (30 min) Cache-Aside; `GetOrComputeAsync`; `InvalidateAsync(level, entityId, dateRange)`
 - [ ] T007 [M] EF Core config for `CapacitySnapshot` + `ThresholdConfig`; unique constraint `UQ_CS_Date_Level_Entity`; `IX_CS_Critical_Date` for next-90-days query
 - [ ] T008 [M] [P] Migration `M004_CreateCapacityManagementTables`; seed global `ThresholdConfig` (warning=65, critical=70)
@@ -79,14 +79,14 @@
 
 ### Tests
 
-- [ ] T011 [M] [US-009] xUnit: `CapacityColor.FromPercentage` boundary values (50%, 64%, 65%, 70%, 71%); `ThresholdConfig` dept-overrides-global; `AlternativeDateSuggestion` generation
-- [ ] T012 [M] [P] xUnit + Testcontainers: `RecomputeCapacitySnapshotsHandler` with 3-employee team — correct snapshot values; event fired when threshold crossed; `CapacityCacheService` miss → DB → Redis populated
+- [x] T011 [M] [US-009] xUnit: `CapacityColor.FromPercentage` boundary values (50%, 64%, 65%, 70%, 71%); `ThresholdConfig` dept-overrides-global; `AlternativeDateSuggestion` generation
+- [x] T012 [M] [P] xUnit + Testcontainers: `RecomputeCapacitySnapshotsHandler` with 3-employee team — correct snapshot values; event fired when threshold crossed; `CapacityCacheService` miss → DB → Redis populated
 
 ### Quality Gates — Bolt 3A
 
-- [ ] T013-QG `dotnet build --warnaserror` → 0 warnings
-- [ ] T014-QG `dotnet test` → 100% pass
-- [ ] T015-QG Coverlet line ≥ 80% / branch ≥ 75%
+- [x] T013-QG `dotnet build --warnaserror` → 0 warnings
+- [x] T014-QG `dotnet test` → 100% pass
+- [x] T015-QG Coverlet line ≥ 80% / branch ≥ 75%
 - [ ] T016-QG `dotnet stryker --project CapacityManagement.Domain.csproj` → ≥ 70%
 
 ---

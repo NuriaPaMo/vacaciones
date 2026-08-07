@@ -1,0 +1,16 @@
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\bin\Debug\net10.0\CapacityManagement.Domain.deps.json
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\bin\Debug\net10.0\CapacityManagement.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\bin\Debug\net10.0\CapacityManagement.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\bin\Debug\net10.0\VacationManagement.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\bin\Debug\net10.0\VacationManagement.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\CapacityManagement.Domain.csproj.AssemblyReference.cache
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\CapacityManagement.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\CapacityManagement.Domain.AssemblyInfoInputs.cache
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\CapacityManagement.Domain.AssemblyInfo.cs
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\CapacityManagement.Domain.csproj.CoreCompileInputs.cache
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\CapacityManagement.Domain.sourcelink.json
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\Capacity.44283C95.Up2Date
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\CapacityManagement.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\refint\CapacityManagement.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\CapacityManagement.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\CapacityManagement\Domain\obj\Debug\net10.0\ref\CapacityManagement.Domain.dll

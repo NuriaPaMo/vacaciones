@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-001 · Request Detail · Default</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-001 ·
+    <strong>Flow:</strong> my-requests ·
+    <strong>Step:</strong> detail ·
+    <strong>State:</strong> default ·
+    <strong>Assumptions:</strong> Shows rejected request detail with full status timeline (3 transitions); Cancel button hidden because status is Rejected
+  </div>
+
+  <nav class="bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between" aria-label="Main navigation">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-zinc-300 rounded" aria-hidden="true">[logo]</div>
+      <span class="font-semibold text-zinc-700 text-sm">Vacation System</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#" class="text-zinc-500">My Requests</a>
+      <a href="#" class="text-zinc-500">Team Calendar</a>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-zinc-300 rounded-full"></div>
+        <span class="text-zinc-600 text-xs">Ana García</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-2xl mx-auto px-4 py-8">
+    <nav class="text-xs text-zinc-400 mb-4" aria-label="Breadcrumb">
+      <a href="#" class="hover:text-zinc-600">My Requests</a>
+      <span class="mx-1">/</span>
+      <span class="text-zinc-600">Request Detail</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="flex items-start justify-between mb-6">
+      <div>
+        <h1 class="text-xl font-semibold text-zinc-800">Jun 15 – Jun 16, 2026</h1>
+        <p class="text-xs text-zinc-400 mt-1">Request ID: REQ-2026-0031 · Submitted Jun 10, 2026</p>
+      </div>
+      <span class="text-xs font-medium text-red-700 bg-red-50 border border-red-200 px-3 py-1 rounded">Rejected</span>
+    </div>
+
+    <!-- Details Card -->
+    <div class="bg-white border border-zinc-200 rounded-lg p-5 mb-6">
+      <h2 class="text-sm font-medium text-zinc-700 mb-3">Request Details</h2>
+      <div class="grid grid-cols-2 gap-y-3 text-sm">
+        <div>
+          <p class="text-xs text-zinc-400">Start Date</p>
+          <p class="text-zinc-700">Jun 15, 2026</p>
+        </div>
+        <div>
+          <p class="text-xs text-zinc-400">End Date</p>
+          <p class="text-zinc-700">Jun 16, 2026</p>
+        </div>
+        <div>
+          <p class="text-xs text-zinc-400">Business Days</p>
+          <p class="text-zinc-700 font-medium">2 days</p>
+        </div>
+        <div>
+          <p class="text-xs text-zinc-400">Notes</p>
+          <p class="text-zinc-700">Personal appointment</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Timeline -->
+    <div class="bg-white border border-zinc-200 rounded-lg p-5">
+      <h2 class="text-sm font-medium text-zinc-700 mb-4">Status Timeline</h2>
+      <div class="space-y-0">
+
+        <!-- Transition 1 — Submitted -->
+        <div class="flex gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-3 h-3 bg-zinc-400 rounded-full border-2 border-white ring-2 ring-zinc-300"></div>
+            <div class="w-0.5 h-12 bg-zinc-200"></div>
+          </div>
+          <div class="pb-6">
+            <p class="text-sm text-zinc-700 font-medium">Submitted → Pending</p>
+            <p class="text-xs text-zinc-400">Jun 10, 2026 09:15 · Ana García</p>
+          </div>
+        </div>
+
+        <!-- Transition 2 — PM Rejected -->
+        <div class="flex gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-3 h-3 bg-amber-400 rounded-full border-2 border-white ring-2 ring-amber-200"></div>
+            <div class="w-0.5 h-12 bg-zinc-200"></div>
+          </div>
+          <div class="pb-6">
+            <p class="text-sm text-zinc-700 font-medium">Pending → Rejected at Project Level</p>
+            <p class="text-xs text-zinc-400">Jun 11, 2026 14:30 · Carlos Ruiz (PM)</p>
+            <p class="text-xs text-zinc-500 mt-1 bg-zinc-50 rounded px-2 py-1 border border-zinc-100">
+              Reason: "Critical project deadline week — insufficient coverage for the sprint"
+            </p>
+          </div>
+        </div>
+
+        <!-- Transition 3 — DM Rejected (confirmed PM decision) -->
+        <div class="flex gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-3 h-3 bg-red-500 rounded-full border-2 border-white ring-2 ring-red-200"></div>
+          </div>
+          <div>
+            <p class="text-sm text-zinc-700 font-medium">Rejected at Project Level → Rejected</p>
+            <p class="text-xs text-zinc-400">Jun 12, 2026 10:00 · Laura Sánchez (DM)</p>
+            <p class="text-xs text-zinc-500 mt-1 bg-zinc-50 rounded px-2 py-1 border border-zinc-100">
+              Reason: "Confirmed — coverage gap during sprint"
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <a href="#" class="text-sm text-zinc-500 hover:text-zinc-700">← Back to My Requests</a>
+    </div>
+  </main>
+</body>
+</html>

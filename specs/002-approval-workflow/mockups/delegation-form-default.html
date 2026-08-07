@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-002 · Delegation Management · Default</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-002 ·
+    <strong>Flow:</strong> delegation ·
+    <strong>Step:</strong> form ·
+    <strong>State:</strong> default ·
+    <strong>Assumptions:</strong> PM creates a temporary delegation; delegate must be from the same project; one active delegation per scope
+  </div>
+
+  <nav class="bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between" aria-label="Main navigation">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-zinc-300 rounded" aria-hidden="true">[logo]</div>
+      <span class="font-semibold text-zinc-700 text-sm">Vacation System</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#" class="text-zinc-500">Approvals</a>
+      <a href="#" class="text-zinc-800 font-medium border-b-2 border-zinc-800 pb-1">Delegation</a>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-zinc-300 rounded-full"></div>
+        <span class="text-zinc-600 text-xs">Carlos Ruiz (PM)</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-xl mx-auto px-4 py-8">
+    <h1 class="text-xl font-semibold text-zinc-800 mb-6">Manage Delegation</h1>
+
+    <!-- Current Delegation (if any) -->
+    <div class="bg-white border border-zinc-200 rounded-lg p-4 mb-6">
+      <h2 class="text-sm font-medium text-zinc-700 mb-2">Current Delegation</h2>
+      <p class="text-xs text-zinc-400 italic">No active delegation</p>
+    </div>
+
+    <!-- New Delegation Form -->
+    <div class="bg-white border border-zinc-200 rounded-lg p-6">
+      <h2 class="text-sm font-medium text-zinc-700 mb-4">Create New Delegation</h2>
+      <form class="space-y-4">
+        <div>
+          <label for="delegate" class="block text-xs text-zinc-500 mb-1">Delegate to</label>
+          <select id="delegate" class="w-full border border-zinc-300 rounded px-3 py-2 text-sm text-zinc-700" aria-label="Select delegate from your project">
+            <option value="">Select a team member...</option>
+            <option value="maria">María Fernández (PM backup, Project Phoenix)</option>
+            <option value="roberto">Roberto Díaz (PM backup, Project Phoenix)</option>
+          </select>
+          <p class="text-xs text-zinc-300 mt-1">Only designated backup approvers from your project are listed</p>
+        </div>
+
+        <div>
+          <label class="block text-xs text-zinc-500 mb-1">Scope</label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 text-sm text-zinc-600">
+              <input type="radio" name="scope" value="project" checked class="accent-zinc-700"> Project Level
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="del-start" class="block text-xs text-zinc-500 mb-1">Start Date</label>
+            <input type="date" id="del-start" class="w-full border border-zinc-300 rounded px-3 py-2 text-sm text-zinc-700" value="2026-08-15">
+          </div>
+          <div>
+            <label for="del-end" class="block text-xs text-zinc-500 mb-1">End Date (optional — leave empty for permanent)</label>
+            <input type="date" id="del-end" class="w-full border border-zinc-300 rounded px-3 py-2 text-sm text-zinc-700" value="2026-08-22">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="submit" class="bg-zinc-800 text-white text-sm px-5 py-2 rounded hover:bg-zinc-700">
+            Create Delegation
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-003 · Capacity Heat Map · Default</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-003 Calendar & Capacity ·
+    <strong>Flow:</strong> heat-map ·
+    <strong>Step:</strong> grid ·
+    <strong>State:</strong> default ·
+    <strong>Assumptions:</strong> DM viewing August 2026; green=0-50%, yellow=51-64%, orange=65-70%, red=>70%; clicking critical cell opens drill-down; org level selector defaults to Department
+  </div>
+
+  <nav class="bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between" aria-label="Main navigation">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-zinc-300 rounded" aria-hidden="true">[logo]</div>
+      <span class="font-semibold text-zinc-700 text-sm">Vacation System</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#" class="text-zinc-500">Dashboard</a>
+      <a href="#" class="text-zinc-500">Approvals</a>
+      <a href="#" class="text-zinc-800 font-medium border-b-2 border-zinc-800 pb-1">Calendar</a>
+      <a href="#" class="text-zinc-500">Reports</a>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-zinc-300 rounded-full"></div>
+        <span class="text-zinc-600 text-xs">Laura Sánchez (DM)</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 class="text-xl font-semibold text-zinc-800">Capacity Heat Map</h1>
+        <p class="text-xs text-zinc-400">Engineering · 10 employees</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <select class="border border-zinc-300 rounded px-3 py-1.5 text-sm text-zinc-600" aria-label="Organization level">
+          <option selected>Department</option>
+          <option>Project</option>
+          <option>Team</option>
+        </select>
+        <div class="flex items-center gap-1 text-xs">
+          <button class="px-2 py-1 border border-zinc-300 rounded bg-white text-zinc-600">◀</button>
+          <span class="text-zinc-700 font-medium px-2">August 2026</span>
+          <button class="px-2 py-1 border border-zinc-300 rounded bg-white text-zinc-600">▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="flex items-center gap-4 mb-4 text-xs text-zinc-500">
+      <span class="flex items-center gap-1"><span class="w-3 h-3 bg-green-200 rounded inline-block"></span> 0–50%</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-3 bg-yellow-200 rounded inline-block"></span> 51–64%</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-3 bg-orange-200 rounded inline-block"></span> 65–70%</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-200 rounded inline-block"></span> &gt;70%</span>
+    </div>
+
+    <!-- Heat Map Grid -->
+    <div class="bg-white border border-zinc-200 rounded-lg overflow-x-auto">
+      <table class="w-full text-xs" aria-label="Capacity heat map for August 2026">
+        <thead>
+          <tr class="border-b border-zinc-200">
+            <th class="px-3 py-2 text-left text-zinc-500 font-medium w-16">Week</th>
+            <th class="px-1 py-2 text-center text-zinc-500 font-medium">Mo</th>
+            <th class="px-1 py-2 text-center text-zinc-500 font-medium">Tu</th>
+            <th class="px-1 py-2 text-center text-zinc-500 font-medium">We</th>
+            <th class="px-1 py-2 text-center text-zinc-500 font-medium">Th</th>
+            <th class="px-1 py-2 text-center text-zinc-500 font-medium">Fr</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Week Aug 3-7 -->
+          <tr>
+            <td class="px-3 py-1 text-zinc-400 font-medium">Aug 3</td>
+            <td class="px-1 py-1"><div class="bg-green-100 text-green-800 rounded text-center py-2 font-medium">20%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-100 text-green-800 rounded text-center py-2 font-medium">20%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-100 text-green-800 rounded text-center py-2 font-medium">30%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-200 text-green-900 rounded text-center py-2 font-medium">30%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-200 text-green-900 rounded text-center py-2 font-medium">40%</div></td>
+          </tr>
+          <!-- Week Aug 10-14 -->
+          <tr>
+            <td class="px-3 py-1 text-zinc-400 font-medium">Aug 10</td>
+            <td class="px-1 py-1"><div class="bg-green-200 text-green-900 rounded text-center py-2 font-medium">50%</div></td>
+            <td class="px-1 py-1"><div class="bg-yellow-100 text-yellow-800 rounded text-center py-2 font-medium">60%</div></td>
+            <td class="px-1 py-1"><div class="bg-orange-200 text-orange-900 rounded text-center py-2 font-medium cursor-pointer hover:ring-2 hover:ring-orange-400">70%</div></td>
+            <td class="px-1 py-1"><div class="bg-red-200 text-red-900 rounded text-center py-2 font-medium cursor-pointer hover:ring-2 hover:ring-red-400" title="Click to drill down">80% ⚠</div></td>
+            <td class="px-1 py-1"><div class="bg-red-300 text-red-900 rounded text-center py-2 font-medium cursor-pointer hover:ring-2 hover:ring-red-400" title="Click to drill down">80% ⚠</div></td>
+          </tr>
+          <!-- Week Aug 17-21 -->
+          <tr>
+            <td class="px-3 py-1 text-zinc-400 font-medium">Aug 17</td>
+            <td class="px-1 py-1"><div class="bg-orange-100 text-orange-800 rounded text-center py-2 font-medium">68%</div></td>
+            <td class="px-1 py-1"><div class="bg-yellow-100 text-yellow-800 rounded text-center py-2 font-medium">55%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-200 text-green-900 rounded text-center py-2 font-medium">40%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-100 text-green-800 rounded text-center py-2 font-medium">30%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-100 text-green-800 rounded text-center py-2 font-medium">20%</div></td>
+          </tr>
+          <!-- Week Aug 24-28 -->
+          <tr>
+            <td class="px-3 py-1 text-zinc-400 font-medium">Aug 24</td>
+            <td class="px-1 py-1"><div class="bg-green-100 text-green-800 rounded text-center py-2 font-medium">20%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-100 text-green-800 rounded text-center py-2 font-medium">10%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-100 text-green-800 rounded text-center py-2 font-medium">10%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-100 text-green-800 rounded text-center py-2 font-medium">10%</div></td>
+            <td class="px-1 py-1"><div class="bg-green-100 text-green-800 rounded text-center py-2 font-medium">10%</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Drill-down Panel (shown when critical cell clicked) -->
+    <div class="bg-white border border-red-200 rounded-lg p-4 mt-4">
+      <h2 class="text-sm font-medium text-red-700 mb-2">⚠ Over-capacity: Aug 13 (Thu) — 80%</h2>
+      <p class="text-xs text-zinc-500 mb-3">8 of 10 employees on vacation or pending</p>
+      <div class="space-y-1 text-xs mb-4">
+        <div class="flex justify-between"><span class="text-zinc-600">Ana García</span> <span class="text-green-600">Approved</span></div>
+        <div class="flex justify-between"><span class="text-zinc-600">Pedro López</span> <span class="text-amber-600">Pending</span></div>
+        <div class="flex justify-between"><span class="text-zinc-600">María Fernández</span> <span class="text-green-600">Approved</span></div>
+        <div class="flex justify-between"><span class="text-zinc-600">Roberto Díaz</span> <span class="text-green-600">Approved</span></div>
+        <div class="flex justify-between"><span class="text-zinc-600">Lucía Morales</span> <span class="text-green-600">Approved</span></div>
+        <div class="flex justify-between"><span class="text-zinc-600">Diego Torres</span> <span class="text-green-600">Approved</span></div>
+        <div class="flex justify-between"><span class="text-zinc-600">Carmen Ruiz</span> <span class="text-amber-600">Pending</span></div>
+        <div class="flex justify-between"><span class="text-zinc-600">Javier Martín</span> <span class="text-green-600">Approved</span></div>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded px-3 py-2">
+        <p class="text-xs text-green-700 font-medium mb-1">💡 Suggested alternative dates (capacity &lt; 50%)</p>
+        <p class="text-xs text-green-600">Aug 24 – Aug 28 (10%) · Aug 31 – Sep 4 (20%)</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

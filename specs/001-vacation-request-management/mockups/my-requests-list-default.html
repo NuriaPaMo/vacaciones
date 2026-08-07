@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-001 · My Requests · Default</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-001 ·
+    <strong>Flow:</strong> my-requests ·
+    <strong>Step:</strong> list ·
+    <strong>State:</strong> default ·
+    <strong>Assumptions:</strong> Employee has 4 requests; sorted by newest first; status filter is a dropdown; Cancel action visible on Pending/Approved only
+  </div>
+
+  <nav class="bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between" aria-label="Main navigation">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-zinc-300 rounded" aria-hidden="true">[logo]</div>
+      <span class="font-semibold text-zinc-700 text-sm">Vacation System</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#" class="text-zinc-800 font-medium border-b-2 border-zinc-800 pb-1">My Requests</a>
+      <a href="#" class="text-zinc-500">Team Calendar</a>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-zinc-300 rounded-full"></div>
+        <span class="text-zinc-600 text-xs">Ana García</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-xl font-semibold text-zinc-800">My Requests</h1>
+      <a href="#" class="bg-zinc-800 text-white text-sm px-4 py-2 rounded hover:bg-zinc-700">+ New Request</a>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex items-center gap-3 mb-4">
+      <select class="border border-zinc-300 rounded px-3 py-1.5 text-sm text-zinc-600" aria-label="Filter by status">
+        <option>All statuses</option>
+        <option>Pending</option>
+        <option>Approved</option>
+        <option>Rejected</option>
+        <option>Cancelled</option>
+      </select>
+      <span class="text-xs text-zinc-400">4 requests</span>
+    </div>
+
+    <!-- Request List -->
+    <div class="space-y-3">
+
+      <!-- Request 1 — Pending -->
+      <div class="bg-white border border-zinc-200 rounded-lg p-4 flex items-center justify-between hover:border-zinc-300">
+        <div class="flex items-center gap-4">
+          <span class="inline-block w-2 h-2 rounded-full bg-amber-400" aria-hidden="true"></span>
+          <div>
+            <p class="text-sm font-medium text-zinc-800">Aug 10 – Aug 14, 2026</p>
+            <p class="text-xs text-zinc-400">5 business days · Submitted Aug 7</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Pending</span>
+          <button class="text-xs text-zinc-400 hover:text-red-500">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Request 2 — Approved -->
+      <div class="bg-white border border-zinc-200 rounded-lg p-4 flex items-center justify-between hover:border-zinc-300">
+        <div class="flex items-center gap-4">
+          <span class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true"></span>
+          <div>
+            <p class="text-sm font-medium text-zinc-800">Jul 1 – Jul 5, 2026</p>
+            <p class="text-xs text-zinc-400">5 business days · Submitted Jun 20</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded">Approved</span>
+          <button class="text-xs text-zinc-400 hover:text-red-500">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Request 3 — Rejected -->
+      <div class="bg-white border border-zinc-200 rounded-lg p-4 flex items-center justify-between hover:border-zinc-300">
+        <div class="flex items-center gap-4">
+          <span class="inline-block w-2 h-2 rounded-full bg-red-500" aria-hidden="true"></span>
+          <div>
+            <p class="text-sm font-medium text-zinc-800">Jun 15 – Jun 16, 2026</p>
+            <p class="text-xs text-zinc-400">2 business days · Submitted Jun 10</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-medium text-red-700 bg-red-50 px-2 py-0.5 rounded">Rejected</span>
+        </div>
+      </div>
+
+      <!-- Request 4 — Cancelled -->
+      <div class="bg-white border border-zinc-200 rounded-lg p-4 flex items-center justify-between hover:border-zinc-300 opacity-60">
+        <div class="flex items-center gap-4">
+          <span class="inline-block w-2 h-2 rounded-full bg-zinc-400" aria-hidden="true"></span>
+          <div>
+            <p class="text-sm font-medium text-zinc-800">May 20 – May 22, 2026</p>
+            <p class="text-xs text-zinc-400">3 business days · Submitted May 10</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-medium text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">Cancelled</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between mt-6 text-xs text-zinc-400">
+      <span>Showing 1 – 4 of 4</span>
+      <div class="flex gap-1">
+        <button disabled class="px-2 py-1 border border-zinc-200 rounded bg-zinc-50 text-zinc-300">Prev</button>
+        <button class="px-2 py-1 border border-zinc-300 rounded bg-white text-zinc-600 font-medium">1</button>
+        <button disabled class="px-2 py-1 border border-zinc-200 rounded bg-zinc-50 text-zinc-300">Next</button>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

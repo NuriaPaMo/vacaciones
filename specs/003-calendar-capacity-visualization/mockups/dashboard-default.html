@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F-003 · Executive Dashboard · Default</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-zinc-100 min-h-screen">
+
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800">
+    <strong>Feature:</strong> F-003 ·
+    <strong>Flow:</strong> dashboard ·
+    <strong>Step:</strong> overview ·
+    <strong>State:</strong> default ·
+    <strong>Assumptions:</strong> DM sees department-scoped data; over-capacity warnings for next 90 days; metrics: on vacation, available, pending, avg approval time
+  </div>
+
+  <nav class="bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between" aria-label="Main navigation">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-zinc-300 rounded" aria-hidden="true">[logo]</div>
+      <span class="font-semibold text-zinc-700 text-sm">Vacation System</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#" class="text-zinc-800 font-medium border-b-2 border-zinc-800 pb-1">Dashboard</a>
+      <a href="#" class="text-zinc-500">Approvals</a>
+      <a href="#" class="text-zinc-500">Calendar</a>
+      <a href="#" class="text-zinc-500">Reports</a>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-zinc-300 rounded-full"></div>
+        <span class="text-zinc-600 text-xs">Laura Sánchez (DM)</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    <h1 class="text-xl font-semibold text-zinc-800 mb-6">Engineering Dashboard</h1>
+
+    <!-- Metric Cards Row -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white border border-zinc-200 rounded-lg p-4">
+        <p class="text-xs text-zinc-400 uppercase tracking-wide mb-1">Currently on Vacation</p>
+        <p class="text-3xl font-bold text-zinc-800">3</p>
+        <p class="text-xs text-zinc-400">of 10 employees</p>
+      </div>
+      <div class="bg-white border border-zinc-200 rounded-lg p-4">
+        <p class="text-xs text-zinc-400 uppercase tracking-wide mb-1">Available Today</p>
+        <p class="text-3xl font-bold text-green-700">7</p>
+        <p class="text-xs text-zinc-400">employees working</p>
+      </div>
+      <div class="bg-white border border-zinc-200 rounded-lg p-4">
+        <p class="text-xs text-zinc-400 uppercase tracking-wide mb-1">Pending Approvals</p>
+        <p class="text-3xl font-bold text-amber-600">4</p>
+        <p class="text-xs text-zinc-400">awaiting your decision</p>
+      </div>
+      <div class="bg-white border border-zinc-200 rounded-lg p-4">
+        <p class="text-xs text-zinc-400 uppercase tracking-wide mb-1">Avg. Approval Time</p>
+        <p class="text-3xl font-bold text-zinc-800">1.8</p>
+        <p class="text-xs text-zinc-400">business days (last 30d)</p>
+      </div>
+    </div>
+
+    <!-- Over-Capacity Alerts -->
+    <div class="mb-8">
+      <h2 class="text-sm font-medium text-zinc-700 mb-3">⚠ Over-Requested Periods (next 90 days)</h2>
+      <div class="space-y-3">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-red-800">Aug 13 – Aug 14, 2026</p>
+            <p class="text-xs text-red-600">80% capacity — 8 of 10 employees on vacation</p>
+          </div>
+          <a href="#" class="text-xs text-red-700 border border-red-200 px-3 py-1 rounded bg-white hover:bg-red-50">
+            View Heat Map →
+          </a>
+        </div>
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-orange-800">Sep 1 – Sep 3, 2026</p>
+            <p class="text-xs text-orange-600">72% capacity — 7.2 of 10 employees projected</p>
+          </div>
+          <a href="#" class="text-xs text-orange-700 border border-orange-200 px-3 py-1 rounded bg-white hover:bg-orange-50">
+            View Heat Map →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <a href="#" class="bg-white border border-zinc-200 rounded-lg p-4 hover:border-zinc-300 flex items-center gap-3">
+        <div class="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center text-lg" aria-hidden="true">📋</div>
+        <div>
+          <p class="text-sm font-medium text-zinc-700">Approval Queue</p>
+          <p class="text-xs text-zinc-400">Review 4 pending requests</p>
+        </div>
+      </a>
+      <a href="#" class="bg-white border border-zinc-200 rounded-lg p-4 hover:border-zinc-300 flex items-center gap-3">
+        <div class="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center text-lg" aria-hidden="true">📊</div>
+        <div>
+          <p class="text-sm font-medium text-zinc-700">Coverage Report</p>
+          <p class="text-xs text-zinc-400">Analyze vacation patterns</p>
+        </div>
+      </a>
+      <a href="#" class="bg-white border border-zinc-200 rounded-lg p-4 hover:border-zinc-300 flex items-center gap-3">
+        <div class="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center text-lg" aria-hidden="true">📅</div>
+        <div>
+          <p class="text-sm font-medium text-zinc-700">Team Calendar</p>
+          <p class="text-xs text-zinc-400">View team vacation schedule</p>
+        </div>
+      </a>
+    </div>
+  </main>
+</body>
+</html>

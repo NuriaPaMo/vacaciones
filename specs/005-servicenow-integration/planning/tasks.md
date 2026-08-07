@@ -60,10 +60,10 @@
 
 ### Domain
 
-- [ ] T001 [S] Create `src/Modules/ServiceNowIntegration/` folder structure
-- [ ] T002 [M] [US-016] Implement `ExportJob` aggregate root: `AddRecord()`, `RecordSuccess()`, `RecordFailure()`, `Complete()`, `Fail()`, `INV-401–404`
-- [ ] T003 [M] [US-016] Implement `ExportRecord` child entity: `Retry()` (returns `false` at `RetryCount >= 3`); `ExportAction` enum (Create/Update/Delete); `ExportRecordStatus` enum
-- [ ] T004 [M] [US-017] Implement `ImportJob` aggregate root; `ImportJobStatus` enum
+- [x] T001 [S] Create `src/Modules/ServiceNowIntegration/` folder structure
+- [x] T002 [M] [US-016] Implement `ExportJob` aggregate root: `AddRecord()`, `RecordSuccess()`, `RecordFailure()`, `Complete()`, `Fail()`, `INV-401–404`
+- [x] T003 [M] [US-016] Implement `ExportRecord` child entity: `Retry()` (returns `false` at `RetryCount >= 3`); `ExportAction` enum (Create/Update/Delete); `ExportRecordStatus` enum
+- [x] T004 [M] [US-017] Implement `ImportJob` aggregate root; `ImportJobStatus` enum
 
 ### Infrastructure — HTTP Client
 
@@ -80,17 +80,17 @@
 
 ### Tests
 
-- [ ] T009 [M] [US-016] xUnit: `ExportJob` — `RecordSuccess` increments `TotalExported`; `RecordFailure` increments `ErrorCount`; `Complete()` sets terminal state
-- [ ] T010 [M] [US-016] xUnit: `ExportRecord.Retry()` returns `false` at `RetryCount = 3` (MaxRetriesExceeded)
-- [ ] T011 [M] [US-016] xUnit + WireMock.NET: `ServiceNowHttpClient` POST → returns sys_id; record marked exported; Polly retry (503 twice → success on 3rd); circuit breaker opens on 5 failures
+- [x] T009 [M] [US-016] xUnit: `ExportJob` — `RecordSuccess` increments `TotalExported`; `RecordFailure` increments `ErrorCount`; `Complete()` sets terminal state
+- [x] T010 [M] [US-016] xUnit: `ExportRecord.Retry()` returns `false` at `RetryCount = 3` (MaxRetriesExceeded)
+- [x] T011 [M] [US-016] xUnit + WireMock.NET: `ServiceNowHttpClient` POST → returns sys_id; record marked exported; Polly retry (503 twice → success on 3rd); circuit breaker opens on 5 failures
 
 ### Quality Gates — Bolt 5A
 
-- [ ] T012-QG `dotnet build --warnaserror` → 0 warnings
-- [ ] T013-QG `dotnet test` → 100% pass
-- [ ] T014-QG Coverlet line ≥ 80% / branch ≥ 75%
+- [x] T012-QG `dotnet build --warnaserror` → 0 warnings
+- [x] T013-QG `dotnet test` → 100% pass
+- [x] T014-QG Coverlet line ≥ 80% / branch ≥ 75%
 - [ ] T015-QG `dotnet stryker --project ServiceNowIntegration.Domain.csproj` → ≥ 70%
-- [ ] T016-QG SAST: API key read from Key Vault only — 0 hardcoded secrets
+- [x] T016-QG SAST: API key read from Key Vault only — 0 hardcoded secrets
 
 ---
 

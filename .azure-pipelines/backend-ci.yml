@@ -1,0 +1,222 @@
+# Backend CI/CD Pipeline — Azure DevOps
+# Stages: build → lint → unit-tests → security-scan → docker-build → deploy
+# Trigger: feature/* branches (CI only) and develop/main branches (CI + deploy)
+
+trigger:
+  branches:
+    include:
+      - develop
+      - main
+      - feature/*
+      - bolt/*
+  paths:
+    include:
+      - src/backend/**
+      - .azure-pipelines/backend-ci.yml
+
+pr:
+  branches:
+    include:
+      - develop
+      - main
+
+variables:
+  DOTNET_VERSION: '10.0.x'
+  BUILD_CONFIGURATION: 'Release'
+  CONTAINER_REGISTRY: $(containerRegistry)        # set in pipeline variable group
+  IMAGE_NAME: 'vacmgt-api'
+  IMAGE_TAG: $(Build.BuildId)
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+
+  # ─── Stage 1: Build ─────────────────────────────────────────────────────────
+  - stage: Build
+    displayName: Build
+    jobs:
+      - job: BuildJob
+        steps:
+          - task: UseDotNet@2
+            displayName: Install .NET $(DOTNET_VERSION)
+            inputs:
+              version: $(DOTNET_VERSION)
+
+          - script: dotnet restore src/backend/VacationManagement.sln
+            displayName: Restore NuGet packages
+
+          - script: >
+              dotnet build src/backend/VacationManagement.sln
+              --configuration $(BUILD_CONFIGURATION)
+              --no-restore
+              -p:TreatWarningsAsErrors=true
+            displayName: Build (warnings as errors)
+
+  # ─── Stage 2: Lint ──────────────────────────────────────────────────────────
+  - stage: Lint
+    displayName: Lint
+    dependsOn: Build
+    jobs:
+      - job: LintJob
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              version: $(DOTNET_VERSION)
+
+          - script: >
+              dotnet format src/backend/VacationManagement.sln
+              --verify-no-changes
+              --severity warn
+            displayName: dotnet format (verify no changes)
+
+  # ─── Stage 3: Unit Tests ────────────────────────────────────────────────────
+  - stage: UnitTests
+    displayName: Unit Tests
+    dependsOn: Lint
+    jobs:
+      - job: TestJob
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              version: $(DOTNET_VERSION)
+
+          - script: >
+              dotnet test src/backend/VacationManagement.sln
+              --configuration $(BUILD_CONFIGURATION)
+              --no-build
+              --collect:"XPlat Code Coverage"
+              --results-directory $(Agent.TempDirectory)/TestResults
+              --logger "trx;LogFileName=test-results.trx"
+              -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+            displayName: Run tests with coverage
+
+          - task: PublishTestResults@2
+            displayName: Publish test results
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: '$(Agent.TempDirectory)/TestResults/**/*.trx'
+
+          - task: PublishCodeCoverageResults@2
+            displayName: Publish code coverage
+            inputs:
+              codeCoverageTool: Cobertura
+              summaryFileLocation: $(Agent.TempDirectory)/TestResults/**/coverage.cobertura.xml
+
+          # Gate: enforce minimum coverage thresholds (constitution: ≥80% line, ≥75% branch)
+          - script: |
+              COVERAGE=$(grep -oP 'line-rate="\K[^"]+' $(Agent.TempDirectory)/TestResults/**/coverage.cobertura.xml | head -1)
+              echo "Line coverage: $COVERAGE"
+              if (( $(echo "$COVERAGE < 0.80" | bc -l) )); then
+                echo "##vso[task.logissue type=error]Line coverage $COVERAGE is below 80% threshold"
+                exit 1
+              fi
+            displayName: Coverage gate (line ≥ 80%)
+
+  # ─── Stage 4: Security Scan ─────────────────────────────────────────────────
+  - stage: SecurityScan
+    displayName: Security Scan
+    dependsOn: Build
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    jobs:
+      - job: SastJob
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              version: $(DOTNET_VERSION)
+
+          # SAST — Security Code Scan or equivalent
+          - script: |
+              dotnet tool install --global security-scan || true
+              security-scan src/backend/VacationManagement.sln --fail-on-warning
+            displayName: SAST scan (0 Critical)
+
+          # SCA — dependency vulnerability audit
+          - script: |
+              dotnet list src/backend/VacationManagement.sln package --vulnerable --include-transitive 2>&1 \
+                | grep -E "^.*(Critical|High)" && echo "##vso[task.logissue type=error]Vulnerable packages found" && exit 1 || true
+            displayName: SCA — dependency audit (no Critical/High CVEs)
+
+  # ─── Stage 5: Docker Build & Push ───────────────────────────────────────────
+  - stage: DockerBuild
+    displayName: Docker Build & Push
+    dependsOn:
+      - UnitTests
+      - SecurityScan
+    condition: and(succeeded(), in(variables['Build.SourceBranchName'], 'develop', 'main'))
+    jobs:
+      - job: DockerJob
+        steps:
+          - task: Docker@2
+            displayName: Build and push container image
+            inputs:
+              command: buildAndPush
+              repository: $(IMAGE_NAME)
+              dockerfile: src/backend/Dockerfile
+              containerRegistry: $(CONTAINER_REGISTRY)
+              tags: |
+                $(IMAGE_TAG)
+                latest
+
+  # ─── Stage 6: Deploy to Dev ──────────────────────────────────────────────────
+  - stage: DeployDev
+    displayName: Deploy — dev
+    dependsOn: DockerBuild
+    condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'develop'))
+    environment: dev
+    jobs:
+      - deployment: DeployDevJob
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: Update Container App revision (rolling)
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      az containerapp update \
+                        --name ca-vacmgt-api-dev \
+                        --resource-group rg-vacmgt-dev \
+                        --image $(CONTAINER_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
+
+                - task: AzureCLI@2
+                  displayName: Smoke test — health endpoint
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      FQDN=$(az containerapp show \
+                        --name ca-vacmgt-api-dev \
+                        --resource-group rg-vacmgt-dev \
+                        --query "properties.latestRevisionFqdn" -o tsv)
+                      curl -sf "https://$FQDN/health/live" || exit 1
+                      curl -sf "https://$FQDN/health/ready" || exit 1
+                      echo "Health checks passed"
+
+  # ─── Stage 7: Deploy to Prod (manual approval) ───────────────────────────────
+  - stage: DeployProd
+    displayName: Deploy — prod
+    dependsOn: DeployDev
+    condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
+    environment: prod   # Azure DevOps environment with approval gate configured
+    jobs:
+      - deployment: DeployProdJob
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: Update Container App revision (rolling)
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      az containerapp update \
+                        --name ca-vacmgt-api-prod \
+                        --resource-group rg-vacmgt-prod \
+                        --image $(CONTAINER_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>aspire-AppHost-vacmgt</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.*" />
+    <PackageReference Include="Aspire.Hosting.Azure.ServiceBus" Version="9.*" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="9.*" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.*" />
+  </ItemGroup>
+
+  <!-- Reference the API project so Aspire can launch and discover it -->
+  <ItemGroup>
+    <ProjectReference Include="..\backend\src\Api\VacationManagement.Api.csproj" />
+  </ItemGroup>
+
+</Project>

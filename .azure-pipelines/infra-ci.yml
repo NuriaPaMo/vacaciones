@@ -1,0 +1,216 @@
+# IaC Pipeline — Terraform + Checkov + Infracost
+# Stages: validate → security-scan → cost-estimate → plan → apply
+
+trigger:
+  branches:
+    include:
+      - develop
+      - main
+  paths:
+    include:
+      - infra/terraform/**
+      - .azure-pipelines/infra-ci.yml
+
+pr:
+  branches:
+    include:
+      - develop
+      - main
+  paths:
+    include:
+      - infra/terraform/**
+
+variables:
+  TERRAFORM_VERSION: '1.7.5'
+  TF_WORKING_DIR: infra/terraform
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+
+  # ─── Stage 1: Validate & Lint ────────────────────────────────────────────────
+  - stage: Validate
+    displayName: Validate & Lint
+    jobs:
+      - job: TFLintJob
+        steps:
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: $(TERRAFORM_VERSION)
+
+          - script: terraform fmt -check -recursive
+            workingDirectory: $(TF_WORKING_DIR)
+            displayName: terraform fmt (verify formatting)
+
+          - script: terraform validate
+            workingDirectory: $(TF_WORKING_DIR)
+            env:
+              ARM_USE_OIDC: true
+              ARM_CLIENT_ID: $(armClientId)
+              ARM_TENANT_ID: $(armTenantId)
+              ARM_SUBSCRIPTION_ID: $(armSubscriptionId)
+            displayName: terraform validate
+
+          - script: |
+              curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+              tflint --init
+              tflint --recursive
+            workingDirectory: $(TF_WORKING_DIR)
+            displayName: tflint (lint rules)
+
+  # ─── Stage 2: Security Scan (Checkov / tfsec) ────────────────────────────────
+  - stage: SecurityScan
+    displayName: Security Scan
+    dependsOn: Validate
+    jobs:
+      - job: CheckovJob
+        container: bridgecrew/checkov:latest
+        steps:
+          - script: |
+              checkov -d . \
+                --framework terraform \
+                --compact \
+                --quiet \
+                --soft-fail-on MEDIUM \
+                --hard-fail-on HIGH,CRITICAL \
+                -o junitxml > checkov-results.xml
+            workingDirectory: $(TF_WORKING_DIR)
+            displayName: Checkov scan (0 Critical/High)
+
+          - task: PublishTestResults@2
+            condition: always()
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: $(TF_WORKING_DIR)/checkov-results.xml
+              testRunTitle: Checkov IaC Security
+
+  # ─── Stage 3: Cost Estimate (Infracost) ──────────────────────────────────────
+  - stage: CostEstimate
+    displayName: Cost Estimate
+    dependsOn: Validate
+    condition: eq(variables['Build.Reason'], 'PullRequest')
+    jobs:
+      - job: InfracostJob
+        container: infracost/infracost:ci-0.10
+        steps:
+          - script: |
+              infracost breakdown \
+                --path $(TF_WORKING_DIR) \
+                --terraform-var-file environments/dev.tfvars \
+                --format json \
+                --out-file infracost.json
+              infracost comment github \
+                --path infracost.json \
+                --github-token $(githubToken) \
+                --pull-request $(System.PullRequest.PullRequestNumber) \
+                --repo $(Build.Repository.Name) \
+                --behavior update
+            displayName: Infracost breakdown + PR comment
+            env:
+              INFRACOST_API_KEY: $(infracostApiKey)
+
+  # ─── Stage 4: Plan ───────────────────────────────────────────────────────────
+  - stage: PlanDev
+    displayName: Plan — dev
+    dependsOn:
+      - SecurityScan
+      - CostEstimate
+    condition: succeeded('SecurityScan')
+    jobs:
+      - job: PlanDevJob
+        steps:
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: $(TERRAFORM_VERSION)
+
+          - script: |
+              terraform init \
+                -backend-config="key=vacmgt.tfstate" \
+                -reconfigure
+              terraform workspace select dev || terraform workspace new dev
+              terraform plan \
+                -var-file="environments/dev.tfvars" \
+                -var="sql_admin_password=$(sqlAdminPassword)" \
+                -var="entra_tenant_id=$(entraTenantId)" \
+                -var="alert_action_group_email=$(alertEmail)" \
+                -out=tfplan-dev \
+                -input=false
+            workingDirectory: $(TF_WORKING_DIR)
+            env:
+              ARM_USE_OIDC: true
+              ARM_CLIENT_ID: $(armClientId)
+              ARM_TENANT_ID: $(armTenantId)
+              ARM_SUBSCRIPTION_ID: $(armSubscriptionId)
+            displayName: terraform plan (dev)
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: $(TF_WORKING_DIR)/tfplan-dev
+              ArtifactName: tfplan-dev
+
+  # ─── Stage 5: Apply Dev (auto on develop) ────────────────────────────────────
+  - stage: ApplyDev
+    displayName: Apply — dev (auto)
+    dependsOn: PlanDev
+    condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'develop'))
+    environment: dev
+    jobs:
+      - deployment: ApplyDevJob
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: TerraformInstaller@1
+                  inputs:
+                    terraformVersion: $(TERRAFORM_VERSION)
+
+                - task: DownloadBuildArtifacts@1
+                  inputs:
+                    artifactName: tfplan-dev
+
+                - script: |
+                    terraform init -reconfigure
+                    terraform workspace select dev
+                    terraform apply -input=false $(Pipeline.Workspace)/tfplan-dev/tfplan-dev
+                  workingDirectory: $(TF_WORKING_DIR)
+                  env:
+                    ARM_USE_OIDC: true
+                    ARM_CLIENT_ID: $(armClientId)
+                    ARM_TENANT_ID: $(armTenantId)
+                    ARM_SUBSCRIPTION_ID: $(armSubscriptionId)
+                  displayName: terraform apply (dev)
+
+  # ─── Stage 6: Apply Prod (manual approval on main) ───────────────────────────
+  - stage: ApplyProd
+    displayName: Apply — prod (manual approval)
+    dependsOn: ApplyDev
+    condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
+    environment: prod   # approval gate configured in Azure DevOps environment
+    jobs:
+      - deployment: ApplyProdJob
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: TerraformInstaller@1
+                  inputs:
+                    terraformVersion: $(TERRAFORM_VERSION)
+
+                - script: |
+                    terraform init -reconfigure
+                    terraform workspace select prod
+                    terraform plan \
+                      -var-file="environments/prod.tfvars" \
+                      -var="sql_admin_password=$(sqlAdminPassword)" \
+                      -var="entra_tenant_id=$(entraTenantId)" \
+                      -var="alert_action_group_email=$(alertEmail)" \
+                      -out=tfplan-prod -input=false
+                    terraform apply -input=false tfplan-prod
+                  workingDirectory: $(TF_WORKING_DIR)
+                  env:
+                    ARM_USE_OIDC: true
+                    ARM_CLIENT_ID: $(armClientId)
+                    ARM_TENANT_ID: $(armTenantId)
+                    ARM_SUBSCRIPTION_ID: $(armSubscriptionId)
+                  displayName: terraform apply (prod)

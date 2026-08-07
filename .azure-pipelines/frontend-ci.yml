@@ -1,0 +1,203 @@
+# Frontend CI/CD Pipeline — Azure DevOps
+# Stages: install → lint → vitest → playwright → deploy to Static Web Apps
+
+trigger:
+  branches:
+    include:
+      - develop
+      - main
+      - feature/*
+      - bolt/*
+  paths:
+    include:
+      - src/frontend/**
+      - .azure-pipelines/frontend-ci.yml
+
+pr:
+  branches:
+    include:
+      - develop
+      - main
+
+variables:
+  NODE_VERSION: '22.x'
+  PLAYWRIGHT_BROWSERS_PATH: $(Pipeline.Workspace)/pw-browsers
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+
+  # ─── Stage 1: Lint ──────────────────────────────────────────────────────────
+  - stage: Lint
+    displayName: Lint
+    jobs:
+      - job: LintJob
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: npm ci
+            workingDirectory: src/frontend
+            displayName: npm ci
+
+          - script: npm run lint
+            workingDirectory: src/frontend
+            displayName: ESLint (0 errors)
+
+          - script: npx prettier --check "src/**/*.{ts,vue,css}"
+            workingDirectory: src/frontend
+            displayName: Prettier check
+
+  # ─── Stage 2: Unit Tests (Vitest) ───────────────────────────────────────────
+  - stage: UnitTests
+    displayName: Vitest
+    dependsOn: Lint
+    jobs:
+      - job: VitestJob
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: npm ci
+            workingDirectory: src/frontend
+
+          - script: npm run test:coverage
+            workingDirectory: src/frontend
+            displayName: Vitest with coverage
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: src/frontend/test-results/**/*.xml
+
+          - task: PublishCodeCoverageResults@2
+            inputs:
+              codeCoverageTool: Cobertura
+              summaryFileLocation: src/frontend/coverage/cobertura-coverage.xml
+
+          # Gate: coverage ≥ 80% (constitution)
+          - script: |
+              COVERAGE=$(node -e "const r=require('./coverage/coverage-summary.json'); const s=r.total.lines.pct; console.log(s)" 2>/dev/null || echo "0")
+              echo "Coverage: $COVERAGE%"
+              node -e "if($COVERAGE < 80){ process.exit(1) }" && echo "Coverage OK" || (echo "Coverage below 80%" && exit 1)
+            workingDirectory: src/frontend
+            displayName: Coverage gate (≥ 80%)
+
+  # ─── Stage 3: Build ─────────────────────────────────────────────────────────
+  - stage: Build
+    displayName: Vite Build
+    dependsOn: UnitTests
+    jobs:
+      - job: BuildJob
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: npm ci
+            workingDirectory: src/frontend
+
+          - script: npm run build
+            workingDirectory: src/frontend
+            env:
+              VITE_API_BASE_URL: $(apiBaseUrl)
+              VITE_MSAL_CLIENT_ID: $(msalClientId)
+              VITE_MSAL_AUTHORITY: $(msalAuthority)
+              VITE_MSAL_REDIRECT_URI: $(msalRedirectUri)
+            displayName: Vite build
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: src/frontend/dist
+              ArtifactName: frontend-dist
+
+  # ─── Stage 4: E2E Tests (Playwright — @smoke only in CI) ────────────────────
+  - stage: E2E
+    displayName: Playwright E2E
+    dependsOn: Build
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    jobs:
+      - job: PlaywrightJob
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: npm ci
+            workingDirectory: src/frontend
+
+          - script: npx playwright install --with-deps chromium
+            workingDirectory: src/frontend
+            displayName: Install Playwright browsers
+
+          - script: npx playwright test --grep @smoke --reporter=junit,html
+            workingDirectory: src/frontend
+            env:
+              E2E_BASE_URL: $(e2eBaseUrl)
+              E2E_EMPLOYEE_PWD: $(e2eEmployeePwd)
+              E2E_PM_PWD: $(e2ePmPwd)
+              E2E_DM_PWD: $(e2eDmPwd)
+              E2E_ADMIN_PWD: $(e2eAdminPwd)
+            displayName: Playwright @smoke tests
+
+          - task: PublishTestResults@2
+            condition: always()
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: src/frontend/playwright-report/**/*.xml
+
+          - task: PublishBuildArtifacts@1
+            condition: failed()
+            inputs:
+              PathtoPublish: src/frontend/playwright-report
+              ArtifactName: playwright-report
+
+  # ─── Stage 5: Deploy to Dev ──────────────────────────────────────────────────
+  - stage: DeployDev
+    displayName: Deploy — dev
+    dependsOn: E2E
+    condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'develop'))
+    environment: dev
+    jobs:
+      - deployment: DeployDevJob
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@1
+                  inputs:
+                    artifactName: frontend-dist
+                    downloadPath: $(Pipeline.Workspace)
+
+                - task: AzureStaticWebApp@0
+                  displayName: Deploy to Azure Static Web Apps (dev)
+                  inputs:
+                    azure_static_web_apps_api_token: $(staticWebAppTokenDev)
+                    app_location: $(Pipeline.Workspace)/frontend-dist
+                    skip_app_build: true
+
+  # ─── Stage 6: Deploy to Prod (manual approval) ───────────────────────────────
+  - stage: DeployProd
+    displayName: Deploy — prod
+    dependsOn: DeployDev
+    condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
+    environment: prod
+    jobs:
+      - deployment: DeployProdJob
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@1
+                  inputs:
+                    artifactName: frontend-dist
+
+                - task: AzureStaticWebApp@0
+                  displayName: Deploy to Azure Static Web Apps (prod)
+                  inputs:
+                    azure_static_web_apps_api_token: $(staticWebAppTokenProd)
+                    app_location: $(Pipeline.Workspace)/frontend-dist
+                    skip_app_build: true

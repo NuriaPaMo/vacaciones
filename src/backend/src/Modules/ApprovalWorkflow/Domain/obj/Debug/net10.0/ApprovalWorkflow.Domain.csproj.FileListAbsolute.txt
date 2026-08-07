@@ -1,0 +1,16 @@
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\bin\Debug\net10.0\ApprovalWorkflow.Domain.deps.json
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\bin\Debug\net10.0\ApprovalWorkflow.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\bin\Debug\net10.0\ApprovalWorkflow.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\bin\Debug\net10.0\VacationManagement.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\bin\Debug\net10.0\VacationManagement.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\ApprovalWorkflow.Domain.csproj.AssemblyReference.cache
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\ApprovalWorkflow.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\ApprovalWorkflow.Domain.AssemblyInfoInputs.cache
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\ApprovalWorkflow.Domain.AssemblyInfo.cs
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\ApprovalWorkflow.Domain.csproj.CoreCompileInputs.cache
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\ApprovalWorkflow.Domain.sourcelink.json
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\Approval.4A7604BA.Up2Date
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\ApprovalWorkflow.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\refint\ApprovalWorkflow.Domain.dll
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\ApprovalWorkflow.Domain.pdb
+C:\src\test\vacaciones\src\backend\src\Modules\ApprovalWorkflow\Domain\obj\Debug\net10.0\ref\ApprovalWorkflow.Domain.dll
